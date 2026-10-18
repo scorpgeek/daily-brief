@@ -1,0 +1,13 @@
+# Extracted newspaper text — verbatim article reproduction, do not commit
+_raw/
+
+# Personal spec — names employer, client account and career goals
+PROMPT.md
+
+# Local artefacts
+*.log
+.DS_Store
+Thumbs.db
+# Daily edition � TEMPLATE.html/index.html serve as the demo instead
+20??-??-??.html
+index-local.html
