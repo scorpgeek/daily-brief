@@ -344,6 +344,10 @@ mark.hidden{display:none}
   font:500 12px/1 var(--sans);padding:9px 10px;border-radius:8px;
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
 }
+.tts-vn{
+  margin:7px 18px 0;
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
 .tts-list{
   margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
   flex:1 1 auto;min-height:100px;
@@ -727,6 +731,7 @@ blockquote p{margin:0 0 8px}
     </div>
     <label class="tts-vl" for="ttsVoice">Voice</label>
     <select class="tts-v" id="ttsVoice"></select>
+    <p class="tts-vn" id="ttsVoiceNote"></p>
     <div class="tts-list" id="ttsList"></div>
     <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
   </dialog>
@@ -1245,6 +1250,7 @@ document.addEventListener('keydown', e=>{
   var elBack  = document.getElementById('ttsBack');
   var elRate  = document.getElementById('ttsRate');
   var elVoice = document.getElementById('ttsVoice');
+  var elVoiceNote = document.getElementById('ttsVoiceNote');
   var elClose = document.getElementById('ttsClose');
 
   var rate = 1, voice = null, units = [], queue = [], qi = -1;
@@ -1504,36 +1510,65 @@ document.addEventListener('keydown', e=>{
 
   /* ---- voices -------------------------------------------------------- */
 
-  /* Voices load asynchronously in most browsers, so the list is filled now
-     and again when it changes. A Canadian account wants en-GB; an Indian
-     accent is the next best fit, and en-US last. */
+  /* Which voices exist is a property of the device, not of this page: a
+     phone and a laptop ship completely different sets, and the list can
+     change when an OS update adds a language pack. So the panel shows what
+     the device actually has and says how many, rather than promising a
+     voice that will not be there.
+
+     The order is a judgement, not a fact. A Canadian account wants en-GB
+     first; an Indian accent is the next best fit for the night shift; en-US
+     last. Everything else follows, alphabetically. */
+  function voiceRank(v){
+    if(/^en-GB/i.test(v.lang)) return 0;
+    if(/^en-IN/i.test(v.lang)) return 1;
+    if(/^en/i.test(v.lang)) return 2;
+    return 3;
+  }
+
   function fillVoices(){
     if(!elVoice) return;
     var all = synth.getVoices() || [];
-    var eng = all.filter(function(v){ return /^en/i.test(v.lang); });
-    if(!eng.length) return;
-    eng.sort(function(a, b){
-      var rank = function(v){
-        if(/en-GB/i.test(v.lang)) return 0;
-        if(/en-IN/i.test(v.lang)) return 1;
-        if(/^en/i.test(v.lang)) return 2;
-        return 3;
-      };
-      return rank(a) - rank(b);
+    if(elVoiceNote){
+      elVoiceNote.textContent = all.length
+        ? all.length + (all.length === 1 ? ' voice on this device'
+                                          : ' voices on this device')
+        : 'No voices found — this browser has no speech engine installed.';
+    }
+    if(!all.length){
+      elVoice.innerHTML = '';
+      elVoice.disabled = true;
+      return;
+    }
+    elVoice.disabled = false;
+    var sorted = all.slice().sort(function(a, b){
+      var ra = voiceRank(a), rb = voiceRank(b);
+      if(ra !== rb) return ra - rb;
+      return (a.name || '').localeCompare(b.name || '');
     });
-    if(elVoice.options.length === eng.length
-       && elVoice.options.length
-       && elVoice.options[0].value === eng[0].voiceURI) return;
-    elVoice.innerHTML = eng.map(function(v){
-      return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '</option>';
+    var sig = sorted.map(function(v){ return v.voiceURI; }).join('|');
+    if(elVoice.getAttribute('data-sig') === sig) return;
+    elVoice.setAttribute('data-sig', sig);
+    elVoice.innerHTML = sorted.map(function(v){
+      return '<option value="' + esc(v.voiceURI) + '">'
+           + esc(v.name) + ' — ' + esc(v.lang) + '</option>';
     }).join('');
-    voice = eng[0];
+    /* Keep the current pick if it is still on offer. */
+    var keep = voice && voice.voiceURI;
+    voice = null;
+    for(var i = 0; i < sorted.length; i++){
+      if(sorted[i].voiceURI === keep){ voice = sorted[i]; break; }
+    }
+    if(!voice) voice = sorted[0];
     elVoice.value = voice.voiceURI;
-    elVoice.addEventListener('change', function(){
-      var pick = eng.filter(function(v){ return v.voiceURI === elVoice.value; })[0];
-      if(pick) voice = pick;
-    });
   }
+
+  if(elVoice) elVoice.addEventListener('change', function(){
+    var all = synth.getVoices() || [];
+    for(var i = 0; i < all.length; i++){
+      if(all[i].voiceURI === elVoice.value){ voice = all[i]; return; }
+    }
+  });
 
   if(synth.addEventListener) synth.addEventListener('voiceschanged', fillVoices);
   fillVoices();
@@ -1568,14 +1603,12 @@ document.addEventListener('keydown', e=>{
     if(idx > 0) startAt(idx - 1);
   });
 
-  if(elClose) elClose.addEventListener('click', function(){
-    stop();
-    dlg.close();
-  });
+  if(elClose) elClose.addEventListener('click', function(){ dlg.close(); });
 
+  /* Backdrop click closes, the way the Index does. */
   dlg.addEventListener('click', function(e){
     if(e.target.closest('a')) return;
-    if(e.target === dlg) stop();
+    if(e.target === dlg) dlg.close();
   });
 
   if(elRate){
@@ -1602,7 +1635,16 @@ document.addEventListener('keydown', e=>{
     });
 
   /* Opening the panel must not leave the phone's sheet half-drawn. */
-  dlg.addEventListener('close', function(){ clearMark(); });
+  /* Closing the panel stops the reading. This has to live here rather than
+     on the close button, because Escape fires `close` without touching the
+     button -- so a panel dismissed with the keyboard used to keep talking
+     with nothing on screen to stop it. */
+  dlg.addEventListener('close', function(){ stop(); });
+
+  /* Leaving the page for good stops it too. Backgrounding the tab does
+     not fire this, which is what lets it keep reading while you do
+     something else. */
+  window.addEventListener('pagehide', function(){ stop(); });
 })();
 
 </script>

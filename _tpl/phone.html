@@ -526,6 +526,10 @@ blockquote p{margin:0 0 8px}
   font:500 12.5px/1 var(--sans);padding:11px 10px;border-radius:9px;
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
 }
+.tts-vn{
+  margin:8px 18px 0;
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
 .tts-list{
   margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
   flex:1 1 auto;min-height:90px;
@@ -611,6 +615,7 @@ blockquote p{margin:0 0 8px}
   </div>
   <label class="tts-vl" for="ttsVoice">Voice</label>
   <select class="tts-v" id="ttsVoice"></select>
+  <p class="tts-vn" id="ttsVoiceNote"></p>
   <div class="tts-b tts-list" id="ttsList"></div>
   <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
 </dialog>

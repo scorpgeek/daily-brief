@@ -110,6 +110,23 @@ for someone learning the language: you can follow the text and see the word
 you are hearing. Speed is adjustable (0.8×, 1×, 1.15×) and the voice is
 selectable, preferring en-GB for a Canadian account, then en-IN, then en-US.
 
+**Which voices exist is a property of the device, not of this page.** A phone
+and a laptop ship completely different sets, and the list can change when an
+OS update adds a language pack. So the panel lists every voice the device
+actually has, with its language code, and states how many there are — and
+says plainly when the browser has no speech engine at all rather than
+offering an empty dropdown. The default order is a judgement, not a fact:
+en-GB first for a Canadian account, then en-IN for the night shift, then
+en-US, then everything else alphabetically.
+
+**Closing the panel stops the reading.** That lives on the dialog's `close`
+event rather than on the close button, because Escape fires `close` without
+touching the button — and a panel dismissed with the keyboard used to keep
+talking with nothing on screen to stop it. The backdrop click closes too, the
+way the Index does, and `pagehide` stops the speech when the page is left
+for good. Backgrounding the tab does not fire `pagehide`, so the reading
+carries on while you do something else.
+
 Two decisions worth recording:
 
 **The text is read in blocks, not as one utterance.** Chrome silently truncates
