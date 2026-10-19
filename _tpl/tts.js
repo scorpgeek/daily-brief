@@ -32,6 +32,7 @@
   var rate = 1, voice = null, units = [], queue = [], qi = -1;
   var cur = null, keep = null, playing = false, stopped = true;
   var markEl = null, lastUnit = null;
+  var gen = 0, curIndex = 0, offset = 0;
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
@@ -79,14 +80,26 @@
   /* ---- text extraction --------------------------------------------- */
 
   /* Leaf blocks only. A list item containing a paragraph is read once, as
-     the item, rather than twice. */
+     the item, rather than twice.
+
+     A <dt> is paired with the <dd> that follows it, and read as one
+     chunk. The "30 seconds" block and My Lens are both definition lists,
+     and reading the label on its own -- "What", "Today" -- before the
+     sentence it belongs to is a stutter. As one chunk it reads "What.
+     Delhi pandal organisers say an earlier forced closing time is making
+     crowd control worse." */
   var BLOCKS = 'p,li,h4,h5,dt,dd,blockquote,table';
 
   function blocksOf(el){
     var out = [];
     Array.prototype.forEach.call(el.querySelectorAll(BLOCKS), function(n){
       if(n.querySelector(BLOCKS)) return;
-      out.push(n);
+      var els = [n];
+      if(n.tagName === 'DT'){
+        var sib = n.nextElementSibling;
+        if(sib && sib.tagName === 'DD') els.push(sib);
+      }
+      out.push({el:n, els:els});
     });
     return out;
   }
@@ -94,19 +107,23 @@
   /* The text and the text nodes it came from. The engine reports word
      offsets into the string it was given, so the string has to be built the
      same way when speaking and when highlighting. */
-  function walk(block){
-    var walker = document.createTreeWalker(block, 4);
+  function walkMany(els){
     var parts = [], text = '', n;
-    while((n = walker.nextNode())){
-      var t = (n.nodeValue || '').replace(/\s+/g, ' ');
-      if(!t) continue;
-      parts.push({node:n, text:t, start:text.length});
-      text += t;
-    }
+    els.forEach(function(el){
+      if(text && !/\s$/.test(text)){ text += ' '; }
+      var walker = document.createTreeWalker(el, 4);
+      while((n = walker.nextNode())){
+        var t = (n.nodeValue || '').replace(/\s+/g, ' ');
+        if(!t) continue;
+        parts.push({node:n, text:t, start:text.length});
+        text += t;
+      }
+    });
     return {parts:parts, text:text};
   }
 
-  function textOf(block){
+  function textOf(item){
+    var block = item.el;
     if(block.tagName === 'TABLE'){
       var rows = [];
       var cap = block.querySelector('caption');
@@ -123,7 +140,7 @@
       });
       return rows.join('. ');
     }
-    return walk(block).text;
+    return walkMany(item.els).text;
   }
 
   function buildQueue(){
@@ -131,7 +148,14 @@
     units.forEach(function(u){
       blocksOf(u.el).forEach(function(bl){
         var t = textOf(bl);
-        if(t && t.length) queue.push({unit:u, block:bl, text:t});
+        if(t && t.length) queue.push({
+          unit:u, els:bl.els, full:t,
+          /* A table is read cell by cell with commas, which is the right
+             thing to hear and the wrong thing to highlight against -- the
+             spoken text and the DOM text do not line up. So tables are
+             read but not marked. */
+          markable: bl.el.tagName !== 'TABLE'
+        });
       });
     });
   }
@@ -145,10 +169,10 @@
     markEl = null;
   }
 
-  function mark(block, start, len){
+  function mark(els, start, len){
     clearMark();
     if(!len) return;
-    var w = walk(block);
+    var w = walkMany(els);
     if(start >= w.text.length) return;
     var part = null, off = 0;
     for(var i = 0; i < w.parts.length; i++){
@@ -226,24 +250,60 @@
     }, 9000);
   }
 
+  /* The rate and the voice are baked into an utterance when it is created,
+     so changing either mid-sentence does nothing to the sound you are
+     hearing -- it only affects the next block. Every utterance therefore
+     carries a generation number. A stale one, whose audio was cancelled to
+     make way for a replacement, is recognised and ignored rather than
+     advancing the queue. */
+  function speakItem(item, from){
+    var myGen = ++gen;
+    cur = item;
+    offset = from || 0;
+    curIndex = offset;
+    var text = item.full.slice(offset);
+    if(!text){ speakNext(); return; }
+    var u = new SpeechSynthesisUtterance(text);
+    u.rate = rate;
+    if(voice) u.voice = voice;
+    u.onboundary = function(ev){
+      if(ev.name && ev.name !== 'word') return;
+      curIndex = offset + ev.charIndex;
+      if(item.markable) mark(item.els, curIndex, ev.charLength || 0);
+    };
+    u.onend = function(){ if(stopped || myGen !== gen) return; speakNext(); };
+    u.onerror = function(){ if(stopped || myGen !== gen) return; speakNext(); };
+    synth.speak(u);
+    keepAlive();
+  }
+
   function speakNext(){
     if(stopped) return;
     if(qi + 1 >= queue.length){ finish(); return; }
     qi++;
     var item = queue[qi];
-    cur = item;
     showNow(item);
-    var u = new SpeechSynthesisUtterance(item.text);
-    u.rate = rate;
-    if(voice) u.voice = voice;
-    u.onboundary = function(ev){
-      if(ev.name && ev.name !== 'word') return;
-      mark(item.block, ev.charIndex, ev.charLength || 0);
-    };
-    u.onend = function(){ if(!stopped) speakNext(); };
-    u.onerror = function(){ if(!stopped) speakNext(); };
-    synth.speak(u);
-    keepAlive();
+    speakItem(item, 0);
+  }
+
+  /* Re-speak what is left of the current block with the new setting, from
+     the word being read rather than from the top of the paragraph. A speed
+     change that jumped back to the start of the sentence would make the
+     reader hear the same words twice. */
+  function restartCurrent(){
+    if(stopped || !cur) return;
+    var wasPaused = !playing;
+    var item = cur;
+    var from = curIndex;
+    gen++;                       /* retire the utterance we are cancelling */
+    try{ synth.cancel(); }catch(e){}
+    clearMark();
+    speakItem(item, from);
+    if(wasPaused){
+      synth.pause();
+      playing = false;
+      setPlay();
+    }
   }
 
   function startAt(unitIndex){
@@ -342,7 +402,15 @@
   if(elVoice) elVoice.addEventListener('change', function(){
     var all = synth.getVoices() || [];
     for(var i = 0; i < all.length; i++){
-      if(all[i].voiceURI === elVoice.value){ voice = all[i]; return; }
+      if(all[i].voiceURI === elVoice.value){
+        if(all[i] !== voice){
+          voice = all[i];
+          /* Same reason as the rate: the voice is fixed when the utterance
+             is created, so it has to be restarted to be heard. */
+          restartCurrent();
+        }
+        return;
+      }
     }
   });
 
@@ -390,10 +458,16 @@
   if(elRate){
     Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(b){
       b.addEventListener('click', function(){
-        rate = parseFloat(b.getAttribute('data-rate')) || 1;
+        var r = parseFloat(b.getAttribute('data-rate')) || 1;
+        if(r === rate) return;
+        rate = r;
         Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(o){
           o.classList.toggle('on', o === b);
         });
+        /* The rate is baked into the utterance already playing, so the
+           sound would not change until the next block. Restart from the
+           current word so the change is heard immediately. */
+        restartCurrent();
       });
     });
   }

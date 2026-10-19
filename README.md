@@ -137,6 +137,21 @@ line up with the text nodes of one block. A keep-alive timer pauses and
 resumes every nine seconds, which is the long-standing workaround for the
 same Chrome bug on the occasional block that still runs long.
 
+A `<dt>` is read together with the `<dd>` that follows it, as one chunk. The
+"30 seconds" block and My Lens are both definition lists, and reading the
+label on its own — "What", "Today" — before the sentence it belongs to is a
+stutter. As one chunk it reads "What. Delhi pandal organisers say an earlier
+forced closing time is making crowd control worse."
+
+**Changing the speed or the voice restarts the current audio.** The rate and
+the voice are fixed when an utterance is created, so changing either one
+mid-sentence otherwise does nothing to the sound you are hearing — it only
+affects the next block. The reading is therefore cancelled and re-spoken
+from the word you are on, not from the start of the paragraph, so the change
+is heard immediately without repeating what you have just heard. Every
+utterance carries a generation number, so the cancelled one is recognised
+and ignored rather than advancing the queue behind the new audio.
+
 **The list is built from a `<template>`, not from an HTML string.** The
 template row is in the markup, so the class the script reaches for is
 visible in the source and to the checker that verifies every class the
