@@ -1,0 +1,15 @@
+Remove the unattended path
+
+Reverting the automation added last commit. Manual and private by
+choice: nothing gets published without being read first, and no API key
+or bot token is set up for something to go wrong with.
+
+Removed: brief_ai.py, daily.py, telegram_bot.py, the GitHub Actions
+workflow, incoming/, and their two tests. 795 lines.
+
+Kept, per the choice: archive/ stays tracked and published, so past
+editions remain readable on the site.
+
+The README's unattended section is replaced with the manual loop, which is
+the four commands it always was. Everything else is untouched -- build,
+archive, navigation, themes, the guards.

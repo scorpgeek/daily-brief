@@ -97,11 +97,6 @@ test_classes.py    CSS parses, JS targets resolve, anchors resolve, classes styl
 test_position.py   every absolutely-positioned element is anchored
 test_css_parser.py proves the CSS check actually fires
 test_position_parser.py proves the positioning check actually fires
-test_brief_ai.py   model-output parsing and brief validation
-test_workflow.js   the workflow has the steps and secrets it claims to
-brief_ai.py        the one step that needs a model
-daily.py           extract -> brief -> build -> commit -> push
-telegram_bot.py    receive the PDF, commit it, let Actions take over
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
 index.html         launcher: picks an edition by viewport, remembers the choice
@@ -189,29 +184,22 @@ python -m http.server 8899 --bind 0.0.0.0
 
 Then `http://<your-ip>:8899/`.
 
-## Running it unattended
+## The daily loop, by hand
 
-Four of the five steps already run unattended. `brief_ai.py` is the only one
-that needs a model, and it is the whole reason a scheduled run is possible.
-
-```
-phone ──forward PDF──> Telegram bot ──commit──> GitHub Actions
-                                                      │
-                                    extract ─> brief ─> build ─> commit ─> push
-                                                      │
-                                                  GitHub Pages
-```
-
-`daily.py` is the whole chain locally, and the same script runs in the
-workflow:
+Four of the five steps are already single commands. The fifth is the
+briefing itself, which is written by hand — deliberately, so nothing
+publishes itself without being read first.
 
 ```powershell
-python daily.py                          # today's issue, newest PDF in the inbox
-python daily.py --skip-brief --no-push   # rehearse with no model call
+python extract_pdf.py                 # PDF -> _raw/YYYY-MM-DD.txt
+# ... write _raw/YYYY-MM-DD.json ...
+python build_brief.py 2026-10-20      # -> archive/, plus the two aliases
+git add phone.html desk.html archive
+git commit -m "Publish 2026-10-20"
+git push
 ```
 
-See **[SETUP-AUTOMATION.md](SETUP-AUTOMATION.md)** for the secrets, the bot,
-and the one thing to try before trusting it.
+Pages picks it up in about a minute, plus up to ten minutes of cache.
 
 Every build lands in `archive/` and updates `archive/manifest.json`.
 `ARCHIVE.html` lists them by month with the paper, page count and lead story,
