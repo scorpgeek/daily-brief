@@ -1,7 +1,8 @@
 # Daily Brief
 
-Turns a newspaper PDF into a single-page, phone-first HTML briefing —
-categorised, tagged by importance, with a reading-practice section.
+Turns a newspaper PDF into two single-page HTML briefings — one built for a
+phone, one built for a laptop — plus a categorised written briefing with a
+reading-practice section.
 
 ## What it is
 
@@ -11,11 +12,25 @@ A personal reading pipeline:
    subsetted fonts a magazine PDF ships with.
 2. **Summarise** — a prompt spec turns the text into a structured briefing
    across 17 sections.
-3. **Read** — `TEMPLATE.html` renders it as a collapsible, dark-mode page
-   built for a phone, with three bands: quick-use, reference, and language.
+3. **Build** — `build_brief.py` reads a JSON brief and fills two templates,
+   producing both editions.
 
-The HTML uses three bands so the sections you act on are not buried under
-the ones you only reference:
+```
+extract_pdf.py   PDF -> _raw/YYYY-MM-DD.txt
+                 (brief is written by hand / by the assistant)
+                 _raw/YYYY-MM-DD.json
+build_brief.py   _raw/YYYY-MM-DD.json -> YYYY-MM-DD.html        (phone)
+                                           YYYY-MM-DD-desk.html  (laptop)
+```
+
+The JSON is the single source of truth. Both editions render from it, so
+they cannot drift, and the glossary that powers the laptop tooltips is the
+same data as the Terms & Acronyms table — not a second transcription of it.
+
+## The two editions
+
+**Phone** — three bands so the sections you act on are not buried under the
+ones you only reference. Everything folds; only the first band is open.
 
 ```
 USE THESE      Top 5 · My Lens · Shift Huddle Line · Deep Dive · Long-Form Read
@@ -23,21 +38,35 @@ REFERENCE      Categories · Numbers · Dates · Client Watch · Verify · Opini
 LANGUAGE       Words · Hindi · Phrases · Traps · Speak · Quiz · Skip List
 ```
 
-It is self-contained — no build step, no dependencies, no framework.
+**Laptop** — a rail, a reading column, and a drawer that slides in when you
+click a term. Adds a glossary with the paper's own sentence and dated
+external sources, a provenance toggle that hides everything not from the
+paper, `Cmd/Ctrl+K` search, and reading-preference controls.
+
+The external-sourced material is always labelled. Nothing web-sourced is
+allowed into a news section; it appears only in the glossary and the
+`Context` blocks, which carry their own source lists.
 
 ## Files
 
 ```
-extract_pdf.py     PDF → _raw/YYYY-MM-DD.txt
-TEMPLATE.html      the reading layout (17 sections, 3 bands)
+extract_pdf.py     PDF -> _raw/YYYY-MM-DD.txt
+build_brief.py     _raw/YYYY-MM-DD.json -> both HTML editions
+_tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
+_tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
+index.html         published phone sample
+DESK.html          published laptop sample
 README.md          this file
 ```
 
-Two files are deliberately **not** in this repo:
+Templates are hand-editable. `build_brief.py` only substitutes two markers
+and the header fields; the CSS and JS are yours to change.
+
+Two things are deliberately **not** in this repo:
 
 - `PROMPT.md` — the briefing spec. It names an employer, a client account and
   career goals, and Pages requires a public repo, so it stays local.
-- `_raw/` — extracted article text. Copyrighted.
+- `_raw/` — extracted article text and the dated JSON briefs. Copyrighted.
 
 ## Usage
 
@@ -52,6 +81,18 @@ python extract_pdf.py --out-dir "C:\raw"     # custom output
 
 The inbox defaults to `~/Downloads/Telegram Desktop`. It picks the newest PDF
 by modification time, so re-running on the same day just overwrites.
+
+Build:
+
+```powershell
+python build_brief.py 2026-10-19          # both editions
+python build_brief.py 2026-10-19 --desk   # laptop only
+```
+
+The build refuses to write a file with unsubstituted markers, and
+syntax-checks every inline `<script>` with `node --check` — a bad glossary
+substitution otherwise produces a page that looks fine and silently kills
+the whole interactive layer.
 
 Serve locally and open on a phone on the same network:
 
@@ -82,4 +123,5 @@ Install with `pip install pypdf`.
   late-night reading document is a cost, not a feature.
 - Tables are capped at 4 columns and always preceded by a sentence carrying
   the headline number, so a phone reader who never scrolls still gets it.
-- Everything except three sections starts collapsed.
+- Part-of-speech is shown in the laptop vocab table and hidden on the phone,
+  where it would break the measure.

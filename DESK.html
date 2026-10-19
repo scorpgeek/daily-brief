@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-prov="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Brief — Mon 19 Oct 2026 — Desk</title>
+<style>
+:root{
+  --bg:#0e0e0d; --panel:#161615; --panel2:#1c1c1a; --ink:#ecebe6;
+  --muted:#8d8a83; --faint:#5a5852; --line:#282825; --line2:#353430;
+  --use:#e8735f; --ref:#c8a15e; --lang:#7fa88a; --web:#8ab4d8;
+  --shadow:0 2px 4px rgba(0,0,0,.5),0 12px 40px rgba(0,0,0,.4);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
+  --fs:17px; --measure:74ch; --rail:236px; --drawer:0px;
+}
+[data-theme="light"]{
+  --bg:#f6f5f2;--panel:#fff;--panel2:#faf9f6;--ink:#191918;--muted:#6b6860;
+  --faint:#a5a199;--line:#e5e2db;--line2:#d4d0c7;
+  --use:#a8261a;--ref:#96681c;--lang:#3c6a4b;--web:#1f5f8f;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 12px 40px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:var(--fs)/1.62 var(--sans);-webkit-font-smoothing:antialiased;
+}
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--drawer);min-height:100vh;transition:grid-template-columns .2s ease}
+.rail{
+  border-right:1px solid var(--line);background:var(--panel);
+  padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.main{padding:0 44px 120px;max-width:1000px}
+.drawer{
+  border-left:1px solid var(--line);background:var(--panel);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.app[data-drawer="open"] .drawer{opacity:1;pointer-events:auto}
+.app[data-drawer="open"]{grid-template-columns:var(--rail) minmax(0,1fr) 430px}
+
+/* ---------- rail ---------- */
+.brand{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:0 18px 4px}
+.rail-date{font:600 17px/1.2 var(--serif);padding:0 18px 2px;letter-spacing:-.01em}
+.rail-src{font:400 10.5px/1.4 var(--mono);color:var(--faint);padding:0 18px 16px}
+.rail h4{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+  padding:16px 18px 8px;margin:0;border-top:1px solid var(--line)}
+.rail a{display:block;padding:5px 18px;font-size:12.5px;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;transition:.12s}
+.rail a:hover{color:var(--ink);background:var(--panel2)}
+.rail a.on{color:var(--ink);border-left-color:var(--use);background:var(--panel2)}
+.rail a .n{font:600 9px/1 var(--mono);color:var(--faint);display:inline-block;width:26px}
+.ctl{display:flex;align-items:center;justify-content:space-between;padding:6px 18px;font-size:12px;color:var(--muted);cursor:pointer}
+.ctl:hover{color:var(--ink)}
+.sw{width:30px;height:17px;border-radius:9px;background:var(--line2);position:relative;transition:.15s;flex:none}
+.sw::after{content:"";position:absolute;inset:2px auto 2px 2px;width:13px;border-radius:50%;
+  background:var(--faint);transition:.15s}
+[data-prov="on"] .sw{background:color-mix(in srgb,var(--web) 45%,transparent)}
+[data-prov="on"] .sw::after{transform:translateX(13px);background:var(--web)}
+.fsize{display:flex;gap:4px;padding:4px 18px 0}
+.fsize button{flex:1;font:600 11px/1 var(--mono);padding:6px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;border-radius:5px}
+.fsize button.on{color:var(--ink);border-color:var(--faint)}
+
+/* ---------- topbar ---------- */
+.top{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:14px 44px;display:flex;align-items:center;gap:14px}
+.top .kick{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.top h1{font:600 21px/1.2 var(--serif);margin:0;flex:1;letter-spacing:-.01em}
+.search{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:7px 12px;min-width:280px;cursor:text}
+.search input{background:none;border:0;outline:0;color:var(--ink);font:13px var(--sans);flex:1;width:100%}
+.search kbd{font:600 9px/1 var(--mono);color:var(--faint);border:1px solid var(--line2);
+  padding:3px 5px;border-radius:3px}
+.tbtn{font:500 11.5px/1 var(--sans);padding:7px 11px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--muted);cursor:pointer}
+.tbtn:hover{color:var(--ink)}
+
+/* ---------- content ---------- */
+section{margin:40px 0;scroll-margin-top:80px}
+h2.sec{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--use);
+  margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline}
+h2.sec .n{color:var(--faint)}
+p{max-width:var(--measure)}
+.ts{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--use);
+  border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:36px}
+.ts dl{display:grid;grid-template-columns:82px 1fr;gap:8px 16px;margin:0}
+.ts dt{font:600 9.5px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.ts dd{margin:0;font-size:15px}
+
+.top-item{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.top-item:last-child{border-bottom:0}
+.tag{font:700 9.5px/1 var(--mono);letter-spacing:.08em;padding:5px 7px;border-radius:4px;height:fit-content;text-align:center}
+.tag.WATCH{color:var(--ref);background:color-mix(in srgb,var(--ref) 15%,transparent)}
+.tag.KNOW{color:var(--faint);background:color-mix(in srgb,var(--faint) 13%,transparent)}
+.tag.ACT{color:var(--use);background:color-mix(in srgb,var(--use) 15%,transparent)}
+.top-note{grid-column:2;font-size:12.5px;color:var(--muted);padding-top:4px}
+.top-note b{color:var(--ref);font-weight:600}
+
+.lens{border-left:2px solid var(--use);padding-left:18px;margin-bottom:22px}
+.lens dt{font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:11px}
+.lens dt:first-child{margin-top:0}
+.lens dd{margin:3px 0 0;font-size:15.5px;max-width:var(--measure)}
+
+table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0 18px;max-width:640px}
+caption{caption-side:top;text-align:left;font-size:13.5px;color:var(--muted);padding-bottom:10px;max-width:var(--measure)}
+th{font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  text-align:left;padding:0 14px 8px 0;border-bottom:1px solid var(--line2)}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;padding-right:0;font-variant-numeric:tabular-nums}
+
+/* ---------- terms ---------- */
+.t{border-bottom:1.5px dotted color-mix(in srgb,var(--web) 65%,transparent);cursor:pointer;
+  color:inherit;position:relative;transition:background .12s}
+.t:hover{background:color-mix(in srgb,var(--web) 15%,transparent);border-radius:2px}
+.t::after{content:"";position:absolute;left:0;right:0;bottom:-1.5px;height:1.5px;
+  background:var(--web);opacity:0;transition:opacity .15s}
+.t:hover::after,.t.sel::after{opacity:1}
+/* tooltip */
+.tip{position:fixed;z-index:90;max-width:340px;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:8px;padding:10px 13px;font:13px/1.5 var(--sans);color:var(--ink);
+  box-shadow:var(--shadow);pointer-events:none;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+.tip .k{display:block;font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--web);margin-bottom:5px}
+
+/* provenance */
+[data-src]{position:relative}
+.ctx{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--web);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin:18px 0}
+.ctx-k{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--web);margin-bottom:10px}
+.ctx p{font-size:14.5px;margin:0 0 10px}
+.ctx p:last-child{margin-bottom:0}
+.src-list{list-style:none;margin:12px 0 0;padding:0;font:11.5px/1.6 var(--mono);color:var(--faint)}
+.src-list li{padding-left:14px;position:relative}
+.src-list li::before{content:"↗";position:absolute;left:0}
+[data-prov="off"] [data-src="web"]::before{content:"";position:absolute;left:-11px;top:2px;width:4px;height:4px;
+  border-radius:50%;background:var(--web);opacity:.5}
+[data-prov="on"] [data-src="web"]{border-bottom:1px dashed var(--web)}
+[data-prov="on"] [data-src="web"]::before{content:"";position:absolute;left:-13px;top:2px;width:5px;height:5px;
+  border-radius:50%;background:var(--web)}
+
+/* ---------- drawer ---------- */
+.dwrap{padding:26px 26px 60px}
+.dclose{float:right;font:400 18px/1 var(--sans);background:none;border:0;color:var(--faint);cursor:pointer;padding:4px 8px}
+.dterm{font:600 26px/1.15 var(--serif);margin:0 0 3px;letter-spacing:-.02em;clear:both}
+.dexp{font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--web);margin-bottom:20px}
+.dsec{margin:24px 0 0;padding-top:18px;border-top:1px solid var(--line)}
+.dsec h5{font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 9px}
+.dsec p{font-size:14px;margin:0 0 9px;max-width:none}
+.dsec a{color:var(--web);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--web) 35%,transparent)}
+.dsec a:hover{border-bottom-color:var(--web)}
+.dsec ul{margin:0;padding-left:17px;font-size:13.5px;line-height:1.65}
+.dsec li{margin-bottom:7px}
+.dquote{font:italic 14px/1.6 var(--serif);color:var(--muted);border-left:2px solid var(--line2);
+  padding-left:14px;margin:0 0 12px}
+
+/* ---------- glossary ---------- */
+.gtable{width:100%;border-collapse:collapse;font-size:14px;max-width:none}
+.gtable th{font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  text-align:left;padding:0 16px 8px 0;border-bottom:1px solid var(--line2)}
+.gtable td{padding:11px 16px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.gtable td:first-child{font-weight:600;color:var(--web);white-space:nowrap;cursor:pointer}
+.gtable .src{font:11px/1.5 var(--mono);color:var(--faint)}
+
+/* ---------- search ---------- */
+.res{display:none;margin:0 0 30px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 0}
+.res.on{display:block}
+.res a{display:block;padding:9px 18px;color:var(--ink);text-decoration:none;font-size:14px;border-bottom:1px solid var(--line)}
+.res a:last-child{border-bottom:0}
+.res a:hover{background:var(--panel2)}
+.res .m{font:10.5px/1.5 var(--mono);color:var(--faint);display:block;margin-top:2px}
+.res .hl{background:color-mix(in srgb,var(--use) 28%,transparent);border-radius:2px}
+mark.hidden{display:none}
+
+@media(max-width:900px){
+  :root{--rail:0px;--drawer:0px}
+  .app{grid-template-columns:1fr}
+  .rail{display:none}
+  .main{padding:0 20px 80px}
+  .top{padding:12px 20px;flex-wrap:wrap}
+  .search{min-width:100%;order:3}
+  .drawer{position:fixed;right:0;top:0;width:min(420px,92vw);height:100vh;z-index:70;transform:translateX(100%);transition:transform .2s}
+  .app[data-drawer="open"] .drawer{transform:none}
+  .tip{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app" id="app" data-drawer="closed">
+
+<!-- ================= RAIL ================= -->
+<aside class="rail">
+  <div class="brand">Daily Brief</div>
+  <div class="rail-date">Mon 19 Oct 2026</div>
+  <div class="rail-src">ET Delhi · 18pp · LONG+DEEP</div>
+
+  <h4>Use these</h4>
+  <a href="#top5"><span class="n">01</span>Top 5</a>
+  <a href="#lens"><span class="n">06</span>My Lens</a>
+  <a href="#huddle"><span class="n">08</span>Huddle line</a>
+
+  <h4>Reference</h4>
+  <a href="#markets"><span class="n">02</span>Business &amp; Markets</a>
+  <a href="#context"><span class="n">＋</span>Context (web)</a>
+  <a href="#opinion"><span class="n">09</span>Opinion</a>
+  <a href="#glossary"><span class="n">11</span>Terms &amp; acronyms</a>
+
+  <h4>Reading</h4>
+  <div class="ctl" onclick="setProv()">Show provenance<span class="sw"></span></div>
+  <div class="fsize">
+    <button onclick="setFS(16)" id="fsS">S</button>
+    <button onclick="setFS(17)" id="fsM" class="on">M</button>
+    <button onclick="setFS(19)" id="fsL">L</button>
+  </div>
+  <div class="ctl" onclick="toggleTheme()">Theme<span id="thLbl" style="font:10px var(--mono)">light</span></div>
+
+  <h4>Glossary</h4>
+  <div id="glist"></div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<div>
+  <div class="top">
+    <div style="flex:1">
+      <div class="kick">Economic Times — Delhi</div>
+      <h1>Monday, 19 October 2026</h1>
+    </div>
+    <div class="search" onclick="focusSearch()">
+      <input id="q" placeholder="Search sections, terms, claims…" oninput="doSearch()">
+      <kbd>⌘K</kbd>
+    </div>
+    <button class="tbtn" onclick="document.querySelector('.rail').scrollIntoView()">Index</button>
+  </div>
+
+  <div class="main">
+    <div class="res" id="res"></div>
+
+    <section class="ts">
+      <dl>
+        <dt>Today</dt><dd>Big Four fight for GCC work; Chorbagan stampede toll rises to 19; IT stocks at a record low in fund portfolios.</dd>
+        <dt>Do this</dt><dd>Name which of your account's processes are commoditised support and which a client would build in-house.</dd>
+        <dt>By when</dt><dd>Oct 20–21 — compensation cheques handed over. Oct 21 — Jio Platforms' ₹30,213 cr IPO opens.</dd>
+      </dl>
+    </section>
+
+    <section id="top5">
+      <h2 class="sec"><span class="n">01</span>Top 5</h2>
+      <div class="top-item">
+        <span class="tag WATCH">WATCH</span>
+        <div>The Big Four are fighting each other for global capability centre work — GCCs generated $98.4 bn in India last year across 2,100-plus centres, employing 2.36 million people.</div>
+        <div class="top-note"><b>Context below:</b> external sources say the bigger shift is that nine in ten new GCCs are now built by external partners, not in-house.</div>
+      </div>
+      <div class="top-item">
+        <span class="tag WATCH">WATCH</span>
+        <div>Indian mutual funds' IT holdings fell to a record low — the sector is now 5.3% of equity assets, down from a 13.4% peak.</div>
+      </div>
+      <div class="top-item">
+        <span class="tag WATCH">WATCH</span>
+        <div>Festive ecommerce sales are faltering — online dispatches ran 10–12% below last year with average discounts 35–40% lower.</div>
+      </div>
+      <div class="top-item">
+        <span class="tag KNOW">KNOW</span>
+        <div>The Chorbagan pandal stampede toll rose to 19 — up from 17 reported yesterday; seven of fourteen detained have been arrested.</div>
+      </div>
+      <div class="top-item">
+        <span class="tag WATCH">WATCH</span>
+        <div>Jio Platforms opens India's largest-ever IPO on Oct 21 — ₹30,213 crore, the largest issue in Indian history.</div>
+      </div>
+    </section>
+
+    <section id="lens">
+      <h2 class="sec"><span class="n">06</span>My Lens</h2>
+
+      <div class="lens"><dl>
+        <dt>What</dt>
+        <dd data-src="paper">2,100-plus <span class="t" data-term="GCC">GCCs</span> now generate $98.4 bn in India employing 2.36 million people, and the work has shifted from cost-focused managed services to owning transformation and product development. PwC's Ojha calls it a "strategic twin." The Big Four's own line: <em>"An engine manufacturer doesn't want to sell engines; it wants to sell power by the hour."</em></dd>
+        <dt>Why me</dt>
+        <dd>That is your industry's structural shift, stated plainly. If <span class="t" data-term="GCC">GCCs</span> become the client's internal capability rather than a buyer of outsourced work, the volume your account commands is exposed.</dd>
+        <dt>Do</dt>
+        <dd>Ask which of your account's processes are commoditised support and which are the kind a client would build in-house. Talking point: <em>"they're not buying seats anymore, they're buying capability — so let's price the capability, not the headcount."</em></dd>
+      </dl></div>
+
+      <div class="lens"><dl>
+        <dt>What</dt>
+        <dd data-src="paper">LTM's chief executive says the linkage between revenue and headcount is already broken, with 60% of the portfolio through AI deflation — the same deflation TCS has already sustained at 50%.</dd>
+        <dt>Why me</dt>
+        <dd>Two of India's largest IT services firms have publicly stated that delivering the same work now takes materially fewer people. Your productivity argument stops being an efficiency gain and becomes a commercial one.</dd>
+        <dt>Do</dt>
+        <dd>Quantify your own deflation honestly: what did you deliver last quarter with how many people, versus a year ago? If the answer is "the same work, fewer people," that is the argument — and it should be yours before it is anyone else's.</dd>
+      </dl></div>
+
+      <div class="lens"><dl>
+        <dt>What</dt>
+        <dd data-src="paper">The Big Four are fighting over GCC work with specialist operators, talent providers and real-estate players also entering — 150 to 160 active participants.</dd>
+        <dt>Why me</dt>
+        <dd>Your client has more options than it had two years ago. That is leverage you should know about and use, not be surprised by.</dd>
+        <dt>Do</dt>
+        <dd>Stop describing your value as effort or headcount. Name the outcome you own, the failure you'd prevent, and what your account would cost to rebuild.</dd>
+      </dl></div>
+    </section>
+
+    <section id="markets">
+      <h2 class="sec"><span class="n">02</span>Business &amp; Markets</h2>
+
+      <p>ICICI Bank took the smallest <span class="t" data-term="NIM">NIM</span> hit of the large privates — 12 basis points — while Axis Bank lost 34bps on heavier <span class="t" data-term="FCNRB">FCNR(B)</span> leverage.</p>
+
+      <table>
+        <caption>Year-on-year fall in net interest margin across the large private banks, with FCNR(B) deposits raised under the RBI's 2026 swap facility.</caption>
+        <thead><tr><th>Bank</th><th class="n">NIM Sep 2026</th><th class="n">NIM Sep 2025</th><th class="n">Fall</th><th class="n">FCNR(B) raised</th></tr></thead>
+        <tbody>
+          <tr><td>Axis Bank</td><td class="n">3.46%</td><td class="n">3.80%</td><td class="n">−34bps</td><td class="n">$10.62 bn</td></tr>
+          <tr><td>ICICI Bank</td><td class="n">4.18%</td><td class="n">4.30%</td><td class="n">−12bps</td><td class="n">~$18 bn</td></tr>
+          <tr><td>HDFC Bank</td><td class="n">3.16%</td><td class="n">3.27%</td><td class="n">−11bps</td><td class="n">$11.5 bn</td></tr>
+        </tbody>
+      </table>
+
+      <p>Mutual fund holdings in IT stocks fell 25% to ₹2.97 lakh crore in September from ₹3.98 lakh crore in December 2025. Wipro dropped from 80th to 316th in fund rankings. The Nifty IT index shed about 28% in 2026 before rebounding 11.7% last week — its biggest weekly gain in 18 years.</p>
+
+      <p>Banks are pricing in insurance commission curbs: Central Bank of India expects <span class="t" data-term="BANCAS">bancassurance</span> fees to fall to ₹49 crore from ₹76 crore, a 33% income impact; Canara estimates a ₹145 crore hit.</p>
+
+      <div class="ctx" data-src="web">
+        <div class="ctx-k">Context — external research</div>
+        <p>The paper reports the <span class="t" data-term="NIM">NIM</span> fall as an accounting consequence of expensive deposits. It does not say why those deposits arrived. External sources make the cause explicit: the <span class="t" data-term="FCNRB">FCNR(B)</span> inflow was a deliberate <span class="t" data-term="RBI">RBI</span> intervention to defend the rupee, not a market movement.</p>
+        <p>The central bank launched a US dollar–rupee forex swap facility on 8 June 2026, absorbing the entire ~3% hedging cost on fresh three-to-five-year deposits and lifting the interest rate ceiling until 30 September. It drew <strong>$52.3 bn</strong> in FCNR(B) deposits by 14 August and closed the window a month early, on 31 August. Total inflows across FCNR(B), OFCB and ECB channels reached <strong>$56.85 bn</strong>, lifting forex reserves to a four-month high of <strong>$707 bn</strong>.</p>
+        <p>The margin compression was therefore a price of currency defence. Banks were made to hold expensive dollar liabilities to protect the rupee after it touched 96.87 on 20 May.</p>
+        <ul class="src-list">
+          <li>Reserve Bank of India press releases, 1 &amp; 14 Aug 2026</li>
+          <li>Fortune India, 3 Aug 2026 — banks mobilised $27.99 bn by 30 July</li>
+          <li>Business Standard, 17 Jun 2026 — RBI lifts FCNR(B) rate cap</li>
+          <li>New Indian Express, 14 Aug 2026 — window closed early</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="context">
+      <h2 class="sec"><span class="n">＋</span>Context — web-sourced</h2>
+
+      <div class="ctx" data-src="web">
+        <div class="ctx-k">Global capability centres — what the paper omits</div>
+        <p>The paper reports that the Big Four are competing for <span class="t" data-term="GCC">GCC</span> work. External reporting shows a larger structural change underneath it: <strong>nine in ten new GCCs set up in India now use external partners</strong>, a sharp reversal from the do-it-yourself model dominant in the 1990s and 2000s. Around 60–70% are partner-led; 30–40% remain DIY.</p>
+        <p>For a services firm, that reframes the story. The competition for advisory work is real, but the build-out itself has become the market — and it is being handed to external partners by default.</p>
+        <p>Two further figures worth carrying: GCC hiring volumes fell <strong>28%</strong> between the first and second half of FY26, with companies reskilling rather than recruiting. And <strong>46%</strong> of GCCs now sit at what Nasscom and Zinnov call Portfolio or Transformation hub maturity — owning products and global decisions. A new GCC used to reach that level in ten years; it now takes five.</p>
+        <ul class="src-list">
+          <li>Economic Times, 26 Mar 2026 — nine in ten GCCs use external partners (EY, ANSR)</li>
+          <li>Nasscom–Zinnov GCC Landscape Report 2026, May — 2,117 centres, 3,728 units</li>
+          <li>CNBC TV18, 6 May 2026 — hiring down 28% H1→H2 FY26</li>
+          <li>HFS Research / Capgemini, Apr 2026 — 76% of enterprises have India presence</li>
+        </ul>
+      </div>
+
+      <div class="ctx" data-src="web">
+        <div class="ctx-k">A discrepancy the paper inherits</div>
+        <p>The paper cites <strong>2,100-plus</strong> GCCs in India. That matches Nasscom–Zinnov exactly, so the figure is well sourced. But the Economic Survey 2025–26 counts only <strong>1,700-plus</strong> centres employing over 19 lakh people — on the same figures, in the same year.</p>
+        <p>Both are credible; they count different things. Worth knowing the range before you quote either number in a meeting.</p>
+        <ul class="src-list">
+          <li>Nasscom–Zinnov GCC Landscape Report 2026 — 2,117 GCCs</li>
+          <li>Economic Survey 2025–26 — 1,700+ GCCs, 19 lakh employees</li>
+          <li>Fortune India, 27 Jun 2025 — ICAI summit, 1,700 centres</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="opinion">
+      <h2 class="sec"><span class="n">09</span>Opinion: 2-Minute Read</h2>
+
+      <div class="lens"><dl>
+        <dt>Make Employees Your Customers</dt>
+        <dd data-src="paper">An on-demand services platform made its own gig workforce its most reliable revenue stream, selling ₹1.4 cr of mandatory workwear out of ₹12.2 cr operational revenue. The company reported a net loss of about ₹168 cr, and the fastest route to more revenue was onboarding 10,000 more workers and selling them branded T-shirts.</dd>
+        <dt>Leaves out</dt>
+        <dd>It treats the piece as satire when the mechanics — mandatory purchases deducted from worker earnings — describe a real and litigated category. It stops at ridicule rather than asking what regulation would look like.</dd>
+        <dt>Sit with</dt>
+        <dd>What does your organisation sell to people who cannot realistically decline?</dd>
+      </dl></div>
+
+      <div class="lens"><dl>
+        <dt>Get a Tech List to Tick</dt>
+        <dd data-src="paper">Abhay Karandikar and Aditya Sinha, NITI Aayog, argue India has every instrument it needs — ANRF by statute, ₹1 lakh crore in RDIF, PLIs across a dozen sectors — but no evidence-based list of which technologies it cannot afford to depend on others for.</dd>
+        <dt>Leaves out</dt>
+        <dd>It names the right problem and stops one sentence before the hard one. "Being critical is not the same as being winnable" is asserted, then abandoned — no criteria, no decider, no treatment of the case where something critical is not winnable.</dd>
+        <dt>Sit with</dt>
+        <dd>How does your team decide what to say no to?</dd>
+      </dl></div>
+    </section>
+
+    <section id="glossary">
+      <h2 class="sec"><span class="n">11</span>Terms &amp; Acronyms</h2>
+      <p style="color:var(--muted);font-size:13.5px;max-width:60ch">Shorthand and industry models, not vocabulary. Click any term to open its panel — hover for a one-line definition anywhere in the brief.</p>
+      <table class="gtable">
+        <thead><tr><th>Term</th><th>What it is</th><th>Source</th></tr></thead>
+        <tbody id="gbody"></tbody>
+      </table>
+    </section>
+  </div>
+</div>
+
+<!-- ================= DRAWER ================= -->
+<aside class="drawer"><div class="dwrap" id="dwrap"></div></aside>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+/* ================= GLOSSARY =================
+   def  : one-line, shown on hover
+   full : panel body
+   paper: the paper's own sentence, if any
+   srcs : [{name, date, url}]
+*/
+const G = {
+ GCC:{ exp:"Global Capability Centre", def:"A multinational's own in-house India operation — historically an offshore cost line.",
+   full:"A captive offshore unit set up by a multinational to serve its global operations, distinct from a third-party outsourcing contract. They grew from back-office support into product, engineering, analytics and governance work. India hosts roughly half the world's total.",
+   paper:"The Big Four are competing hard for global capability centre (GCC) work, as the segment emerges as their fastest-growing business.",
+   page:"PDF p.13",
+   srcs:[{n:"Economic Times — nine in ten GCCs use external partners",d:"26 Mar 2026",u:"https://m.economictimes.com/tech/technology/indian-gccs-ditching-diy-build-out-model-to-team-up-with-external-cos/amp_articleshow/129784992.cms"},
+         {n:"Nasscom–Zinnov GCC Landscape Report — 2,117 centres, 3,728 units",d:"May 2026",u:"https://www.newindianexpress.com/business/2026/May/07/india-gccs-expand-ai-product-and-governance-roles-for-global-enterprises"},
+         {n:"The Hindu — GCCs also called Global In-House Centres",d:"20 Aug 2025",u:"https://www.thehindu.com/education/careers/beyond-outsourcing-gcc-growth-in-india-and-the-crucial-role-of-higher-education-collaboration/article69955850.ece"},
+         {n:"CNBC TV18 — 46% at hub maturity; hiring down 28%",d:"6 May 2026",u:"https://www.cnbctv18.com/economy/indias-global-capability-centres-near-100-billion-move-from-being-back-offices-to-global-decision-hubs-ws-l-19900113.htm"}]},
+
+ FCNRB:{ exp:"FCNR(B)", def:"Foreign Currency Non-Resident (Bank) deposits — the expensive dollar funding behind the NIM squeeze.",
+   full:"Term deposits in foreign currency held by non-resident Indians, created under a 1993 RBI scheme. Interest is tax-free in India. In June 2026 the RBI opened a dollar–rupee swap facility, absorbing the full ~3% hedging cost and lifting the rate ceiling until 30 September, which drew $52.3 bn by 14 August before the window closed early. Banks were left holding expensive, largely term-funded dollars — hence the margin compression reported in the paper.",
+   paper:"Foreign currency non-resident (bank) deposit costs raised the cost of funds and weighed on profitability.",
+   page:"PDF p.15",
+   srcs:[{n:"Reserve Bank of India — forex inflows press release",d:"14 Aug 2026",u:"https://rbidocs.rbi.org.in/rdocs/PressRelease/PDFs/PR90024CF46BE4B5F46E0A92CA0D116F92E12.PDF"},
+         {n:"Business Standard — RBI lifts FCNR(B) interest rate ceiling",d:"17 Jun 2026",u:"https://www.business-standard.com/finance/news/rbi-lifts-cap-on-fcnr-b-nre-deposit-rates-to-boost-foreign-inflows-126061701121_1.html"},
+         {n:"New Indian Express — window closed a month early, $52.3 bn",d:"14 Aug 2026",u:"https://www.newindianexpress.com/business/2026/Aug/14/rbi-closes-special-nri-deposit-window-by-aug-31-as-inflows-touch-52-bn"},
+         {n:"Fortune India — banks mobilised $27.99 bn by 30 July",d:"3 Aug 2026",u:"https://www.fortuneindia.com/story/personal-finance/banking/banks-mobilise-nearly-28-billion-in-nri-fcnr-deposits-after-rbi-swap-facility-sbi-leads-among-lenders/151689"}]},
+
+ NIM:{ exp:"NIM", def:"Net Interest Margin — interest earned on loans minus interest paid on deposits.",
+   full:"The gap between what a bank earns lending and what it pays depositors, usually as a percentage. It falls when funding gets more expensive faster than lending can be repriced. The paper reports Axis at 3.46%, ICICI at 4.18% and HDFC at 3.16%.",
+   paper:"NIM is the difference between interest earned on loans and that paid for deposits.",
+   page:"PDF p.15" },
+
+ RBI:{ exp:"RBI", def:"Reserve Bank of India — the central bank.", page:"PDF p.16" },
+
+ BANCAS:{ exp:"Bancassurance", def:"Insurance products sold through a bank's branches.", page:"PDF p.15" },
+
+ GMV:{ exp:"GMV", def:"Gross Merchandise Value — goods sold before discounts and returns.",
+   full:"The total value of goods sold through a platform, counted before discounts and returns. Useful for comparing platforms but easily inflated, since a high GMV can coexist with thin margins and heavy returns.",
+   page:"PDF p.7" },
+
+ SIQR:{ exp:"SIQR", def:"Savings and Interest-linked QR — the RBI's withdrawn deposit scheme.", page:"—" },
+
+ GAAR:{ exp:"GAAR", def:"General Anti-Avoidance Rules — the codified anti-abuse law.", page:"PDF p.14" },
+
+ JAAR:{ exp:"JAAR", def:"Judicial Anti-Avoidance Rule — invoked by tax officials to deny treaty reliefs.", page:"PDF p.14" },
+
+ BARC:{ exp:"BARC", def:"Broadcast Audience Research Council — India's TV ratings body.",
+   full:"The joint industry body that measures television viewing. It has been barred by the information and broadcasting ministry from releasing ratings until it complies with the TV Ratings Policy 2026; it has since raised independent board members to 33% and expanded its meter count to 77,596 against a target of 80,000.",
+   paper:"The MIB barred BARC from releasing viewership data from June after the ratings agency failed to comply with key provisions of the new TV Ratings Policy 2026.",
+   page:"PDF p.13" }
+};
+
+const KEY = Object.keys(G);
+let sel = null;
+
+/* ---- glossary list + table ---- */
+(function(){
+  const gb = document.getElementById('gbody'), gl = document.getElementById('glist');
+  KEY.forEach(k=>{
+    const g = G[k];
+    const srcTxt = g.srcs ? 'web + paper' : 'paper p.'+(g.page||'—').replace('PDF ','');
+    gb.insertAdjacentHTML('beforeend',
+      `<tr><td data-k="${k}">${k}</td><td>${g.def}</td><td class="src">${srcTxt}</td></tr>`);
+    gl.insertAdjacentHTML('beforeend',`<a data-jump="${k}"><span class="n">${k}</span>${g.exp.split('—')[0].trim().slice(0,18)}</a>`);
+  });
+})();
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('.t'); const row = e.target.closest('td[data-k]');
+  const jump = e.target.closest('[data-jump]');
+  if(jump){ openDrawer(jump.dataset.jump); return; }
+  if(t){ openDrawer(t.dataset.term); return; }
+  if(row){ openDrawer(row.dataset.k); return; }
+  if(!e.target.closest('.drawer') && !e.target.closest('.t')) closeDrawer();
+});
+
+/* ---- drawer ---- */
+function openDrawer(k){
+  const g = G[k]; if(!g) return;
+  sel = k;
+  const link = (s)=>s.u ? `<li><a href="${s.u}" target="_blank" rel="noopener">${s.n}</a> — ${s.d}</li>` : `<li>${s.n} — ${s.d}</li>`;
+  document.getElementById('dwrap').innerHTML = `
+    <button class="dclose" onclick="closeDrawer()">&times;</button>
+    <div class="dterm">${g.exp||k}</div>
+    <div class="dexp">${k} · ${k===g.exp?'term':'abbreviation'}</div>
+    <div class="dsec" style="border:0;padding:0;margin-top:0"><p>${g.def}</p></div>
+    ${g.full?`<div class="dsec"><h5>In full</h5><p>${g.full}</p></div>`:''}
+    ${g.paper?`<div class="dsec"><h5>The paper's sentence</h5><div class="dquote">${g.paper}</div>
+      <p style="font:11px var(--mono);color:var(--faint)">${g.page||''}</p></div>`:''}
+    ${g.srcs?`<div class="dsec"><h5>External sources</h5><ul>${g.srcs.map(link).join('')}</ul>
+      <p style="font:11px var(--mono);color:var(--faint);margin-top:10px">Web-sourced. Not part of the paper.</p></div>`:''}
+    ${g.srcs?'':`<div class="dsec"><h5>Source</h5><p style="font:11px var(--mono);color:var(--faint)">Defined from the paper${g.page?', '+g.page:''}. No external research.</p></div>`}`;
+  document.getElementById('app').dataset.drawer='open';
+  document.querySelectorAll('.t.sel').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('.t[data-term="'+k+'"]').forEach(x=>x.classList.add('sel'));
+}
+function closeDrawer(){ document.getElementById('app').dataset.drawer='closed'; sel=null;
+  document.querySelectorAll('.t.sel').forEach(x=>x.classList.remove('sel')); }
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); if(e.key==='/'){ e.preventDefault(); focusSearch(); } });
+document.addEventListener('mousemove', e=>{
+  const t = e.target.closest('.t'); const tip = document.getElementById('tip');
+  if(!t){ tip.classList.remove('on'); return; }
+  tip.innerHTML = `<span class="k">${t.dataset.term}</span>${G[t.dataset.term].def}`;
+  tip.classList.add('on');
+  const r = t.getBoundingClientRect();
+  let x = r.left, y = r.bottom + 8;
+  if(x + 350 > innerWidth - 12) x = innerWidth - 362;
+  if(y + 110 > innerHeight) y = r.top - 110;
+  tip.style.left = Math.max(12,x)+'px'; tip.style.top = y+'px';
+});
+
+/* ---- prefs ---- */
+function setProv(){ const r=document.documentElement;
+  r.dataset.prov = r.dataset.prov==='on'?'off':'on'; }
+function setFS(n){ document.documentElement.style.setProperty('--fs', n+'px');
+  document.querySelectorAll('.fsize button').forEach(b=>b.classList.remove('on'));
+  ({16:'fsS',17:'fsM',19:'fsL'})[n] && document.getElementById({16:'fsS',17:'fsM',19:'fsL'}[n]).classList.add('on');
+  localStorage.setItem('dbfs',n); }
+function toggleTheme(){ const r=document.documentElement;
+  r.dataset.theme = r.dataset.theme==='dark'?'light':'dark';
+  document.getElementById('thLbl').textContent = r.dataset.theme==='dark'?'light':'dark';
+  localStorage.setItem('dbth',r.dataset.theme); }
+(function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
+  if(f) setFS(+f); if(th){document.documentElement.dataset.theme=th;
+  document.getElementById('thLbl').textContent = th==='dark'?'light':'dark';} })();
+
+/* ---- search ---- */
+function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.select(); }
+function doSearch(){
+  const raw = document.getElementById('q').value.trim().toLowerCase();
+  const res = document.getElementById('res');
+  if(!raw){ res.classList.remove('on'); return; }
+  const skip = new Set(['SCRIPT','STYLE','HEAD','META','TITLE']);
+  const out = []; let n = 0;
+  const walk = document.createTreeWalker(document.querySelector('.main'), NodeFilter.SHOW_TEXT, {
+    acceptNode: t => skip.has(t.parentNode.tagName) || !t.nodeValue.trim()
+      ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  let t; while((t = walk.nextNode()) && n < 40){
+    const i = t.nodeValue.toLowerCase().indexOf(raw);
+    if(i < 0) continue;
+    n++;
+    const sec = t.parentElement.closest('section');
+    const sn = sec ? (sec.querySelector('.sec')?.textContent.trim().split(/\s+/).slice(0,4).join(' ') || 'Brief') : 'Brief';
+    const snip = (t.nodeValue.slice(Math.max(0,i-58), i+raw.length+72)).replace(/\s+/g,' ').trim();
+    const hl = s => s.replace(new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<span class="hl">$1</span>');
+    out.push(`<a href="#${sec?sec.id:''}" onclick="document.getElementById('res').classList.remove('on')">
+      ${hl(snip)}<span class="m">${sn}</span></a>`);
+  }
+  res.innerHTML = out.length ? out.join('') : '<a style="color:var(--faint)">No matches</a>';
+  res.classList.add('on');
+}
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); focusSearch(); }
+});
+</script>
+</body>
+</html>
