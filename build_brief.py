@@ -684,6 +684,60 @@ def write_manifest(b: dict = None, stem: str = "") -> None:
         raise
 
 
+def known_papers(meta: dict) -> list:
+    """Every newspaper the archive knows about, sorted by name.
+
+    Read from the manifest rather than from the brief being built, so a
+    brief for today's paper can still offer a jump to a paper whose last
+    edition was published last week. The current paper is added even if it
+    has never been archived, which is what makes the switcher correct on
+    the very first build of a second newspaper.
+    """
+    found = {}
+    if os.path.exists(MANIFEST):
+        try:
+            with open(MANIFEST, encoding="utf-8") as fh:
+                loaded = json.load(fh)
+            for e in loaded if isinstance(loaded, list) else []:
+                if isinstance(e, dict) and e.get("slug"):
+                    found.setdefault(e["slug"],
+                                     e.get("paper") or e["slug"].upper())
+        except (ValueError, OSError):
+            pass
+    slug = paper_slug(meta.get("newspaper", ""))
+    found[slug] = meta.get("newspaper") or slug.upper()
+    return sorted(found.items(), key=lambda kv: str(kv[1]).lower())
+
+
+def paper_switcher(papers: list, current_slug: str, prefix: str = "") -> str:
+    """The newspaper switcher that sits in the top bar.
+
+    Baked in at build time rather than fetched at runtime, so it renders
+    with the page, survives being opened from a file:// copy with no
+    server, and never shows an empty menu for a frame. Hrefs are made
+    relative here because one template is written twice -- at the root
+    and inside archive/ -- and the depth is known at render time.
+    """
+    rows = []
+    for slug, name in papers:
+        cur = slug == current_slug
+        rows.append(
+            f'<div class="pnav-row{" pnav-cur" if cur else ""}">'
+            f'<span class="pnav-name">{e(name)}'
+            f'{"<span class=pnav-now>you are here</span>" if cur else ""}</span>'
+            f'<a class="pnav-l" href="{prefix}{e(slug)}-desk.html">Laptop</a>'
+            f'<a class="pnav-l" href="{prefix}{e(slug)}.html">Phone</a></div>')
+    current = dict(papers).get(current_slug, current_slug)
+    # No button classes on the summary: this markup is shared by both
+    # templates and the desk's .tbtn does not exist in the phone's CSS.
+    # Each template styles .pnav>summary to match its own top bar.
+    return (
+        '<details class="pnav" id="pnav"><summary>'
+        f'{e(current)}<span class="pnav-c" aria-hidden="true"></span></summary>'
+        '<div class="pnav-menu"><div class="pnav-h">Switch newspaper</div>'
+        + "".join(rows) + "</div></details>")
+
+
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     with open(os.path.join(TPL, tpl_name), encoding="utf-8") as fh:
         tpl = fh.read()
@@ -695,6 +749,16 @@ def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     subs = {
         "<!--SECTIONS-->": body,
         "/*GLOSSARY*/": glossary_js(b.get("terms", [])),
+        "{{PAPERS}}": paper_switcher(
+            known_papers(meta), paper_slug(meta.get("newspaper", "")),
+            "../" if os.path.dirname(os.path.abspath(out_path)) ==
+            os.path.abspath(ARCHIVE) else ""),
+        # The rail's Context link points at a section that only exists when
+        # the brief carries web-sourced context blocks. On a paper read
+        # paper-only it would be a dead anchor, so it is stamped out.
+        "{{CONTEXT_NAV}}": (
+            '<a href="#context"><span class="n">＋</span>Context (web)</a>'
+            if b.get("context") else ""),
         "{{DATE_LONG}}": meta.get("dateLong", meta.get("date", "")),
         "{{NEWSPAPER}}": meta.get("newspaper", ""),
         "{{PAGES}}": str(meta.get("pages", "")),
@@ -785,16 +849,21 @@ def main() -> None:
         # One edition per paper per day, so the archive filename carries the
         # paper. Two papers on the same date would otherwise overwrite each
         # other and one would vanish from the index.
+        #
+        # Rendered once per destination rather than rendered once and copied.
+        # The newspaper switcher holds relative hrefs, and archive/ is one
+        # level deeper than the root, so a copy would drag `../hindu.html`
+        # into a file sitting in the root -- where it 404s. Identical content,
+        # two renders, one per depth.
         if not desk_only:
-            out = render("phone.html", b,
-                         os.path.join(ARCHIVE, f"{slug}-{date}.html"), "phone")
-            shutil.copyfile(out, os.path.join(HERE, f"{slug}.html"))
-            print(f"  wrote {slug}.html              (stable alias)")
-        out = render("desk.html", b,
-                     os.path.join(ARCHIVE, f"{slug}-{date}-desk.html"), "desk")
-        shutil.copyfile(out, os.path.join(HERE, f"{slug}-desk.html"))
-        print(f"  wrote {slug}-desk.html           (stable alias)")
+            render("phone.html", b, os.path.join(HERE, f"{slug}.html"), "phone")
+            render("phone.html", b,
+                   os.path.join(ARCHIVE, f"{slug}-{date}.html"), "phone")
+        render("desk.html", b, os.path.join(HERE, f"{slug}-desk.html"), "desk")
+        render("desk.html", b,
+               os.path.join(ARCHIVE, f"{slug}-{date}-desk.html"), "desk")
         write_manifest(b, date)
+        print(f"  {slug}.html + {slug}-desk.html  (stable aliases)")
         print("  updated archive/manifest.json")
     except (ValueError, KeyError) as exc:
         # A hand-written brief should fail with a sentence, not a traceback.

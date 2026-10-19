@@ -236,6 +236,20 @@ asks when the choice is genuinely ambiguous — more than one paper, and none
 remembered. `ARCHIVE.html` groups by newspaper first and month second, so two
 papers on the same day sit side by side instead of interleaving.
 
+**Switching papers from inside an edition.** The top bar carries a newspaper
+switcher instead of a "Today" link, and it shows the paper you are reading.
+Open it and every paper in the archive is listed with a Laptop and a Phone
+link each. It is a native `<details>`, so it opens with a click, works with
+scripting off, and closes on an outside click or Escape.
+
+The list is baked in at build time from the manifest, not fetched. A fetched
+menu shows an empty box for a frame, fails outright on a `file://` copy with
+no server, and cannot work at all in a printed edition. Each link's relative
+path is written for the depth the file is about to be saved at, which is why
+the build renders the root alias and the archived copy separately instead of
+rendering once and copying — a copy drags `../hindu.html` into a file sitting
+in the root, where it 404s.
+
 To refresh the public site after a build, commit that paper's aliases and the
 archive:
 

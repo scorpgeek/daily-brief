@@ -114,6 +114,42 @@ body{
 .tbtn:hover{color:var(--ink)}
 .tbtn-a{display:inline-flex;align-items:center;text-decoration:none}
 
+/* Newspaper switcher. A native <details>, so opening, closing, focus and
+   Escape are the browser's problem rather than ours, and it still works
+   with scripting off. Anchors are relative because the same file is
+   written to the root and into archive/ at two different depths. */
+.pnav{position:relative}
+.pnav>summary{
+  list-style:none;display:inline-flex;align-items:center;gap:6px;
+  font:500 11.5px/1 var(--sans);padding:7px 11px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  cursor:pointer;transition:color .12s,background .12s;
+}
+.pnav>summary:hover{color:var(--ink)}
+.pnav>summary::-webkit-details-marker{display:none}
+.pnav-c{width:0;height:0;margin-top:3px;
+  border:4px solid transparent;border-top-color:currentColor}
+.pnav[open]>.pnav-menu{display:block}
+.pnav[open] .pnav-c{margin-top:-2px;border-top-color:transparent;
+  border-bottom-color:currentColor}
+.pnav-menu{
+  position:absolute;right:0;top:calc(100% + 9px);z-index:40;display:none;
+  min-width:250px;padding:7px;background:var(--panel);
+  border:1px solid var(--line-2);border-radius:10px;box-shadow:var(--shadow);
+}
+.pnav-h{font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:5px 9px 8px}
+.pnav-row{display:flex;align-items:center;gap:5px;padding:0 2px 0 9px;border-radius:7px}
+.pnav-row:hover{background:var(--panel-2)}
+.pnav-cur{background:var(--panel-2)}
+.pnav-name{font:500 12.5px/1.35 var(--sans);color:var(--ink);
+  margin-right:auto;padding:7px 0}
+.pnav-now{display:block;font:600 8.5px/1 var(--mono);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--faint);margin-top:3px}
+.pnav-l{font:500 11px/1 var(--sans);color:var(--muted);text-decoration:none;
+  padding:6px 8px;border-radius:6px;border:1px solid var(--line)}
+.pnav-l:hover{color:var(--ink);border-color:var(--line-2)}
+
 /* ---------- content ---------- */
 section{margin:40px 0;scroll-margin-top:80px}
 h2.sec{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--use);
@@ -550,7 +586,7 @@ blockquote p{margin:0 0 8px}
 
   <h4>Reference</h4>
   <a href="#cats"><span class="n">02</span>Business &amp; Markets</a>
-  <a href="#context"><span class="n">＋</span>Context (web)</a>
+  
   <a href="#opinion"><span class="n">09</span>Opinion</a>
   <a href="#terms"><span class="n">11</span>Terms &amp; acronyms</a>
 
@@ -580,7 +616,7 @@ blockquote p{margin:0 0 8px}
     </div>
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
     <button class="tbtn" onclick="openIndex()">Index</button>
-    <a class="tbtn tbtn-a" href="#" data-today>Today</a>
+    <details class="pnav" id="pnav"><summary>The Hindu<span class="pnav-c" aria-hidden="true"></span></summary><div class="pnav-menu"><div class="pnav-h">Switch newspaper</div><div class="pnav-row"><span class="pnav-name">ET Delhi</span><a class="pnav-l" href="../et-desk.html">Laptop</a><a class="pnav-l" href="../et.html">Phone</a></div><div class="pnav-row pnav-cur"><span class="pnav-name">The Hindu<span class=pnav-now>you are here</span></span><a class="pnav-l" href="../hindu-desk.html">Laptop</a><a class="pnav-l" href="../hindu.html">Phone</a></div></div></details>
     <a class="tbtn tbtn-a" href="#" data-archive>Archive</a>
     <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
   </div>
@@ -640,9 +676,9 @@ blockquote p{margin:0 0 8px}
 </ul>
 <div class="h3">Economy &amp; Trade</div><ul>
 <li>Bar sugar from the ethanol tender. BPCL, on behalf of the oil marketing companies, will not seek bids for ethanol from cane juice, sugar or B-heavy molasses for 2026-27, while still asking for around 11 billion litres to hold the 20% E20 blending standard (printed p.13).</li>
-<li>Take India into the carbon club. Nearly 500 companies across seven sectors filed first compliance reports under the Carbon Credit Trading Scheme on 31 July; the first credits are due this month and trading is expected between November and January. India has stayed outside the Open Coalition on Compliance Carbon Markets, which met in Florence in May (printed p.6).</li>
+<li>Take India into the carbon club. Nearly 500 companies across seven sectors filed first compliance reports under the Carbon Credit Trading Scheme (<span class="term" data-term="CCTS">CCTS</span>) on 31 July; the first credits are due this month and trading on the power exchanges is expected between November and January. India has stayed outside the Open Coalition on Compliance Carbon Markets (<span class="term" data-term="OCCCM">OCCCM</span>), which met in Florence in May, and a coalition of the EU&#x27;s Carbon Border Adjustment Mechanism (<span class="term" data-term="CBAM">CBAM</span>) shape is the other reason to move — the coalition exchanges monitoring, reporting and verification (<span class="term" data-term="MRV">MRV</span>) systems, carbon accounting methods and offset rules, and the <span class="term" data-term="CCTS">CCTS</span> is meant to deliver India&#x27;s Nationally Determined Contribution (<span class="term" data-term="NDC">NDC</span>) and its 2070 net-zero goal (printed p.6).</li>
 <li>Watch MSP procurement caps. Telangana, drought-hit across 315 of 621 mandals, wants the 25% cap on maize and jowar lifted and full minimum-support-price purchase restored after poor rain (printed p.5).</li>
-<li>Read the north-east bloc properly. Female labour force participation rose from 33% to 45.9% in rural India between 2019-20 and 2025 at a national pace of 2.58 points a year, but Delhi and Lakshadweep are the only places it fell, at −2.34 (printed p.7).</li>
+<li>Read the north-east bloc properly. The Female Labour Force Participation Rate (<span class="term" data-term="FLFPR">FLFPR</span>) rose from 33% to 45.9% in rural India between 2019-20 and 2025 at a national pace of 2.58 points a year, but Delhi and Lakshadweep are the only places it fell, at −2.34 (printed p.7).</li>
 </ul>
 <div class="h3">Business &amp; Markets</div><ul>
 <li>Fund the Go-Delhi Foundation. The Delhi Cabinet has approved an initial outlay of ₹50 crore for a not-for-profit body under Section 8 of the Companies Act to take 21,000 DPIIT-recognised start-ups from idea to market-ready product (printed p.2).</li>
@@ -653,6 +689,7 @@ blockquote p{margin:0 0 8px}
 <li>Cut the price of 137 cancer drugs by up to 70% and cap trade margins at 30% of maximum retail price, the Ministry of Chemicals and Fertilizers has said (printed p.8).</li>
 <li>Chase the gut&#x27;s alarm system before chasing the molecule. A National Institute of Immunology study finds the protein RelB both builds the immune sentinels in the intestinal wall and suppresses regulatory T-cells in nearby lymph nodes, so targeting it for inflammatory bowel disease could blunt the gut&#x27;s ability to fight bacteria (printed p.18).</li>
 <li>Keep perishables cold end to end. FSSAI has told food business operators to move khoa, paneer, meat and fish under controlled temperatures through the supply chain, and told state food safety officers to act on non-compliance (printed p.13).</li>
+<li>Read &#x27;cashless&#x27; as a settlement method, not a free ride. The Moneywise column points out that cashless only removes the need to fund the insurer&#x27;s share: a hospital estimate of ₹2 lakh pre-authorised at ₹1.5 lakh leaves the balance billable to you, and while a Third-Party Administrator (<span class="term" data-term="TPA">TPA</span>) processes the claim, the insurer still decides what is admissible (printed p.13).</li>
 <li>Track the DRC Ebola curve: 4,536 deaths across 9,415 confirmed cases, with 67 new cases and 26 new deaths in the 24 hours to 16 October, and the outbreak now in an eighth province (printed p.8).</li>
 </ul>
 <div class="h3">Tech &amp; Society</div><ul>
@@ -690,7 +727,7 @@ blockquote p{margin:0 0 8px}
 
 <section id="verify" data-band="Reference">
 <h2 class="sec"><span class="n">07</span>Verify</h2>
-<ul><li>Reported claim — the Karnataka electoral roll glitch. Officers attribute 37 self-declared-dead filings and 334 pairs who declared each other dead to a software glitch during enumeration. The paper&#x27;s own analysis of Election Commission data found both patterns across more than 25 districts, and one booth-level officer said she was unaware any Form 7 had been filed against her. The glitch explanation is asserted, not demonstrated.</li><li>Reported claim — the Delhi Okhla deletion count. Over 100 voters from two booths were found wrongly marked absent, shifted, dead or duplicate, but that figure comes from a public audit by civil society groups rather than an official count. Around 20 people interviewed said they knew nothing of the weekend verification camps, and the Delhi Chief Electoral Officer&#x27;s office has since ordered door-to-door re-verification.</li></ul>
+<ul><li>Reported claim — the Karnataka electoral roll glitch. Officers attribute 37 self-declared-dead filings and 334 pairs who declared each other dead to a software glitch during enumeration. The paper&#x27;s own analysis of Election Commission data found both patterns across more than 25 districts, and one booth-level officer said she was unaware any Form 7 had been filed against her. The glitch explanation is asserted, not demonstrated.</li><li>Reported claim — the Delhi Okhla deletion count. Over 100 voters from two booths were found wrongly marked absent, shifted, dead or duplicate (<span class="term" data-term="ASDD">ASDD</span>) during the Special Intensive Revision (<span class="term" data-term="SIR">SIR</span>), but that figure comes from a public audit by civil society groups rather than an official count. Around 20 people interviewed said they knew nothing of the weekend verification camps, and the Delhi Chief Electoral Officer&#x27;s office has since ordered door-to-door re-verification.</li></ul>
 </section>
 
 <section id="opinion" data-band="Reference">
@@ -947,15 +984,32 @@ document.getElementById('idx').addEventListener('click', e=>{
 
 /* ---- navigation between editions ----
    One template renders to the project root and into archive/, which is one
-   level deeper, so these relative paths differ. Resolving them here means
-   the same file works opened as desk.html, as an archived edition, or
-   straight off the filesystem. An archived edition opens today's laptop
-   build, not today's phone one. */
+   level deeper, so the Archive link's relative path differs. Resolving it
+   here means the same file works opened as the alias, as an archived
+   edition, or straight off the filesystem.
+
+   The newspaper switcher needs none of this: build_brief.py writes its
+   hrefs already relative to wherever it is about to save. */
 (function(){
   var up = /\/archive\//.test(location.pathname) ? '../' : '';
-  var map = {'[data-archive]':'ARCHIVE.html', '[data-today]':'desk.html'};
-  Object.keys(map).forEach(function(sel){
-    document.querySelectorAll(sel).forEach(function(a){ a.href = up + map[sel]; });
+  document.querySelectorAll('[data-archive]').forEach(function(a){
+    a.href = up + 'ARCHIVE.html';
+  });
+
+  /* A <details> stays open on outside click by itself, which on a document
+     this long means it is still hanging over the text you clicked on.
+     Escape peels one layer at a time: the switcher first, then the
+     glossary drawer. */
+  var pnav = document.getElementById('pnav');
+  if(!pnav) return;
+  document.addEventListener('click', function(e){
+    if(pnav.open && !pnav.contains(e.target)) pnav.open = false;
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && pnav.open){
+      pnav.open = false;
+      pnav.querySelector('summary').focus();
+    }
   });
 })();
 

@@ -119,16 +119,42 @@ print("all guards fired" if not fails else f"{fails} guard(s) did NOT fire")
 # filename, the second write wins, and the archive is simply missing a
 # newspaper. It has to be checked by building both and looking at the disk.
 
+def _restore(snapshot):
+    """Put the publish tree back exactly as it was.
+
+    Files that existed are rewritten with their original bytes; files the
+    test created are removed. Restoring bytes rather than rebuilding is
+    the point: rebuilding would replace every edition with whatever brief
+    happens to be on disk, which is how a Hindu edition ends up holding
+    Economic Times content.
+    """
+    arch = os.path.join(HERE, "archive")
+    now = set(glob.glob(os.path.join(arch, "*.html"))
+              + glob.glob(os.path.join(HERE, "*.html"))
+              + [os.path.join(arch, "manifest.json")])
+    for path in sorted(now - set(snapshot)):
+        os.unlink(path)
+    for path, blob in snapshot.items():
+        with open(path, "wb") as fh:
+            fh.write(blob)
+
+
 def _collision():
     """Build the same date twice, once per paper, and report what landed."""
     tmp = tempfile.mkdtemp()
     arch = os.path.join(HERE, "archive")
-    # Whatever this test creates it must remove -- and only that. Deleting
-    # by name is not safe: once a second newspaper is a real, published
-    # edition, `hindu-desk.html` is a file someone reads, not a test
-    # artefact, and an unconditional unlink quietly takes it away.
-    before = set(glob.glob(os.path.join(arch, "*.html"))
-                 + glob.glob(os.path.join(HERE, "*.html")))
+    # This test builds into the real publish tree, because that is the only
+    # place the collision can actually happen. So it must put the tree back
+    # exactly as it found it -- not merely delete what it added. An earlier
+    # version only deleted, which stopped it destroying the Hindu edition but
+    # left it *overwritten* with ET content under a Hindu header: a real,
+    # published page silently serving the wrong newspaper.
+    snapshot = {}
+    for path in (glob.glob(os.path.join(arch, "*.html"))
+                 + glob.glob(os.path.join(HERE, "*.html"))
+                 + [os.path.join(arch, "manifest.json")]):
+        with open(path, "rb") as fh:
+            snapshot[path] = fh.read()
     for stem, paper in (("et-2026-10-19", "ET Delhi"),
                         ("hindu-2026-10-19", "The Hindu")):
         d = json.loads(json.dumps(base))
@@ -139,16 +165,18 @@ def _collision():
         r = subprocess.run([sys.executable, BUILD, p, "--desk"],
                            capture_output=True, text=True)
         if r.returncode != 0:
+            _restore(snapshot)
             return False, f"{stem} failed: {(r.stdout + r.stderr).strip()[:60]}"
 
-    # Archived editions land in archive/; the stable aliases are copies at
-    # the repo root, which is what the launcher links to.
+    # Archived editions land in archive/; the stable aliases are rendered
+    # again at the root, one level up, so their relative links differ.
     want = [os.path.join(arch, "et-2026-10-19-desk.html"),
             os.path.join(arch, "hindu-2026-10-19-desk.html"),
             os.path.join(HERE, "et-desk.html"),
             os.path.join(HERE, "hindu-desk.html")]
     missing = [os.path.basename(f) for f in want if not os.path.exists(f)]
     if missing:
+        _restore(snapshot)
         return False, f"missing {', '.join(missing)}"
 
     with open(os.path.join(arch, "manifest.json"), encoding="utf-8") as fh:
@@ -156,16 +184,10 @@ def _collision():
     that_day = [r for r in rows if r.get("date") == "2026-10-19"
                 and r.get("slug") in ("et", "hindu")]
     if len(that_day) != 2:
+        _restore(snapshot)
         return False, f"manifest lists {len(that_day)} editions for 2026-10-19"
 
-    # Put the real archive index back, then drop only what this test added.
-    subprocess.run([sys.executable, BUILD,
-                    os.path.join(HERE, "_raw", "2026-10-19.json"), "--desk"],
-                   capture_output=True, text=True)
-    after = set(glob.glob(os.path.join(arch, "*.html"))
-                + glob.glob(os.path.join(HERE, "*.html")))
-    for f in sorted(after - before):
-        os.unlink(f)
+    _restore(snapshot)
     return True, "et + hindu both published on 2026-10-19"
 
 
