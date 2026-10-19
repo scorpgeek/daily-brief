@@ -6,6 +6,7 @@ A brief is hand-written every day, so these guards are the only thing
 standing between a typo in the JSON and a silently broken edition.
 """
 
+import glob
 import json
 import os
 import subprocess
@@ -121,7 +122,13 @@ print("all guards fired" if not fails else f"{fails} guard(s) did NOT fire")
 def _collision():
     """Build the same date twice, once per paper, and report what landed."""
     tmp = tempfile.mkdtemp()
-    made = []
+    arch = os.path.join(HERE, "archive")
+    # Whatever this test creates it must remove -- and only that. Deleting
+    # by name is not safe: once a second newspaper is a real, published
+    # edition, `hindu-desk.html` is a file someone reads, not a test
+    # artefact, and an unconditional unlink quietly takes it away.
+    before = set(glob.glob(os.path.join(arch, "*.html"))
+                 + glob.glob(os.path.join(HERE, "*.html")))
     for stem, paper in (("et-2026-10-19", "ET Delhi"),
                         ("hindu-2026-10-19", "The Hindu")):
         d = json.loads(json.dumps(base))
@@ -134,7 +141,6 @@ def _collision():
         if r.returncode != 0:
             return False, f"{stem} failed: {(r.stdout + r.stderr).strip()[:60]}"
 
-    arch = os.path.join(HERE, "archive")
     # Archived editions land in archive/; the stable aliases are copies at
     # the repo root, which is what the launcher links to.
     want = [os.path.join(arch, "et-2026-10-19-desk.html"),
@@ -152,15 +158,14 @@ def _collision():
     if len(that_day) != 2:
         return False, f"manifest lists {len(that_day)} editions for 2026-10-19"
 
-    made = ["et-desk.html", "hindu-desk.html"]
-    for f in [os.path.join(arch, x) for x in
-              ("hindu-2026-10-19-desk.html",)] + made:
-        if os.path.exists(f):
-            os.unlink(f)
-    # put the real archive index back the way it was
+    # Put the real archive index back, then drop only what this test added.
     subprocess.run([sys.executable, BUILD,
                     os.path.join(HERE, "_raw", "2026-10-19.json"), "--desk"],
                    capture_output=True, text=True)
+    after = set(glob.glob(os.path.join(arch, "*.html"))
+                + glob.glob(os.path.join(HERE, "*.html")))
+    for f in sorted(after - before):
+        os.unlink(f)
     return True, "et + hindu both published on 2026-10-19"
 
 

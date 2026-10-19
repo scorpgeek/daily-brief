@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-prov="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Brief — Mon 19 Oct 2026 — Desk</title>
+<style>
+:root{
+  --bg:#0e0e0d; --panel:#161615; --panel2:#1c1c1a; --ink:#ecebe6;
+  --muted:#8e8b84; --faint:#868480; --line:#282825; --line2:#353430;
+  --use:#e87461; --ref:#c9a260; --lang:#80a98b; --web:#8bb5d8;
+  /* chip text solved against a 13% tint of itself; the raw accent does not
+     clear 4.5:1 once the tint is under it */
+  --chip-use:#e87563; --chip-ref:#caa362; --chip-faint:#8d8b87; --chip-lang:#81aa8c;
+  --shadow:0 2px 4px rgba(0,0,0,.5),0 12px 40px rgba(0,0,0,.4);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
+  --fs:17px; --measure:74ch; --rail:236px; --drawer:0px; --drawer-w:430px;
+  /* phone-CSS variable aliases */
+  --line-2:var(--line2); --panel-2:var(--panel2); --t-measure:var(--measure);
+}
+/* Warm paper rather than white: no pure #fff anywhere, and no pure black
+   text. Halation around glyphs on a white field is what makes a light
+   theme tiring after an hour; a warm off-white and a warm near-black
+   both cut it. Read at night, this is the point of the light theme. */
+[data-theme="light"]{
+  --bg:#f7f4ed;--panel:#fdfbf6;--panel2:#efeade;--ink:#211f1a;--muted:#56534b;
+  --faint:#6b6863;--line:#e3ded1;--line2:#d1cbba;
+  --use:#a6261a;--ref:#8c611a;--lang:#3b694a;--web:#1f5e8e;
+  --chip-use:#a4261a;--chip-ref:#8b601a;--chip-faint:#6a6762;--chip-lang:#3a6849;
+  --shadow:0 1px 2px rgba(60,50,30,.06),0 12px 40px rgba(60,50,30,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:var(--fs)/1.62 var(--sans);-webkit-font-smoothing:antialiased;
+}
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--drawer);min-height:100vh;transition:grid-template-columns .2s ease}
+.rail{
+  border-right:1px solid var(--line);background:var(--panel);
+  padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.main{padding:0 44px 120px;max-width:1000px}
+.drawer{
+  border-left:1px solid var(--line);background:var(--panel);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .18s;
+}
+.app[data-drawer="open"] .drawer{opacity:1;pointer-events:auto}
+.app[data-drawer="open"]{--drawer:var(--drawer-w)}
+
+/* ---------- rail ---------- */
+.brand{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:0 18px 4px}
+.rail-date{font:600 17px/1.2 var(--serif);padding:0 18px 2px;letter-spacing:-.01em}
+.rail-src{font:400 10.5px/1.4 var(--mono);color:var(--faint);padding:0 18px 16px}
+/* The rail scrolls on a short viewport. Since the top bar no longer
+   repeats the date, the identity has to stay put here. */
+.rhead{position:sticky;top:0;z-index:1;background:var(--panel);padding-top:20px}
+.rail h4{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+  padding:16px 18px 8px;margin:0;border-top:1px solid var(--line)}
+.rail a{display:block;padding:5px 18px;font-size:12.5px;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;transition:.12s}
+.rail a:hover{color:var(--ink);background:var(--panel2)}
+.rail a.on{color:var(--ink);border-left-color:var(--use);background:var(--panel2)}
+.rail a .n{font:600 9px/1 var(--mono);color:var(--faint);display:inline-block;width:26px}
+/* Glossary index. The rail is too narrow to set term and expansion side by
+   side, and reusing the fixed 26px number column made long terms like
+   FCNR(B) and Bancassurance overflow and collide with the text beside them.
+   Stack them, and drop the expansion when it just repeats the term. */
+#glist a{padding:6px 18px}
+#glist .g-t{display:block;font:600 12.5px/1.35 var(--sans);color:var(--ink)}
+#glist .g-x{display:block;font:400 11px/1.35 var(--sans);color:var(--faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#glist a:hover .g-x{color:var(--muted)}
+.ctl{display:flex;align-items:center;justify-content:space-between;padding:6px 18px;font-size:12px;color:var(--muted);cursor:pointer}
+.ctl:hover{color:var(--ink)}
+.sw{width:30px;height:17px;border-radius:9px;background:var(--line2);position:relative;transition:.15s;flex:none}
+.sw::after{content:"";position:absolute;inset:2px auto 2px 2px;width:13px;border-radius:50%;
+  background:var(--faint);transition:.15s}
+[data-prov="on"] .sw{background:color-mix(in srgb,var(--web) 45%,transparent)}
+[data-prov="on"] .sw::after{transform:translateX(13px);background:var(--web)}
+.fsize{display:flex;gap:4px;padding:4px 18px 0}
+.fsize button{flex:1;font:600 11px/1 var(--mono);padding:6px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;border-radius:5px}
+.fsize button.on{color:var(--ink);border-color:var(--faint)}
+
+/* ---------- topbar ---------- */
+.top{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:14px 44px;display:flex;align-items:center;gap:14px}
+.top .kick{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.top h1{font:600 21px/1.2 var(--serif);margin:0;flex:1;letter-spacing:-.01em}
+/* The bar used to repeat the rail's date and paper name. Both the rail and
+   the bar are sticky, so that duplication was permanent and side by side.
+   The rail keeps the document identity; the bar now shows where you are. */
+.now{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px}
+.now-n{font:600 15px/1.2 var(--serif);letter-spacing:-.01em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.now-n b{color:var(--use);font:600 10px/1 var(--mono);letter-spacing:.1em;
+  margin-right:9px;vertical-align:2px}
+.now-c{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--faint);white-space:nowrap}
+.prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:transparent}
+.prog i{display:block;height:100%;width:0;background:var(--use);
+  transition:width .12s linear}
+.search{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:7px 12px;min-width:280px;cursor:text}
+.search input{background:none;border:0;outline:0;color:var(--ink);font:13px var(--sans);flex:1;width:100%}
+.search kbd{font:600 9px/1 var(--mono);color:var(--faint);border:1px solid var(--line2);
+  padding:3px 5px;border-radius:3px}
+.tbtn{font:500 11.5px/1 var(--sans);padding:7px 11px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--muted);cursor:pointer}
+.tbtn:hover{color:var(--ink)}
+.tbtn-a{display:inline-flex;align-items:center;text-decoration:none}
+
+/* ---------- content ---------- */
+section{margin:40px 0;scroll-margin-top:80px}
+h2.sec{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--use);
+  margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline}
+h2.sec .n{color:var(--faint)}
+p{max-width:var(--measure)}
+.ts{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--use);
+  border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:36px}
+.ts dl{display:grid;grid-template-columns:82px 1fr;gap:8px 16px;margin:0}
+.ts dt{font:600 9.5px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.ts dd{margin:0;font-size:15px}
+
+.top-item{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.top-item:last-child{border-bottom:0}
+.tag{font:700 9.5px/1 var(--mono);letter-spacing:.08em;padding:5px 7px;border-radius:4px;height:fit-content;text-align:center}
+.tag.WATCH{color:var(--chip-ref);background:color-mix(in srgb,var(--ref) 13%,transparent)}
+.tag.KNOW{color:var(--chip-faint);background:color-mix(in srgb,var(--faint) 13%,transparent)}
+.tag.ACT{color:var(--chip-use);background:color-mix(in srgb,var(--use) 13%,transparent)}
+.top-note{grid-column:2;font-size:12.5px;color:var(--muted);padding-top:4px}
+.top-note b{color:var(--ref);font-weight:600}
+
+.lens{border-left:2px solid var(--use);padding-left:18px;margin-bottom:22px}
+.lens dt{font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:11px}
+.lens dt:first-child{margin-top:0}
+.lens dd{margin:3px 0 0;font-size:15.5px;max-width:var(--measure)}
+
+table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0 18px;max-width:640px}
+caption{caption-side:top;text-align:left;font-size:13.5px;color:var(--muted);padding-bottom:10px;max-width:var(--measure)}
+th{font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  text-align:left;padding:0 14px 8px 0;border-bottom:1px solid var(--line2)}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;padding-right:0;font-variant-numeric:tabular-nums}
+
+/* ---------- terms ---------- */
+.term{border-bottom:1.5px dotted color-mix(in srgb,var(--web) 65%,transparent);cursor:pointer;
+  color:inherit;position:relative;transition:background .12s}
+.term:hover{background:color-mix(in srgb,var(--web) 15%,transparent);border-radius:2px}
+.term::after{content:"";position:absolute;left:0;right:0;bottom:-1.5px;height:1.5px;
+  background:var(--web);opacity:0;transition:opacity .15s}
+.term:hover::after,.term.sel::after{opacity:1}
+/* tooltip */
+.tip{position:fixed;z-index:90;max-width:340px;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:8px;padding:10px 13px;font:13px/1.5 var(--sans);color:var(--ink);
+  box-shadow:var(--shadow);pointer-events:none;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+.tip .k{display:block;font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--web);margin-bottom:5px}
+
+/* provenance */
+[data-src]{position:relative}
+.ctx{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--web);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin:18px 0}
+.ctx-k{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--web);margin-bottom:10px}
+.ctx p{font-size:14.5px;margin:0 0 10px}
+.ctx p:last-child{margin-bottom:0}
+.src-list{list-style:none;margin:12px 0 0;padding:0;font:11.5px/1.6 var(--mono);color:var(--faint)}
+.src-list li{padding-left:14px;position:relative}
+.src-list li::before{content:"↗";position:absolute;left:0}
+[data-prov="off"] [data-src="web"]::before{content:"";position:absolute;left:-11px;top:2px;width:4px;height:4px;
+  border-radius:50%;background:var(--web);opacity:.5}
+[data-prov="on"] [data-src="web"]{border-bottom:1px dashed var(--web)}
+[data-prov="on"] [data-src="web"]::before{content:"";position:absolute;left:-13px;top:2px;width:5px;height:5px;
+  border-radius:50%;background:var(--web)}
+
+/* ---------- drawer ---------- */
+.dwrap{padding:26px 26px 60px}
+.dclose{float:right;font:400 18px/1 var(--sans);background:none;border:0;color:var(--faint);cursor:pointer;padding:4px 8px}
+.dterm{font:600 26px/1.15 var(--serif);margin:0 0 3px;letter-spacing:-.02em;clear:both}
+.dexp{font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--web);margin-bottom:20px}
+.dsec{margin:24px 0 0;padding-top:18px;border-top:1px solid var(--line)}
+.dsec h5{font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 9px}
+.dsec p{font-size:14px;margin:0 0 9px;max-width:none}
+.dsec a{color:var(--web);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--web) 35%,transparent)}
+.dsec a:hover{border-bottom-color:var(--web)}
+.dsec ul{margin:0;padding-left:17px;font-size:13.5px;line-height:1.65}
+.dsec li{margin-bottom:7px}
+.dquote{font:italic 14px/1.6 var(--serif);color:var(--muted);border-left:2px solid var(--line2);
+  padding-left:14px;margin:0 0 12px}
+
+/* ---------- glossary ---------- */
+.gtable{width:100%;border-collapse:collapse;font-size:14px;max-width:none}
+.gtable th{font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  text-align:left;padding:0 16px 8px 0;border-bottom:1px solid var(--line2)}
+.gtable td{padding:11px 16px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.gtable td:first-child{font-weight:600;color:var(--web);white-space:nowrap;cursor:pointer}
+.gtable .src{font:11px/1.5 var(--mono);color:var(--faint)}
+
+/* ---------- search ---------- */
+.res{display:none;margin:0 0 30px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 0}
+.res.on{display:block}
+.res a{display:block;padding:9px 18px;color:var(--ink);text-decoration:none;font-size:14px;border-bottom:1px solid var(--line)}
+.res a:last-child{border-bottom:0}
+.res a:hover{background:var(--panel2)}
+.res .m{font:10.5px/1.5 var(--mono);color:var(--faint);display:block;margin-top:2px}
+.res .hl{background:color-mix(in srgb,var(--use) 28%,transparent);border-radius:2px}
+mark.hidden{display:none}
+
+@media(max-width:900px){
+  :root{--rail:0px;--drawer:0px}
+  .app{grid-template-columns:1fr}
+  .rail{display:none}
+  .main{padding:0 20px 80px}
+  .top{padding:12px 20px;flex-wrap:wrap}
+  .search{min-width:100%;order:3}
+  .drawer{position:fixed;right:0;top:0;width:min(420px,92vw);height:100vh;z-index:70;transform:translateX(100%);transition:transform .2s}
+  .app[data-drawer="open"] .drawer{transform:none}
+  .tip{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* ---------- index ----------
+   The rail can only hold seven entries without becoming a wall; the
+   document has twenty-one sections. The Index is the whole list. */
+.idx{
+  border:1px solid var(--line2);border-radius:14px;background:var(--panel);
+  color:var(--ink);padding:0;width:min(560px,92vw);max-height:78vh;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);overflow:hidden;
+}
+.idx::backdrop{background:rgba(20,18,14,.42);backdrop-filter:blur(2px)}
+.idx-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 12px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--panel);
+}
+.idx-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.idx-x{
+  background:none;border:0;color:var(--muted);font-size:19px;line-height:1;
+  cursor:pointer;padding:2px 6px;border-radius:6px;
+}
+.idx-x:hover{color:var(--ink);background:var(--panel2)}
+.idx-b{max-height:calc(78vh - 96px);overflow-y:auto;padding:6px 0}
+.idx-g{
+  font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:14px 16px 6px;
+}
+.idx a{
+  display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:baseline;
+  padding:7px 16px;text-decoration:none;color:var(--muted);font-size:14px;
+}
+.idx a:hover,.idx a:focus-visible{background:var(--panel2);color:var(--ink);outline:none}
+.idx a .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right}
+.idx a:hover .n,.idx a:focus-visible .n{color:var(--use)}
+.idx-f{
+  margin:0;padding:10px 16px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+
+/* ---------- back to top ----------
+   A 74-column reading column is a long scroll and the Index only covers
+   the sections that were in the rail. One utility, one 120ms opacity
+   fade to match the disclosure chevron — nothing else animates.
+   Right offset tracks the drawer so it never lands underneath it. */
+.totop{
+  position:fixed;z-index:50;bottom:24px;right:calc(24px + var(--drawer));
+  width:38px;height:38px;border-radius:50%;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line2);color:var(--muted);
+  box-shadow:var(--shadow);font:400 16px/1 var(--sans);
+  opacity:0;pointer-events:none;transition:opacity .12s;
+}
+.totop.show{opacity:1;pointer-events:auto}
+.totop:hover{color:var(--ink);border-color:var(--muted)}
+.totop:focus-visible{outline:2px solid var(--web);outline-offset:2px}
+/* The button is a sibling of .app, not a descendant, so it does not
+   inherit --drawer from it. Step aside when the drawer is open. */
+.app[data-drawer="open"] ~ .totop{right:calc(24px + var(--drawer-w))}
+@media (max-width:900px){
+  .totop{bottom:16px;right:16px}
+  /* narrow layout makes the drawer a fixed overlay, so no stepping aside */
+  .app[data-drawer="open"] ~ .totop{right:16px}
+}
+/* --- ported from phone --- */
+/* section flag, used by the desk <h2> header */
+.sec-flag{
+  font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--chip-ref);background:color-mix(in srgb,var(--ref) 13%,transparent);
+  padding:4px 7px;border-radius:4px;margin-left:12px;
+}
+/* part-of-speech under a vocab word */
+.vocab .pos{display:block;font:400 10px/1.3 var(--mono);color:var(--faint);letter-spacing:.04em}
+/* category heading inside Categories */
+.h3{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ref);margin:22px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.h3:first-child{margin-top:0}
+/* prose */
+.sec-body p{margin:0 0 12px;max-width:var(--t-measure)}
+.sec-body ul{margin:0 0 12px;padding-left:20px;max-width:var(--t-measure)}
+.sec-body li{margin-bottom:7px}
+.sec-body b,strong{font-weight:650}
+em{color:var(--accent);font-style:normal}
+.h3{
+  font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin:22px 0 10px;padding-top:4px;
+}
+.h3:first-child{margin-top:18px}
+
+/* numbers */
+.nums{display:grid;gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
+.num{
+  background:var(--panel-2);padding:14px 16px;
+  display:flex;align-items:baseline;gap:14px;
+}
+.num-v{
+  font:600 22px/1 var(--serif);letter-spacing:-.02em;
+  min-width:82px;flex:none;color:var(--accent);
+}
+.num-l{font-size:13.5px;color:var(--muted);line-height:1.45}
+
+/* dates */
+.dates{list-style:none;margin:0;padding:0}
+.dates li{
+  display:grid;grid-template-columns:96px 1fr;gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline;
+}
+.dates li:last-child{border-bottom:0}
+.dates .d{
+  font:600 11.5px/1.4 var(--mono);color:var(--muted);letter-spacing:.02em;
+}
+.dates .d.soon{color:var(--use)}
+.dates .w{font-size:14.5px;line-height:1.5}
+
+/* tables */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:340px}
+caption{
+  caption-side:top;text-align:left;font-size:13.5px;color:var(--muted);
+  line-height:1.5;padding-bottom:12px;max-width:var(--t-measure);
+}
+th{
+  font:600 10px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);text-align:left;padding:0 12px 8px 0;
+  border-bottom:1px solid var(--line-2);
+}
+td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-variant-numeric:tabular-nums;padding-right:0}
+th.n{text-align:right;padding-right:0}
+
+/* quotes / citations */
+.src{
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+  letter-spacing:.04em;display:block;margin-top:10px;
+}
+blockquote{
+  margin:14px 0;padding:2px 0 2px 16px;border-left:2px solid var(--line-2);
+  color:var(--muted);font-size:14.5px;max-width:var(--t-measure);
+}
+blockquote p{margin:0 0 8px}
+
+/* opinion entries */
+.op{border-top:1px solid var(--line);padding:16px 0}
+.op:first-of-type{border-top:0;padding-top:4px}
+.op h4{font:600 15.5px/1.3 var(--serif);margin:0 0 3px;letter-spacing:-.01em}
+.op-by{font:400 11px/1.4 var(--mono);color:var(--faint);margin:0 0 12px}
+.op-row{display:grid;grid-template-columns:74px 1fr;gap:3px 12px;font-size:14px;line-height:1.55}
+.op-row dt{font:600 9.5px/1.65 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.op-row dd{margin:0 0 7px}
+@media (max-width:420px){ .op-row{grid-template-columns:1fr} .op-row dt{margin-top:8px} }
+
+/* tables of vocab */
+.vocab{width:100%;border-collapse:collapse;font-size:14px}
+.vocab th{
+  font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  text-align:left;padding:0 10px 8px 0;border-bottom:1px solid var(--line-2);
+  color:var(--faint);white-space:nowrap;
+}
+.vocab td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.vocab tr:last-child td{border-bottom:0}
+.vocab td:first-child{font-weight:600;white-space:nowrap;color:var(--accent)}
+
+/* traps */
+.trap{padding:13px 0;border-bottom:1px solid var(--line)}
+.trap:last-child{border-bottom:0;padding-bottom:0}
+.trap-row{display:grid;gap:5px}
+.trap-bad{
+  font-size:14.5px;color:var(--muted);text-decoration:line-through;
+  text-decoration-color:var(--faint);text-decoration-thickness:1px;
+}
+.trap-good{font-size:14.5px}
+.trap-good b{color:var(--lang)}
+.trap-why{font-size:13px;color:var(--muted);line-height:1.5;padding-top:3px}
+
+/* speak / quiz */
+.speak{
+  background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;margin-bottom:14px;
+}
+.speak h4,.quiz h4{
+  font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 10px;
+}
+.speak .q{font:600 15px/1.5 var(--serif);margin:0 0 14px;letter-spacing:-.01em}
+.model{
+  border-top:1px dashed var(--line-2);padding-top:13px;
+  font-size:14.5px;line-height:1.6;color:var(--muted);max-width:var(--t-measure);
+}
+.model em{color:var(--lang);font-style:normal}
+/* ---------- quiz ---------- */
+.quiz{border-bottom:1px solid var(--line);padding:16px 0;max-width:var(--t-measure)}
+.quiz:last-child{border-bottom:0}
+.quiz .q{font-size:15px;line-height:1.55;margin:0 0 11px}
+.opts{display:grid;gap:7px}
+.opt{
+  display:grid;grid-template-columns:24px 1fr;gap:11px;align-items:start;
+  width:100%;text-align:left;cursor:pointer;font:inherit;position:relative;
+  font-size:14.5px;line-height:1.5;color:var(--muted);padding-right:38px;
+  background:none;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+}
+/* the mark is the feedback — a tint alone is too quiet to read as "right" */
+.opt::after{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font:600 14px/1 var(--sans);opacity:0;
+}
+.opt.right::after{content:"\2713";color:var(--chip-lang);opacity:1}
+.opt.wrong::after{content:"\2715";color:var(--chip-use);opacity:1}
+.opt:hover{border-color:var(--line2);color:var(--ink)}
+.opt .k{
+  font:600 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;text-align:center;
+}
+.quiz .why{
+  display:none;margin:12px 0 0;padding:10px 0 0 13px;
+  border-left:2px solid var(--lang);
+  font-size:14px;line-height:1.55;color:var(--muted);
+}
+.quiz.done .why{display:block}
+.quiz.ans-a.done .opt[data-k="a"],
+.quiz.ans-b.done .opt[data-k="b"],
+.quiz.ans-c.done .opt[data-k="c"],
+.quiz.ans-d.done .opt[data-k="d"]{
+  border-color:var(--lang);color:var(--ink);
+  background:color-mix(in srgb,var(--lang) 11%,transparent);
+}
+.quiz.ans-a.done .opt[data-k="a"] .k,
+.quiz.ans-b.done .opt[data-k="b"] .k,
+.quiz.ans-c.done .opt[data-k="c"] .k,
+.quiz.ans-d.done .opt[data-k="d"] .k{color:var(--chip-lang);border-color:transparent}
+.opt.wrong{
+  border-color:var(--use);color:var(--faint);
+  background:color-mix(in srgb,var(--use) 9%,transparent);
+}
+.opt.wrong .k{color:var(--chip-use);border-color:transparent}
+.opt.wrong .ot{text-decoration:line-through}
+.opt:disabled{cursor:default}
+
+/* skip */
+.skip{
+  background:var(--panel-2);border:1px dashed var(--line-2);border-radius:10px;
+  padding:15px 17px;font-size:14px;color:var(--muted);line-height:1.6;
+}
+
+/* long-form read */
+.longform{max-width:var(--t-measure)}
+.longform>p{font-size:15.5px;line-height:1.62}
+.beat{
+  margin:0 0 18px;padding:2px 0 2px 15px;
+  border-left:2px solid var(--line-2);
+}
+.beat:last-child{margin-bottom:0}
+.beat-k{
+  font:600 9.5px/1 var(--mono);letter-spacing:.15em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:7px;
+}
+.beat p{font-size:15px;line-height:1.6;margin:0 0 9px}
+.beat p:last-child{margin-bottom:0}
+.beat.falsifier{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);
+  border-radius:0 8px 8px 0;padding:13px 15px}
+.byline{
+  font:400 11.5px/1.4 var(--mono);color:var(--faint);margin:0 0 20px;
+  padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+
+/* deep dive */
+.dd{border-top:1px solid var(--line);padding:18px 0 4px}
+.dd:first-of-type{border-top:0;padding-top:4px}
+.dd h4{
+  font:600 16px/1.3 var(--serif);margin:0 0 4px;letter-spacing:-.01em;
+}
+.dd-page{font:400 10.5px/1.4 var(--mono);color:var(--faint);margin:0 0 14px}
+.dd-row{display:grid;grid-template-columns:96px 1fr;gap:3px 14px;font-size:14.5px;line-height:1.55}
+.dd-row dt{
+  font:600 9.5px/1.7 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);
+}
+.dd-row dd{margin:0 0 9px;max-width:var(--t-measure)}
+@media (max-width:460px){
+  .dd-row{grid-template-columns:1fr}
+  .dd-row dt{margin-top:9px}
+}
+
+/* hindi / phrases */
+.hindi{width:100%;border-collapse:collapse;font-size:14.5px}
+.hindi td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:baseline}
+.hindi tr:last-child td{border-bottom:0}
+.hindi td:first-child{font-weight:600;color:var(--accent);white-space:nowrap;width:34%}
+.hindi .dev{font-size:15px}
+.hindi .pron{font:400 12px/1.4 var(--mono);color:var(--faint);white-space:nowrap}
+.phrase{
+  padding:13px 0;border-bottom:1px solid var(--line);
+}
+.phrase:last-child{border-bottom:0;padding-bottom:0}
+.phrase-t{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:5px;
+}
+.phrase-w{font:600 15px/1.3 var(--sans);color:var(--accent)}
+.phrase-tone{
+  font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);border:1px solid var(--line-2);padding:4px 6px;border-radius:4px;
+}
+.phrase-m{font-size:13.5px;color:var(--muted);margin:0 0 6px;line-height:1.5}
+.phrase-e{
+  font-size:14px;line-height:1.55;padding-left:12px;
+  border-left:2px solid var(--line-2);
+}
+
+</style>
+</head>
+<body>
+
+<div class="app" id="app" data-drawer="closed">
+
+<!-- ================= RAIL ================= -->
+<aside class="rail">
+  <div class="rhead">
+    <div class="brand">Daily Brief</div>
+    <div class="rail-date">Mon 19 Oct 2026</div>
+    <div class="rail-src">The Hindu · 22pp · LONG+DEEP</div>
+  </div>
+
+  <h4>Use these</h4>
+  <a href="#top"><span class="n">01</span>Top 5</a>
+  <a href="#lens"><span class="n">06</span>My Lens</a>
+  <a href="#huddle"><span class="n">08</span>Huddle line</a>
+
+  <h4>Reference</h4>
+  <a href="#cats"><span class="n">02</span>Business &amp; Markets</a>
+  <a href="#context"><span class="n">＋</span>Context (web)</a>
+  <a href="#opinion"><span class="n">09</span>Opinion</a>
+  <a href="#terms"><span class="n">11</span>Terms &amp; acronyms</a>
+
+  <h4>Reading</h4>
+  <div class="ctl" onclick="setProv()">Show provenance<span class="sw"></span></div>
+  <div class="fsize">
+    <button onclick="setFS(16)" id="fsS">S</button>
+    <button onclick="setFS(17)" id="fsM" class="on">M</button>
+    <button onclick="setFS(19)" id="fsL">L</button>
+  </div>
+  <!-- theme lives in the top bar only; one control, not two -->
+
+  <h4>Glossary</h4>
+  <div id="glist"></div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<div>
+  <div class="top">
+    <div class="now">
+      <span class="now-n"><b id="nowNum">01</b><span id="nowName">Top 5</span></span>
+      <span class="now-c" id="nowCount">1 / 21</span>
+    </div>
+    <div class="search" onclick="focusSearch()">
+      <input id="q" placeholder="Search sections, terms, claims…" oninput="doSearch()">
+      <kbd>⌘K</kbd>
+    </div>
+    <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
+    <button class="tbtn" onclick="openIndex()">Index</button>
+    <a class="tbtn tbtn-a" href="#" data-today>Today</a>
+    <a class="tbtn tbtn-a" href="#" data-archive>Archive</a>
+    <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
+  </div>
+
+  <dialog class="idx" id="idx" aria-label="Jump to section">
+    <div class="idx-h">
+      <span class="idx-t">Jump to</span>
+      <button class="idx-x" onclick="closeIndex()" aria-label="Close">&times;</button>
+    </div>
+    <div class="idx-b" id="idxBody"></div>
+    <p class="idx-f">&uarr;&darr; to move &middot; Enter to jump &middot; Esc to close</p>
+  </dialog>
+
+  <div class="main"><div class="res" id="res"></div><section class="ts" id="thirty" data-band="Start"><h2>30 seconds</h2><dl class="ts-row"><dt>Today</dt><dd>Kolkata stampede toll rises to 19 with an SIT promised and Kolkata police kept out; Delhi pandal organisers say a 10 p.m. forced closure is squeezing the crowd window and worsening the very risk it is meant to fix.</dd><dt>Do this</dt><dd>Mark every point on one roster you own where slack was removed to hit a target, and name what absorbs the difference now. The two stories on today&#x27;s front page are one operational failure told twice.</dd><dt>By when</dt><dd>Oct 20 Amit Shah visits Punjab, and the third T20I is at 7 p.m. Oct 22 the New Zealand T20I tour and the Kuki shutdown of NH-202 both begin. Nov 1 the CISF reorganisation takes effect.</dd></dl></section>
+
+<section id="top" data-band="Use these">
+<h2 class="sec"><span class="n">01</span>Top 5<span class="sec-flag">WATCH 4 · KNOW 1</span></h2>
+<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Kolkata pandal stampede toll rises to 19; seven arrested and a special investigation team is to be headed by a sitting Calcutta High Court judge, with Kolkata police excluded from it (printed pp.1, 10).</div><div class="top-note"><b>Watch for</b> The SIT being constituted, and its first finding on how the surge began. The paper&#x27;s editorial makes one testable charge: that only temporary home guards were posted at the venue.</div></div>
+<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Delhi pandal organisers say police are forcing closures by 10 p.m., two hours earlier than usual, and warn that squeezing the evening window will swell the crowd rather than thin it (printed p.2).</div><div class="top-note"><b>Watch for</b> Whether the 10 p.m. deadline holds through the rest of the festival, and whether any pandal is shut early on safety grounds rather than noise rules.</div></div>
+<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Delhi proposes capping e-rickshaws at 2.5 lakh; registrations and compliance certificates stop once the cap is hit, and the draft is open for comment for 30 days (printed p.2).</div><div class="top-note"><b>Watch for</b> The final scheme once the 30-day window closes around 17 November.</div></div>
+<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">US Vice-President J.D. Vance calls his own &#x27;indentured servants&#x27; description of H-1B workers &#x27;imperfect&#x27; after India called it deeply offensive; Indian professionals hold over 70% of approved H-1B petitions (printed p.14).</div><div class="top-note"><b>Watch for</b> Whether the remark hardens into a policy change, and whether the framing gets copied by other governments.</div></div>
+<div class="top-item"><span class="tag KNOW">KNOW</span><div class="top-text">Supreme Court bars mid-term fee hikes in professional courses, ruling students must know the full cost at the threshold; NSSO data put professional course fees 711% above general academic programmes (printed p.10).</div></div>
+</section>
+
+<section id="lens" data-band="Use these">
+<h2 class="sec"><span class="n">06</span>My Lens</h2>
+<div class="lens"><dl><dt>What</dt><dd data-src="paper">Delhi pandal organisers say an earlier forced closing time is making crowd control worse, not better — compressing celebrations that normally run past 1 a.m. into a 10 p.m. deadline.</dd><dt>Why me</dt><dd>That is the exact mechanism behind a compressed window in any shift operation: remove slack from a peak and the peak gets denser, not shorter. It is also the mechanism the paper&#x27;s editorial blames on temporary home guards standing in for experienced police.</dd><dt>Do / Say</dt><dd>Take one roster you own this week and mark every point where you removed slack to hit a target. Then ask what absorbs the difference in the twenty minutes that used to.</dd></dl></div>
+<div class="lens"><dl><dt>What</dt><dd data-src="paper">The paper&#x27;s Data Point column finds Delhi one of only two States or UTs where rural female labour force participation fell between 2019-20 and 2025, at −2.34 percentage points a year against an all-India rural average of +2.58.</dd><dt>Why me</dt><dd>A night-shift BPO workforce is disproportionately women. A falling participation rate in your own city shows up in your hiring pool long before it shows up in your attrition numbers.</dd><dt>Do / Say</dt><dd>Pull your own attrition split by gender before the next workforce review and put it beside the city trend. Then ask recruiting what has changed in the pool.</dd></dl></div>
+<div class="lens"><dl><dt>What</dt><dd data-src="paper">A Delhi University study of 2,000-plus children aged 9-14 found 97.6% access the internet from home and average 4.5 hours a day, with anxiety, sleep disturbance and mood change the most-reported effects.</dd><dt>Why me</dt><dd>The same issue carries an editorial arguing that generative AI replaces mental effort rather than assisting it, and that we should protect what it calls productive struggle. That is a live argument about what junior operations work is actually for, and it is on the front page rather than in an annex.</dd><dt>Do / Say</dt><dd>Pick one process your team automates this quarter and write down what a new joiner could no longer do without it. If the answer is nothing, the process may be doing the thinking for them.</dd></dl></div>
+</section>
+
+<section id="huddle" data-band="Use these">
+<h2 class="sec"><span class="n">08</span>Shift Huddle Line<span class="sec-flag">Copy</span></h2>
+<blockquote><p>The Hindu ran the same distress helpline number in four separate stories today, so let&#x27;s talk about what we say when a customer tells us they are in crisis — and what we must never say.</p></blockquote>
+</section>
+
+<section id="deep" data-band="Use these">
+<h2 class="sec"><span class="n">DEEP</span>Deep Dive<span class="sec-flag">2 stories</span></h2>
+<div class="dd"><h4>Kolkata pandal stampede</h4><p class="dd-page">printed pp.1, 10</p><dl class="dd-row"><dt>Background</dt><dd>A Durga Puja pandal in north Kolkata filled with people sheltering from heavy rain on Saturday evening. Organisers then made an announcement asking people to leave, saying the structure might collapse at any moment; private security staff engaged by the pandal also blew whistles. The police have registered a suo motu case under Section 105 of the Bharatiya Nyaya Sanhita — culpable homicide not amounting to murder.</dd><dt>Affected</dt><dd>Nineteen dead, of whom 13 were female including two minors. The youngest were a seven-year-old boy from Bihar, a 13-year-old from Agarpara in North 24 Parganas and a 14-year-old from Purba Bardhaman. About 25 were injured, 14 of them shifted to Apollo Hospitals. Seven of the dead came from North 24 Parganas. The State has announced ₹25 lakh to the next of kin of each deceased.</dd><dt>Next</dt><dd>A magisterial inquiry by an additional collector is under way and is meant to establish at which level the lapses occurred. The Chief Minister has said the State will write to the Calcutta High Court seeking a special investigation team headed by a sitting judge, with Kolkata police kept out. Fire and police officials have since inspected pandals and urged organisers to increase lighting.</dd><dt>Watch</dt><dd>Whether the SIT is constituted, and what its first finding is on how the surge began. The editorial&#x27;s charge is specific and testable — that only temporary home guards were posted at the venue, and that effective deployment of experienced police may have avoided the tragedy.</dd><dt>Scale</dt><dd>Nineteen dead at a structure the paper notes has generally been accident-free despite very large crowds. The failure was in the crowd&#x27;s movement, not in the pandal.</dd></dl></div>
+<div class="dd"><h4>Delhi&#x27;s 10 p.m. pandal deadline</h4><p class="dd-page">printed p.2</p><dl class="dd-row"><dt>Background</dt><dd>Since 16 October, police and paramilitary personnel have been deployed at Delhi&#x27;s Durga Puja pandals with batons and whistles. Committee members in south Delhi&#x27;s C.R. Park say they have been forced to close by 10 p.m., two hours earlier than the usual 12.30 or 1 a.m. The DCP (South) denies forcing closures, saying intervention targeted organisers who continued playing loud music past the permitted time despite agreeing to comply at earlier meetings.</dd><dt>Affected</dt><dd>Organisers say squeezing the evening window by two hours will cause crowd swell and chaos. A C.R. Park committee secretary says police are frightening devotees away from the festival. An AAP leader has written that this could lead to a West Bengal-type situation and that the government will prosecute committees to hide its own shortcomings.</dd><dt>Next</dt><dd>The police say their regular crowd-control measures include barricading, deployment of additional forces with some personnel kept in reserve, and a request that committees add more gates to ease entry and exit. The paper reports no decision to change the deadline.</dd><dt>Watch</dt><dd>Whether any Delhi pandal shuts early on safety grounds rather than noise rules, and whether the police account of why organisers were late to comply survives contact with the organisers. That disagreement is the entire story; everything else follows from it.</dd><dt>Scale</dt><dd>Two hours removed from a window that normally runs to around 1 a.m. — roughly a third of the evening&#x27;s usable time — at the point of peak arrival, in a festival where the paper reports crowds surge at night.</dd></dl></div>
+</section>
+
+<section id="longform" data-band="Use these">
+<h2 class="sec"><span class="n">10</span>One Long-Form Read<span class="sec-flag">Objection</span></h2>
+<div class="longform"><div class="op" style="border:0;padding:0 0 14px"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist</p></div><div class="beat"><div class="beat-k">The argument</div><p>Children and teenagers now move constantly between chats, video, social media, games and AI platforms, and with about 65 crore Indians under 25 the paper treats this as a population-level developmental question. The author&#x27;s claim is that technology is not the problem; constant exposure during maturation is. The prefrontal cortex, which supports attention, working memory, planning and impulse control, keeps maturing into early adulthood, and dense repetitive digital input may strengthen some circuits while leaving others underdeveloped. On attention specifically, the mechanism is not the brain but the reward loop: short videos, autoplay, infinite scroll and algorithmic recommendation produce variable reinforcement, which makes ordinary experience — a face-to-face conversation, practising a skill, sitting with one&#x27;s thoughts — feel comparatively unrewarding. On effort, the author draws a line between cognitive offloading, which is harmless and long-established, and substitution, which is not: photographing the car park saves you a memory, but an essay written by a model removes the effort through which the skill is built. His recommendations follow: device-free times and places, protected study periods, unstructured time, oral examinations and supervised writing, and greater scrutiny and disclosure duties on platforms serving young people.</p></div><div class="beat"><div class="beat-k">The claim I&#x27;m attacking</div><p>That protecting productive struggle — device-free periods, oral examinations, supervised writing — is the right response to artificial intelligence displacing mental effort in young people.</p></div><div class="beat"><div class="beat-k">The joint</div><p>The weakest joint is evidential, and the piece half-concedes it. Every link from screen time to brain structure in the article is correlational, and the author says so in terms. But he then moves straight to recommending classroom and parenting practice as though the causal claim held. The gap is between &#x27;screens correlate with altered brain connectivity&#x27; and &#x27;remove screens from study hours and children will reason better&#x27;. Nothing in the paper closes it, and the recommendations are written as though it did.</p></div><div class="beat"><div class="beat-k">The argument</div><p>Take the paper&#x27;s own evidence at face value and the case for its recommendation weakens rather than strengthens. The sharpest mechanism in the piece is not the prefrontal cortex at all — it is that the cortex matures into early adulthood while 65 crore Indians are under 25. If the vulnerable window is developmental and the exposures are developmental, then the interventions with the best claim to matter are those that change the environment for everyone at once. What the paper actually recommends is the small, voluntary, high-compliance-requiring kind: device-free times and places, protected study periods, unstructured time. A recommendation that works only if every parent and every teacher executes it consistently is not a policy. It is an appeal, and when it fails it will look like a moral failing on the part of families rather than a design failure on the part of platforms. The paper locates the incentive problem precisely — the corporations designing these tools have a strong financial interest in keeping young people engaged — and then declines to name a single mechanism by which a parent enforcing a bedtime changes that incentive. Note also what the recommendations omit: the paper does not propose a single obligation for the platforms themselves beyond asking policymakers to require better evidence of harm. Its regulatory paragraph is a list of things somebody else ought to do. The honest version of the argument is therefore narrower than the one made. What the evidence supports is a serious, well-motivated hypothesis about developmental exposure, and what that warrants is independent research and enforceable disclosure duties on the platforms that profit from the exposure. It does not yet warrant a rewritten pedagogy delivered through parental goodwill. A Director reading this should notice that the piece proves more about regulation than about parenting, and says so considerably less often than it should.</p></div><div class="beat"><div class="beat-k">What I would concede</div><p>The distinction between scaffolding and substitution survives the objection intact. If AI is doing the thinking, the harm is real whether or not it can yet be demonstrated in a cohort, and the argument from what is being replaced — the struggle of being wrong and revising — does not depend on the neuroscience at all. I would also concede the boredom point without reservation: a piece arguing that unfilled time has value, against an economy that fills it, is making a claim that has been true in every generation and is not thereby false.</p></div><div class="beat falsifier"><div class="beat-k">What would change my mind</div><p>If a cohort of children raised under enforced device-free periods and AI-restricted schoolwork showed no measurable difference from matched peers in sustained attention, working memory, or persistence on problems with no available answer, the argument collapses entirely — and with it the recommendation to protect productive struggle. The paper concedes it cannot run that study; the objection is that it should have said plainly that until someone does, the recommendation is a hypothesis wearing the clothes of a policy.</p></div><div class="beat"><div class="beat-k">How this differs</div><p>The source argues we should change how children are taught; the objection argues that the same evidence points at platform design and enforceable disclosure, and that a recommendation resting on adult compliance is not a policy at all. Where the piece is optimistic about voluntary family practice, the objection is sceptical — and says the piece has chosen the weaker of the two arguments actually available to it.</p></div></div>
+</section>
+
+<section id="cats" data-band="Reference">
+<h2 class="sec"><span class="n">02</span>Categories</h2>
+<div class="h3">Politics &amp; Governance</div><ul>
+<li>Bar the Delhi pandals at 10 p.m. Police are forcing closures two hours earlier than usual over court-ordered noise rules, and organisers say the compressed window is worsening the crowd problem it is meant to solve (printed p.2).</li>
+<li>Constitute the Kolkata SIT. The Chief Minister has promised a special investigation team headed by a sitting Calcutta High Court judge, with Kolkata police excluded because their role is being questioned (printed p.1).</li>
+<li>Expand the Lok Sabha from 550 to 850 without expanding its working time. The paper&#x27;s policy column argues delimitation adds members to a House whose Question Hour ran 1% of schedule last session — nine minutes in total (printed p.7).</li>
+<li>Give Parliament&#x27;s sitting time statutory footing. That would take a constitutional amendment to add a minimum working-days clause; the National Commission to Review the Working of the Constitution recommends 120 days a year (printed p.7).</li>
+<li>Press the Punjab drug campaign ahead of the 2027 poll. Congress state-in-charge Sachin Pilot is touring districts to meet victims&#x27; families while Amit Shah visits on 20 October, and the BJP state chief has worn a black turban since an anti-drug crusader was shot dead in broad daylight inside a medical store (printed p.3).</li>
+<li>Boycott the Punganur municipal polls. The YSRCP says its candidates were threatened and security cover was inadequate, so nomination papers may not be filed; the same party is separately pressing for reform of the CEC&#x27;s own appointment process (printed pp.5, 8).</li>
+</ul>
+<div class="h3">Economy &amp; Trade</div><ul>
+<li>Bar sugar from the ethanol tender. BPCL, on behalf of the oil marketing companies, will not seek bids for ethanol from cane juice, sugar or B-heavy molasses for 2026-27, while still asking for around 11 billion litres to hold the 20% E20 blending standard (printed p.13).</li>
+<li>Take India into the carbon club. Nearly 500 companies across seven sectors filed first compliance reports under the Carbon Credit Trading Scheme on 31 July; the first credits are due this month and trading is expected between November and January. India has stayed outside the Open Coalition on Compliance Carbon Markets, which met in Florence in May (printed p.6).</li>
+<li>Watch MSP procurement caps. Telangana, drought-hit across 315 of 621 mandals, wants the 25% cap on maize and jowar lifted and full minimum-support-price purchase restored after poor rain (printed p.5).</li>
+<li>Read the north-east bloc properly. Female labour force participation rose from 33% to 45.9% in rural India between 2019-20 and 2025 at a national pace of 2.58 points a year, but Delhi and Lakshadweep are the only places it fell, at −2.34 (printed p.7).</li>
+</ul>
+<div class="h3">Business &amp; Markets</div><ul>
+<li>Fund the Go-Delhi Foundation. The Delhi Cabinet has approved an initial outlay of ₹50 crore for a not-for-profit body under Section 8 of the Companies Act to take 21,000 DPIIT-recognised start-ups from idea to market-ready product (printed p.2).</li>
+<li>Price the e-rickshaw cap. The draft Delhi scheme would stop registrations and compliance certificates once the fleet reaches 2.5 lakh, limit individual owners to five vehicles, and class anyone holding more than 25 as an aggregator, with 30 days for public comment (printed p.2).</li>
+<li>Restructure the CISF from 1 November, replacing geographic sectors with functional ones — power, coal, steel, petroleum and gas, and separate east- and west-coast port units (printed p.10).</li>
+</ul>
+<div class="h3">Health</div><ul>
+<li>Cut the price of 137 cancer drugs by up to 70% and cap trade margins at 30% of maximum retail price, the Ministry of Chemicals and Fertilizers has said (printed p.8).</li>
+<li>Chase the gut&#x27;s alarm system before chasing the molecule. A National Institute of Immunology study finds the protein RelB both builds the immune sentinels in the intestinal wall and suppresses regulatory T-cells in nearby lymph nodes, so targeting it for inflammatory bowel disease could blunt the gut&#x27;s ability to fight bacteria (printed p.18).</li>
+<li>Keep perishables cold end to end. FSSAI has told food business operators to move khoa, paneer, meat and fish under controlled temperatures through the supply chain, and told state food safety officers to act on non-compliance (printed p.13).</li>
+<li>Track the DRC Ebola curve: 4,536 deaths across 9,415 confirmed cases, with 67 new cases and 26 new deaths in the 24 hours to 16 October, and the outbreak now in an eighth province (printed p.8).</li>
+</ul>
+<div class="h3">Tech &amp; Society</div><ul>
+<li>Do not read the children&#x27;s internet study as a scare story. Of 2,000-plus children aged 9-14 interviewed in Delhi in 2025, 97.6% access the internet from home and average 4.5 hours a day; nearly 47% spoke to strangers online, and boys use the internet more than girls (printed p.13).</li>
+<li>Separate technique from scaffolding. The study&#x27;s most useful line is that children are confident with digital tools but lack critical skills — they do not understand systematic power manipulation, algorithmic influence or exploitation (printed p.13).</li>
+<li>Ground the satellite-noise argument. Astronomers tracking Starlink, OneWeb and Guowang found radiation at 2,700 Hz in 77% of observations from a specific Starlink variant, and some signals 100-billion-times brighter than typical astronomical sources (printed p.18).</li>
+</ul>
+<div class="h3">Sports</div><ul>
+<li>India Women take a 2-0 series lead over Zimbabwe. Shafali Verma made 55 off 25 balls with six fours and four sixes, Smriti Mandhana finished 47 not out, and the target was chased in 8.5 overs after Zimbabwe were bowled out for 102 for 8 (printed p.15).</li>
+<li>Watch the New Zealand tour without Bumrah. India have exactly one full practice session before five T20Is in Christchurch, and the bowling coach has conceded the side has been hasty in changing plans while bowling (printed pp.15, 21).</li>
+<li>Chacarra takes the Race to Dubai lead. The Spaniard won the DP World India Championship by two shots for $6,80,000, closing a 63 in the third round and a 70 in the final, and called the win the best week of golf of his life (printed p.15).</li>
+</ul>
+<div class="h3">Culture &amp; Lifestyle</div><ul>
+<li>Read the pandals as a political signal, not only a festival. Under five months of BJP rule in Bengal, puja committees have changed patrons, traditional depictions are favoured over theme-based art, and one Kumartuli sculptor reports orders falling from at least 20 a year to 16 (printed p.4).</li>
+<li>Revive Pattanam. Excavations from 2006 to 2023 produced 1.3 lakh registered artefacts and nearly 45 lakh pottery fragments from under 1% of a mound extending over 100 acres; the research programme has been interrupted since 2016 and the paper&#x27;s author wants it resumed (printed p.9).</li>
+<li>Note the one line worth borrowing from the letters page: a festival should have a single designated &#x27;Voice of Calm&#x27; with a script of pre-approved messages, and no one else should touch the microphone (printed p.6).</li>
+</ul>
+<div class="tw"><table><caption>Ethanol procurement economics in the 2026-27 tender: BPCL is asking for around 11 billion litres to hold the 20% blend, and has cut the price it pays for grain-based ethanol by ₹3.00 a litre.</caption><thead><tr><th>Input</th><th class="n">Previous</th><th class="n">2026-27 tender</th><th class="n">Change</th></tr></thead><tbody><tr><td>Maize-based incentive</td><td class="n">₹5.79 / litre</td><td class="n">₹2.79 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Procurement price</td><td class="n">₹71.86 / litre</td><td class="n">₹68.86 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Cane juice, sugar, B-heavy molasses</td><td class="n">Eligible</td><td class="n">Bids not sought</td><td class="n">Excluded</td></tr><tr><td>Maize, broken rice, FCI surplus rice, C-heavy molasses</td><td class="n">Eligible</td><td class="n">Eligible</td><td class="n">Unchanged</td></tr></tbody></table></div>
+</section>
+
+<section id="nums" data-band="Reference">
+<h2 class="sec"><span class="n">03</span>Numbers That Matter</h2>
+<div class="nums"><div class="num"><span class="num-v">19</span><span class="num-l">killed in the Kolkata pandal stampede; 13 were female, two of them minors, and the youngest victim was a seven-year-old boy</span></div><div class="num"><span class="num-v">2.5 lakh</span><span class="num-l">proposed ceiling on e-rickshaws in Delhi, with five per individual owner and anyone holding more than 25 classed as an aggregator</span></div><div class="num"><span class="num-v">137</span><span class="num-l">cancer drugs India will cut in price, by up to 70%, with trade margins capped at 30% of maximum retail price</span></div><div class="num"><span class="num-v">711%</span><span class="num-l">how much higher professional course fees are than general academic programmes, per NSSO data cited by the Supreme Court</span></div><div class="num"><span class="num-v">65 crore</span><span class="num-l">Indians under the age of 25, in what the editorial calls one of the world&#x27;s largest and fastest-growing young populations</span></div><div class="num"><span class="num-v">4.5 hours</span><span class="num-l">average daily internet use by children in a 2,000-child Delhi study; 97.6% of them access it from home</span></div><div class="num"><span class="num-v">1,800</span><span class="num-l">arrested in France after cost-of-living protests; authorities put the crowd at 5.5 lakh and organisers at 8 lakh</span></div><div class="num"><span class="num-v">9 minutes</span><span class="num-l">the entire Question Hour of the 2026 Monsoon Session — 1% of its scheduled time</span></div></div>
+</section>
+
+<section id="dates" data-band="Reference">
+<h2 class="sec"><span class="n">04</span>Dates to Watch</h2>
+<ul class="dates"><li><span class="d soon">20 Oct</span><span class="w">Amit Shah visits Punjab; third T20I, India Women v Zimbabwe, 7 p.m.</span></li><li><span class="d soon">22 Oct</span><span class="w">India&#x27;s T20I tour of New Zealand begins; Kuki &#x27;total shutdown&#x27; of NH-202 begins; Telangana&#x27;s khet bachao abhiyan runs 22-30 Oct</span></li><li><span class="d">27 Oct</span><span class="w">Israel&#x27;s parliamentary election</span></li><li><span class="d">1 Nov</span><span class="w">CISF reorganisation into sector-based units takes effect</span></li><li><span class="d">mid-Nov</span><span class="w">the 30-day comment window on the Delhi e-rickshaw draft closes</span></li><li><span class="d">Nov-Jan</span><span class="w">expected window for trading in the first CCTS carbon credits</span></li></ul>
+</section>
+
+<section id="client" data-band="Reference">
+<h2 class="sec"><span class="n">05</span>Client &amp; Industry Watch</h2>
+<p>Nothing on CRTC, Canadian telecom, Canada-India relations, BPO or outsourcing today, and no currency item. The one Canada story is military and unrelated: four service members killed and dozens seriously injured in a fire at CFB Wainworth, Alberta, which Prime Minister Carney said happened during military training. The closest adjacent item is the Vance H-1B remark — Indian professionals hold over 70% of approved US petitions — which is about work visas, not outsourcing. Neither is a signal about your account, and I am not going to stretch one into being one.</p>
+</section>
+
+<section id="verify" data-band="Reference">
+<h2 class="sec"><span class="n">07</span>Verify</h2>
+<ul><li>Reported claim — the Karnataka electoral roll glitch. Officers attribute 37 self-declared-dead filings and 334 pairs who declared each other dead to a software glitch during enumeration. The paper&#x27;s own analysis of Election Commission data found both patterns across more than 25 districts, and one booth-level officer said she was unaware any Form 7 had been filed against her. The glitch explanation is asserted, not demonstrated.</li><li>Reported claim — the Delhi Okhla deletion count. Over 100 voters from two booths were found wrongly marked absent, shifted, dead or duplicate, but that figure comes from a public audit by civil society groups rather than an official count. Around 20 people interviewed said they knew nothing of the weekend verification camps, and the Delhi Chief Electoral Officer&#x27;s office has since ordered door-to-door re-verification.</li></ul>
+</section>
+
+<section id="opinion" data-band="Reference">
+<h2 class="sec"><span class="n">09</span>Opinion: 2-Minute Read</h2>
+<div class="op"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist, Dean, Jindal School of Psychology and Counselling, O.P. Jindal Global University (printed p.6)</p><dl class="op-row"><dt>Claim</dt><dd>Constant exposure to powerful digital tools while the brain is still maturing — generative AI especially, which replaces mental effort rather than assisting it — may shape how young people think, feel and act across a lifetime, and the remedy is to protect productive struggle rather than remove screens.</dd><dt>Support</dt><dd>The strongest support is the distinction between scaffolding and substitution. AI can generate ideas, organise arguments and summarise material; what it cannot manufacture is the struggle of finding the words, being wrong and revising. The recommendations follow from that distinction: device-free times and places, protected study periods, unstructured time, oral examinations, supervised writing, applied problem-solving.</dd><dt>Leaves out</dt><dd>It concedes the evidence is correlational and then argues as though it were causal. It never prices its own recommendation — a school that reinstates supervised writing and oral exams produces fewer graduates per term, and neither cost nor capacity appears anywhere. The corporations it names as having a financial interest in keeping children engaged are never named or held to anything.</dd><dt>Sit with</dt><dd>If the exposure happens during a developmental window and the fix is protected offline time, why is the piece addressed to parents and schools rather than to the platforms whose design creates the exposure in the first place?</dd><dt>Steal</dt><dd>It opens with a scene every reader recognises — a teenager moving between chats, videos, social media and games — and earns the right to generalise from it. The turn comes when it separates assistance from substitution using a physical example: photographing the car park so you need not remember where you parked. That analogy does more argumentative work than a page of neuroscience, because the reader has already accepted cognitive offloading before being told it is a problem.</dd></dl></div>
+<div class="op"><h4>Revamp functioning of Parliament</h4><p class="op-by">Atharva Deshmukh and Mehul Chhabra, policy researchers and LAMP Fellows (printed p.7)</p><dl class="op-row"><dt>Claim</dt><dd>Delimitation will bring MPs closer to their constituents but no more powerful, because representation operates in two layers and the bill only addresses one of them.</dd><dt>Support</dt><dd>The numbers do the arguing. Lok Sabha strength is proposed to rise from 550 to 850 while Question Hour permits 20 starred and 230 unstarred questions a day, ran 60% of schedule in the 17th Lok Sabha, and ran 1% — nine minutes in total — in the 2026 Monsoon Session. Constituencies range from 57,953 voters in Lakshadweep to 37.8 lakh in Malkajgiri.</dd><dt>Leaves out</dt><dd>It treats a fixed timetable as a given when the timetable is itself a political choice made by the body it criticises. And it offers no mechanism for the reform it most needs: protecting Zero Hour and Question Hour requires either a rules change the Speaker may not have power to make or the constitutional amendment it has already shown is missing.</dd><dt>Sit with</dt><dd>If the same House that cannot make time for its own members would have to legislate a minimum sitting-days clause, what is the realistic path to it?</dd><dt>Steal</dt><dd>It opens by conceding the obvious case for the reform before attacking it — yes, more MPs is right; no, it is not enough — which buys the right to be severe afterwards. The phrase doing most of the work is &#x27;functional capacity&#x27;, an unglossed noun that quietly converts a headcount argument into a capacity argument.</dd></dl></div>
+<div class="op"><h4>Analysing female labour of the North East States and UTs</h4><p class="op-by">Chandrasekar K. (printed p.7)</p><dl class="op-row"><dt>Claim</dt><dd>The headline national rise in female labour force participation conceals a spread of more than ten percentage points between states, and pace of change alone cannot tell you which places are genuinely catching up.</dd><dt>Support</dt><dd>It separates the aggregate from the distribution, then does what most columns skip: it refuses to stop at pace. Arunachal Pradesh&#x27;s +8.28 points a year looks remarkable until you see it began below the national baseline; Nagaland and Meghalaya began above it and still gained. Speed and starting position are different variables, and the piece plots both.</dd><dt>Leaves out</dt><dd>It never says why. Every State is treated as a dot on a scatter rather than a place with a labour market, a childcare regime or a safety environment, so the reader gets a very good map and no theory of what produces the pattern. Delhi&#x27;s decline is reported without a word of explanation.</dd><dt>Sit with</dt><dd>What is Delhi doing that Arunachal Pradesh, starting lower, is not?</dd><dt>Steal</dt><dd>The method is the argument. It builds four charts in sequence — pace, spread, then pace plotted against starting level — so that by the fourth the reader is doing the author&#x27;s reasoning rather than receiving it. Naming the fourth chart&#x27;s purpose in advance tells you what to look for before you find it.</dd></dl></div>
+</section>
+
+<section id="words" data-band="Language">
+<h2 class="sec"><span class="n">11</span>Words to Learn</h2>
+<div class="tw"><table class="vocab"><thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead><tbody><tr><td>mitigate<span class="pos">v</span></td><td>Workplace</td><td>reduce the harm or severity of something bad</td><td>We mitigated the backlog by moving two agents onto the night queue rather than adding headcount.</td></tr><tr><td>ascertain<span class="pos">v</span></td><td>Formal</td><td>find out for sure, by checking</td><td>We couldn&#x27;t ascertain whether the vendor had actually applied the fix, so we asked for the change log.</td></tr><tr><td>facilitate<span class="pos">v</span></td><td>Workplace</td><td>make something easier for someone to do</td><td>The script facilitates escalation instead of making the agent hunt for the right queue.</td></tr><tr><td>stringent<span class="pos">adj</span></td><td>Workplace</td><td>very strict, with real enforcement behind it</td><td>They promised stringent action on the outages; three weeks later there was no update.</td></tr><tr><td>contingent<span class="pos">adj</span></td><td>Formal</td><td>depending on something else happening first</td><td>The incentive is contingent on hitting the SLA, so nobody will move before week four.</td></tr><tr><td>salient<span class="pos">adj</span></td><td>Formal</td><td>the part that stands out most</td><td>The salient point in the review wasn&#x27;t the volume — it was the repeat-contact rate.</td></tr><tr><td>proliferation<span class="pos">n</span></td><td>Formal</td><td>a rapid increase in the number of something</td><td>The proliferation of channels has made the handover the main source of error.</td></tr></tbody></table></div>
+</section>
+
+<section id="terms" data-band="Language">
+<h2 class="sec"><span class="n">11b</span>Terms &amp; Acronyms</h2>
+<table class="gtable"><thead><tr><th>Term</th><th>What it is</th><th>Source</th></tr></thead><tbody id="gbody"></tbody></table>
+</section>
+
+<section id="hindi" data-band="Language">
+<h2 class="sec"><span class="n">12</span>Hindi</h2>
+<table class="hindi"><tbody><tr><td>mitigate</td><td class="dev">निवारण करना</td><td class="pron">ni-vaa-ran kar-naa</td></tr><tr><td>ascertain</td><td class="dev">पता लगाना</td><td class="pron">pa-taa lu-gaa-naa</td></tr><tr><td>facilitate</td><td class="dev">सहज बनाना</td><td class="pron">sa-haj ba-naa-naa</td></tr><tr><td>stringent</td><td class="dev">सख्त</td><td class="pron">sa-khat</td></tr><tr><td>contingent</td><td class="dev">आश्रित</td><td class="pron">aa-shrit</td></tr><tr><td>salient</td><td class="dev">प्रमुख</td><td class="pron">pra-mukh</td></tr><tr><td>proliferation</td><td class="dev">प्रसार</td><td class="pron">pra-saar</td></tr></tbody></table>
+</section>
+
+<section id="phrases" data-band="Language">
+<h2 class="sec"><span class="n">13</span>Phrases for Daily Life</h2>
+<div class="phrase"><div class="phrase-t"><span class="phrase-w">squeeze the window</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">cut the time available for something, usually to hit a target</p><p class="phrase-e">If you squeeze the window from 14:00 to 12:00 you&#x27;ll get the same volume and a worse backlog.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">hold the line</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">keep a standard in place under pressure</p><p class="phrase-e">We held the line on response time even when volume doubled overnight.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">left hanging</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">left waiting with no answer or no owner</p><p class="phrase-e">Two tickets have been left hanging since Friday because nobody owns the escalation.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">eat into</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">consume part of a margin, budget or time</p><p class="phrase-e">Every manual escalation eats into the shrinkage target we report to the client.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">the tail that wags the dog</span><span class="phrase-tone">casual</span></div><p class="phrase-m">a small routine detail that decides the whole outcome</p><p class="phrase-e">The five-minute handover is the tail that wags the dog — it decides whether the shift is clean.</p></div>
+</section>
+
+<section id="traps" data-band="Language">
+<h2 class="sec"><span class="n">14</span>Traps in My English</h2>
+<div class="trap"><div class="trap-row"><span class="trap-bad">We are having a discussion with the vendor regarding the escalation matrix.</span><span class="trap-good"><b>→</b> We are discussing the escalation matrix with the vendor.</span><div class="trap-why">A discussion is countable — you have one. &#x27;Having a discussion regarding&#x27; reaches for a noun where the verb already exists, which is the most common tic in Indian corporate English.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">Please revert back.</span><span class="trap-good"><b>→</b> Please revert.</span><div class="trap-why">The &#x27;back&#x27; adds nothing; revert already means reply. It reads as a tic rather than a meaning precisely because it has been normal for so long that nobody questions it.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">The attrition rate is decreased by 4%.</span><span class="trap-good"><b>→</b> Attrition fell by 4%.</span><div class="trap-why">Rates fall, they are not decreased. &#x27;Decreased by&#x27; also hides the direction, leaving a reader to work out whether minus four is good news.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">We are having a delay from the client side.</span><span class="trap-good"><b>→</b> There&#x27;s a delay on the client&#x27;s side.</span><div class="trap-why">A delay comes from the client rather than being handed to you by them. &#x27;From&#x27; reads as a small accusation you do not need to make on a client call.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">I will escalate this to the higher management.</span><span class="trap-good"><b>→</b> I&#x27;ll escalate this to my manager.</span><div class="trap-why">In a BPO the layer above you is a manager. A Director hearing &#x27;higher management&#x27; from their own team has to ask who, and the answer is never flattering.</div></div></div>
+</section>
+
+<section id="speak" data-band="Language">
+<h2 class="sec"><span class="n">15</span>Speak</h2>
+<div class="speak"><h4>Prompt</h4><p class="q">Your vendor has missed the same SLA three weeks running, your operations manager is asking why you have not escalated, and the client is on the line tomorrow. What do you say to your manager?</p><h4>Model answer</h4><div class="model">I want to be straight about where this stands. We have had three consecutive misses on the same SLA, and the vendor&#x27;s own root-cause report still points at a process on their side, so escalating internally would just move the problem somewhere it can still fail. The salient issue is that my recovery plan is contingent on data I do not have yet. So here is what I need from you: authority to put the last thirty days of ticket-level data in front of the vendor&#x27;s account lead by Wednesday, and cover for me on the client call. Every day this stays left hanging eats into the goodwill we have with that account. If you would rather I hold the line and go in without the data, say so and I will — but I would rather facilitate this myself than escalate something that still has no remedy attached.</div></div>
+</section>
+
+<section id="quiz" data-band="Language">
+<h2 class="sec"><span class="n">16</span>Quiz<span class="sec-flag">5 questions</span></h2>
+<div class="quiz" data-answer="b"><p class="q"><b>1.</b> A supplier promises &#x27;prompt and stringent action&#x27; after a failure, and nothing happens for three weeks. What is &#x27;stringent&#x27; promising?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">That the response will be quick</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">That the response will be strict and carry real enforcement</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">That the response will be set out in writing</span></button><button class="opt" type="button" data-k="d"><span class="k">D</span><span class="ot">That the response will be repeated if it fails</span></button></div><p class="why">&#x27;Stringent&#x27; covers severity, not speed — &#x27;prompt&#x27; already carries that, and the supplier used both words in one sentence. Option a is &#x27;prompt&#x27; restated, which is the trap: two adjectives, two different jobs. Read the phrase as speed plus teeth, never speed alone.</p></div><div class="quiz" data-answer="a"><p class="q"><b>2.</b> A report says &#x27;the incentive is contingent on hitting the SLA&#x27;. In an operations review, what is that telling you?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The incentive depends on whether the SLA is met</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The incentive is small next to the cost of missing the SLA</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The incentive was designed before the SLA was agreed</span></button></div><p class="why">&#x27;Contingent on X&#x27; means &#x27;dependent on X&#x27; and nothing more. Option b smuggles in a comparison the sentence never makes, which is how this word gets over-read in a board pack. Option c is a claim about sequence, which is not what &#x27;contingent&#x27; means at all.</p></div><div class="quiz" data-answer="b"><p class="q"><b>3.</b> Which of these is safe to put in a client email?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">As per your last email, we are having a discussion regarding the escalation matrix internally.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">As per your last email, we are discussing the escalation matrix internally.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">As per your last email, we had a discussion regarding the escalation matrix internally.</span></button></div><p class="why">A discussion is countable, so &#x27;we are discussing&#x27; is correct; &#x27;having a discussion&#x27; and &#x27;a discussion regarding&#x27; reach for a noun where the verb already exists. Option c is the more expensive error — the past tense implies the meeting has happened, and if it has not, you have just misinformed the client.</p></div><div class="quiz" data-answer="a"><p class="q"><b>4.</b> You tell the team the five-minute handover &#x27;eats into&#x27; the shrinkage target. What does that mean?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The handover consumes part of the gap you are trying to close</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The handover damages the target so badly it cannot be met</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The handover reduces the number of shrinkage cases</span></button></div><p class="why">&#x27;Eat into&#x27; is gradual and partial — it consumes a share, it does not destroy. Option b overstates it to ruin, and option c inverts the meaning entirely, since shrinkage here is the loss you are trying to reduce, not a count that falls.</p></div><div class="quiz" data-answer="b"><p class="q"><b>5.</b> In a shift huddle, which sentence is wrong if you mean the backlog will grow because there is less time?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Squeezing the window will grow the backlog.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The compressed timeline means we will carry more over.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The squeezed schedule eats into our recovery time.</span></button></div><p class="why">&#x27;Timeline&#x27; names the plan rather than the time available, and &#x27;we will carry more over&#x27; states a consequence with no mechanism attached — which is exactly the sentence that gets challenged with &#x27;why?&#x27;. Options a and c both name the compression and the consequence, which is what makes a sentence actionable on a floor.</p></div>
+</section>
+
+<section id="skip" data-band="Language">
+<h2 class="sec"><span class="n">17</span>Skip List</h2>
+<div class="skip">The daily Sudoku, the bank fixed-deposit and home-loan rate tables on printed p.13, the Hyderabad race card, and the film-music blurbs — none of it is news. Watch for paid content dressed as features: the INBRIEF boxes are edited summaries rather than advertising, but the festival and shopping items sit close to that line, and the front-page subscription QR code is a promotion that reads as layout.</div>
+</section>
+  </div>
+</div>
+
+<!-- ================= DRAWER ================= -->
+<aside class="drawer"><div class="dwrap" id="dwrap"></div></aside>
+</div>
+
+<div class="tip" id="tip"></div>
+<button class="totop" id="toTop" type="button" aria-label="Back to top" title="Back to top">&#8593;</button>
+
+<script>
+/* ================= GLOSSARY =================
+   def  : one-line, shown on hover
+   full : panel body
+   paper: the paper's own sentence, if any
+   srcs : [{name, date, url}]
+*/
+const G = {"CCTS": {t:"CCTS",exp:"Carbon Credit Trading Scheme",def:"India's compliance carbon market, live with binding targets and penalties.",full:"A national scheme, on paper since 2023 and live as of 2026, that puts a price on emissions by mandating compliance rather than relying on voluntary purchase. It exists to deliver India's Nationally Determined Contribution and its 2070 net-zero goal. Nearly 500 companies across seven industrial sectors filed their first compliance reports on 31 July 2026; the first credits are due in October 2026, with trading on power exchanges expected between November 2026 and January 2027.",paper:"nearly 500 Indian companies across seven industrial sectors filed their first-ever compliance reports under the national Carbon Credit Trading Scheme",page:"printed p.6",srcs:[]},
+ "OCCCM": {t:"OCCCM",exp:"Open Coalition on Compliance Carbon Markets",def:"A multi-country body aligning how national compliance carbon markets talk to one another.",full:"Launched in Florence in May 2026 by the European Union, China and Brazil, with Germany and New Zealand as the first new members and Canada, France, Norway, Singapore, T\u00fcrkiye and the United Kingdom since following. It exchanges knowledge on carbon pricing mechanisms, monitoring, reporting and verification systems, carbon accounting methodologies, and rules on the use of high-integrity offsets. It adopted its first work plan in Wuhan on 14 September 2026. India has stayed outside so far.",paper:"the more interesting question is no longer whether India can afford to build a carbon price \u2014 it already has",page:"printed p.6",srcs:[]},
+ "NDC": {t:"NDC",exp:"Nationally Determined Contribution",def:"A country's own emissions-reduction pledge under the Paris Agreement.",full:"Each signatory commits to a target it sets for itself rather than to a centrally assigned figure. India's contribution is the anchor its compliance carbon market is built to deliver, alongside the 2070 net-zero goal.",paper:"The CCTS (compliance) is set up to deliver on India's Nationally Determined Contribution (NDC) targets and the 2070 net-zero goal",page:"printed p.6",srcs:[]},
+ "CBAM": {t:"CBAM",exp:"Carbon Border Adjustment Mechanism",def:"The EU's levy on the embedded carbon of imported goods.",full:"The EU's instrument for levelling the cost of carbon between goods produced inside the bloc and those imported from outside it. The paper treats the emergence of a broader CBAM-style coalition \u2014 with uniform or differentiated member prices, incentives for members and penalties for non-members \u2014 as the second reason India should join the compliance carbon coalition. It notes OCCCM does not mention CBAM explicitly, probably because the term provokes sharp reactions in climate negotiations.",paper:"in case a coalition along the lines of the EU's Carbon Border Adjustment Mechanism (CBAM) develops",page:"printed p.6",srcs:[]},
+ "MRV": {t:"MRV",exp:"Monitoring, Reporting and Verification",def:"The accounting infrastructure that makes a carbon market creditable.",full:"The systems for tracking emissions, declaring them and having them independently checked. They are the substance of the compliance coalition's knowledge-sharing work alongside carbon accounting methodologies and rules on offsets, and are what would make domestic markets in different countries comparable, or ultimately linkable.",paper:"monitoring, reporting and verification (MRV) systems, carbon accounting methodologies, and rules related to the potential use of high-integrity offsets",page:"printed p.6",srcs:[]},
+ "SIR": {t:"SIR",exp:"Special Intensive Revision",def:"A sweeping booth-level re-verification of electoral rolls.",full:"An exercise in which electoral records are re-enumerated and voters are classified for deletion if absent, shifted, dead or duplicated. It has been the central controversy of Indian electoral politics this year, drawing Opposition leaders to the Supreme Court and youth protests in Delhi. Karnataka's version began on 30 June, with draft rolls published after the enumeration phase; three Form 7 deletion claims were filed even after those drafts appeared.",paper:"allegations against Chief Election Commissioner (CEC) Gyanesh Kumar's conduct during the Special Intensive Revision (SIR) process",page:"printed p.8",srcs:[]},
+ "ASDD": {t:"ASDD",exp:"Absent, Shifted, Dead or Duplicate",def:"The four grounds on which an elector can be marked for deletion during a roll revision.",full:"A classification rather than a single verdict: a voter may be recorded under any one of the four, and each attracts a different route of appeal. In Delhi's Okhla constituency, more than 1.85 lakh voters appeared in the draft roll, of whom over 67,000 names went on the notice list and nearly 1.6 lakh appeared on the ASDD list \u2014 the second-highest deletion rate of any constituency.",paper:"wrongly classified as absent, shifted, dead or duplicate (ASDD) during the special intensive revision (SIR) of electoral rolls",page:"printed p.12",srcs:[]},
+ "FLFPR": {t:"FLFPR",exp:"Female Labour Force Participation Rate",def:"The share of women who are in the labour force, whether working or actively seeking work.",full:"Not the same as the share of women who hold a job \u2014 it counts those actively looking as well. India's figure rose from 33% to 45.9% in rural areas and from 23.3% to 27.7% in urban areas between 2019-20 and 2025. Arunachal Pradesh recorded the fastest rural gain at 8.28 percentage points a year against an all-India average of 2.58; Delhi and Lakshadweep were the only places it fell.",paper:"a clear increase in Female Labour Force Participation (FLFPR) since 2019\u201320",page:"printed p.7",srcs:[]},
+ "TPA": {t:"TPA",exp:"Third-Party Administrator (Health Services)",def:"An insurer's outsourced claims-processing intermediary.",full:"Insurers originally had to appoint one of these to receive claim information, scrutinise documents and coordinate between hospital, insured and insurer; they stayed central after the mandate was relaxed. The admissible amount was still decided by the insurer under the contract, so the processor's discretion is narrow and the principal's liability is not.",paper:"the Third-Party Administrator (Health Services), or TPAs. Insurers could and in the initial years were mandated to tie up with TPAs and outsource claim processing to them",page:"printed p.13",srcs:[]}};
+const KEY = Object.keys(G);
+let sel = null;
+
+/* ---- glossary list + table ---- */
+(function(){
+  const gb = document.getElementById('gbody'), gl = document.getElementById('glist');
+  KEY.forEach(k=>{
+    const g = G[k];
+    const srcTxt = g.srcs ? 'web + paper' : 'paper p.'+(g.page||'—').replace('PDF ','');
+    gb.insertAdjacentHTML('beforeend',
+      `<tr><td data-k="${k}">${k}</td><td>${g.def}</td><td class="src">${srcTxt}</td></tr>`);
+    gl.insertAdjacentHTML('beforeend',
+      `<a data-jump="${k}"><span class="g-t">${k}</span>` +
+      (g.exp && g.exp!==k ? `<span class="g-x">${g.exp.split('—')[0].trim()}</span>` : '') + `</a>`);
+  });
+})();
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('.term'); const row = e.target.closest('td[data-k]');
+  const jump = e.target.closest('[data-jump]');
+  if(jump){ openDrawer(jump.dataset.jump); return; }
+  if(t){ openDrawer(t.dataset.term); return; }
+  if(row){ openDrawer(row.dataset.k); return; }
+  if(!e.target.closest('.drawer') && !e.target.closest('.term')) closeDrawer();
+});
+
+/* ---- drawer ---- */
+function openDrawer(k){
+  const g = G[k]; if(!g) return;
+  sel = k;
+  const link = (s)=>s.u ? `<li><a href="${s.u}" target="_blank" rel="noopener">${s.n}</a> — ${s.d}</li>` : `<li>${s.n} — ${s.d}</li>`;
+  document.getElementById('dwrap').innerHTML = `
+    <button class="dclose" onclick="closeDrawer()">&times;</button>
+    <div class="dterm">${g.exp||k}</div>
+    <div class="dexp">${k} · ${g.exp?'abbreviation':'term'}</div>
+    <div class="dsec" style="border:0;padding:0;margin-top:0"><p>${g.def}</p></div>
+    ${g.full?`<div class="dsec"><h5>In full</h5><p>${g.full}</p></div>`:''}
+    ${g.paper?`<div class="dsec"><h5>The paper's sentence</h5><div class="dquote">${g.paper}</div>
+      <p style="font:11px var(--mono);color:var(--faint)">${g.page||''}</p></div>`:''}
+    ${g.srcs?`<div class="dsec"><h5>External sources</h5><ul>${g.srcs.map(link).join('')}</ul>
+      <p style="font:11px var(--mono);color:var(--faint);margin-top:10px">Web-sourced. Not part of the paper.</p></div>`:''}
+    ${g.srcs?'':`<div class="dsec"><h5>Source</h5><p style="font:11px var(--mono);color:var(--faint)">Defined from the paper${g.page?', '+g.page:''}. No external research.</p></div>`}`;
+  document.getElementById('app').dataset.drawer='open';
+  document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('.term[data-term="'+k+'"]').forEach(x=>x.classList.add('sel'));
+}
+function closeDrawer(){ document.getElementById('app').dataset.drawer='closed'; sel=null;
+  document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel')); }
+
+document.addEventListener('keydown', e=>{
+  // Escape peels one layer at a time: the Index dialog handles its own,
+  // then results, then the drawer.
+  if(e.key==='Escape'){
+    if(document.getElementById('idx').open) return;
+    if(isSearching()) clearSearch(); else closeDrawer();
+  }
+  if(e.key==='/'){ e.preventDefault(); focusSearch(); }
+});
+document.addEventListener('mousemove', e=>{
+  const t = e.target.closest('.term'); const tip = document.getElementById('tip');
+  if(!t){ tip.classList.remove('on'); return; }
+  tip.innerHTML = `<span class="k">${t.dataset.term}</span>${G[t.dataset.term].def}`;
+  tip.classList.add('on');
+  const r = t.getBoundingClientRect();
+  let x = r.left, y = r.bottom + 8;
+  if(x + 350 > innerWidth - 12) x = innerWidth - 362;
+  if(y + 110 > innerHeight) y = r.top - 110;
+  tip.style.left = Math.max(12,x)+'px'; tip.style.top = y+'px';
+});
+
+/* ---- prefs ---- */
+function setProv(){ const r=document.documentElement;
+  r.dataset.prov = r.dataset.prov==='on'?'off':'on'; }
+function setFS(n){ document.documentElement.style.setProperty('--fs', n+'px');
+  document.querySelectorAll('.fsize button').forEach(b=>b.classList.remove('on'));
+  ({16:'fsS',17:'fsM',19:'fsL'})[n] && document.getElementById({16:'fsS',17:'fsM',19:'fsL'}[n]).classList.add('on');
+  localStorage.setItem('dbfs',n); }
+/* The top-bar button is the only theme control, and it shows the theme it
+   switches TO so the control never has to be read twice to know its state. */
+function paintTheme(){
+  const dark = document.documentElement.dataset.theme==='dark';
+  document.getElementById('thBtn').textContent = dark ? '\u25d0 Light' : '\u25d1 Dark';
+}
+function toggleTheme(){ const r=document.documentElement;
+  r.dataset.theme = r.dataset.theme==='dark'?'light':'dark';
+  paintTheme(); localStorage.setItem('dbth',r.dataset.theme); }
+(function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
+  if(f) setFS(+f); if(th) document.documentElement.dataset.theme=th;
+  paintTheme(); })();
+
+/* ---- where am I ----
+   The rail holds the document identity, so the sticky bar shows position
+   instead: the section you are in, its number, and how far through you
+   are. Cheap to compute on scroll, and it means neither surface has to
+   repeat the other's date. */
+function sectionParts(sec){
+  const h = sec ? sec.querySelector('h2') : null;
+  if(!h) return {num:'·', name:'30 seconds'};
+  const n = h.querySelector('.n'), f = h.querySelector('.sec-flag');
+  let s = h.textContent;
+  if(n) s = s.replace(n.textContent,'');
+  if(f) s = s.replace(f.textContent,'');
+  return {num: n ? n.textContent.trim() : '·', name: s.trim() || '30 seconds'};
+}
+function sectionLabel(sec){
+  const p = sectionParts(sec);
+  return p.num + '  ' + p.name;
+}
+(function(){
+  const secs = [...document.querySelectorAll('.main > section')].map(s=>({el:s}));
+  const elNum=document.getElementById('nowNum'), elName=document.getElementById('nowName'),
+        elCount=document.getElementById('nowCount'), bar=document.getElementById('progBar'),
+        prog=document.querySelector('.prog');
+  let cur = -1;
+
+  function update(){
+    const y = 170;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    // The last section can never cross the line — there is not enough page
+    // left to scroll it up there — so pin to it once the bottom is reached.
+    let next = (max > 0 && scrollY >= max - 2) ? secs.length-1 : 0;
+    if(next !== secs.length-1)
+      for(let i=0;i<secs.length;i++)
+        if(secs[i].el.getBoundingClientRect().top <= y) next = i;
+    if(next!==cur){
+      cur = next;
+      const p = sectionParts(secs[cur].el);
+      elNum.textContent = p.num;
+      elName.textContent = p.name;
+      elCount.textContent = (cur+1)+' / '+secs.length;
+    }
+    const p = max>0 ? Math.min(1, Math.max(0, scrollY/max)) : 0;
+    bar.style.width = (p*100).toFixed(2)+'%';
+    prog.setAttribute('aria-valuenow', Math.round(p*100));
+  }
+  addEventListener('scroll', update, {passive:true});
+  addEventListener('resize', update);
+  update();
+})();
+
+/* ---- index ----
+   Built from the sections that are actually on the page, grouped by the
+   data-band the renderer stamped on them, so a short brief or a long one
+   both index correctly without anything being listed twice. */
+function buildIndex(){
+  const body = document.getElementById('idxBody');
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let band = null, html = '';
+  document.querySelectorAll('.main > section[data-band]').forEach(s=>{
+    const b = s.dataset.band;
+    if(b !== band){ band = b; html += `<div class="idx-g">${esc(b)}</div>`; }
+    const p = sectionParts(s);
+    html += `<a href="#${s.id}" data-jump="${s.id}"><span class="n">${esc(p.num)}</span>`
+          + `${esc(p.name)}</a>`;
+  });
+  body.innerHTML = html;
+  // firstElementChild is the group heading, which cannot take focus
+  const firstRow = body.querySelector('a');
+  firstRow && firstRow.focus();
+}
+function openIndex(){
+  const d=document.getElementById('idx');
+  if(d.open) return;
+  d.showModal();      // showModal moves focus to the first control, so it
+  buildIndex();       // has to happen first or it takes focus back
+}
+function closeIndex(){ document.getElementById('idx').close(); }
+document.getElementById('idx').addEventListener('keydown', e=>{
+  if(e.key!=='ArrowDown' && e.key!=='ArrowUp') return;
+  const rows=[...document.querySelectorAll('#idxBody a')];
+  const i=rows.indexOf(document.activeElement);
+  if(i<0) return;
+  e.preventDefault();
+  rows[(i + (e.key==='ArrowDown'?1:-1) + rows.length) % rows.length].focus();
+});
+document.getElementById('idx').addEventListener('click', e=>{
+  if(e.target.closest('a')) closeIndex();
+  else if(e.target.id==='idx') closeIndex();   // backdrop
+});
+
+/* ---- navigation between editions ----
+   One template renders to the project root and into archive/, which is one
+   level deeper, so these relative paths differ. Resolving them here means
+   the same file works opened as desk.html, as an archived edition, or
+   straight off the filesystem. An archived edition opens today's laptop
+   build, not today's phone one. */
+(function(){
+  var up = /\/archive\//.test(location.pathname) ? '../' : '';
+  var map = {'[data-archive]':'ARCHIVE.html', '[data-today]':'desk.html'};
+  Object.keys(map).forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(a){ a.href = up + map[sel]; });
+  });
+})();
+
+/* ---- back to top ----
+   Appears once you are past the first screen, so the top of the page
+   stays clean. html{scroll-behavior:smooth} does the scrolling. */
+(function(){
+  const b = document.getElementById('toTop');
+  const onScroll = ()=>b.classList.toggle('show', window.scrollY > 600);
+  addEventListener('scroll', onScroll, {passive:true});
+  b.addEventListener('click', ()=>scrollTo({top:0, behavior:'smooth'}));
+  onScroll();
+})();
+
+/* ---- quiz ----
+   One answer per question: the tap is marked, the right option is
+   revealed either way, and the explanation opens. */
+document.addEventListener('click', e=>{
+  const o = e.target.closest('.opt');
+  if(!o) return;
+  const z = o.closest('.quiz');
+  if(!z || z.classList.contains('done')) return;
+  z.querySelectorAll('.opt').forEach(b=>{
+    if(b.dataset.k===z.dataset.answer) b.classList.add('right');
+    else if(b===o) b.classList.add('wrong');
+    b.disabled = true;
+  });
+  z.classList.add('done');
+});
+
+/* ---- search ---- */
+function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.select(); }
+function isSearching(){
+  const res = document.getElementById('res');
+  return !!(res && res.classList.contains('on'));
+}
+function clearSearch(){
+  const box = document.getElementById('q'), res = document.getElementById('res');
+  if(box) box.value = '';
+  if(res){ res.innerHTML=''; res.classList.remove('on'); }
+}
+/* Results used to survive until you deleted the letters by hand, which
+   left a stale panel sitting over the document after you had moved on.
+   They now dismiss on Escape, on a click anywhere else, and on any
+   navigation -- including a rail index link, which needs no handler
+   because the rail is outside both .search and .res. */
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search') && !e.target.closest('.res')) clearSearch();
+});
+function doSearch(){
+  const raw = document.getElementById('q').value.trim().toLowerCase();
+  const res = document.getElementById('res');
+  if(!res) return;
+  res.innerHTML = '';
+  if(!raw){ res.classList.remove('on'); return; }
+
+  const skip = new Set(['SCRIPT','STYLE','HEAD','META','TITLE']);
+  // A glossary term is its own text node, so slicing the node that matched
+  // showed a bare "GCC" with no context. Climb to the enclosing block and
+  // quote that instead.
+  const CTX = 'p,li,dd,dt,h4,td,th,blockquote,.phrase,.opt,.trap,.ctx,.beat,.dd,.op,.why,.model,.h3,.num';
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const re = new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  const hl = s => esc(s).replace(re,'<span class="hl">$1</span>');
+
+  const out = [], seen = new Set();
+  const walk = document.createTreeWalker(document.querySelector('.main'), NodeFilter.SHOW_TEXT, {
+    acceptNode: t => skip.has(t.parentNode.tagName) || !t.nodeValue.trim()
+      // never let the previous search match itself
+      || t.parentElement.closest('.res') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+
+  let t;
+  while((t = walk.nextNode()) && out.length < 30){
+    if(t.nodeValue.toLowerCase().indexOf(raw) < 0) continue;
+    const block = t.parentElement.closest(CTX) || t.parentElement;
+    const full = (block.textContent||'').replace(/\s+/g,' ').trim();
+    const fi = full.toLowerCase().indexOf(raw);
+    if(fi < 0) continue;
+    // one row per block, not per occurrence
+    const key = full.slice(Math.max(0,fi-40), fi+raw.length+40);
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const sec = block.closest('section');
+    const snip = (fi>50?'…':'')
+      + full.slice(Math.max(0,fi-58), fi+raw.length+72)
+      + (fi+raw.length+72 < full.length ? '…' : '');
+    out.push(`<a href="#${sec?sec.id:''}" onclick="clearSearch()">`
+      + hl(snip) + `<span class="m">${esc(sectionLabel(sec))}</span></a>`);
+  }
+  res.innerHTML = out.length ? out.join('') : '<a style="color:var(--faint)">No matches</a>';
+  res.classList.add('on');
+}
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); focusSearch(); }
+  // Enter opens the first result — the reflex after typing a term.
+  if(e.key==='Enter' && isSearching() && document.activeElement===document.getElementById('q')){
+    const first = document.querySelector('#res a[href]');
+    if(first){ e.preventDefault(); first.click(); }
+  }
+});
+</script>
+</body>
+</html>

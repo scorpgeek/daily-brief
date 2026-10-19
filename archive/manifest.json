@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-10-19",
+  "slug": "hindu",
+  "paper": "The Hindu",
+  "pages": 22,
+  "mode": "LONG+DEEP",
+  "headline": "Kolkata pandal stampede toll rises to 19; seven arrested and a special investigation team is to be headed by a sitting Calcutta High Court judge, with Kolkata p",
+  "desk": true
+ },
+ {
+  "date": "2026-10-19",
   "slug": "et",
   "paper": "ET Delhi",
   "pages": 18,
