@@ -1,0 +1,13 @@
+Put the archive link in the editions, not only the launcher
+
+The archive link existed only on index.html, which immediately redirects
+to desk.html or phone.html. So in normal use it was unreachable -- the
+one page that carried it is the one page you never see.
+
+- Archive now sits in the laptop top bar next to Index, and in the phone
+  masthead next to the theme toggle
+- the href is resolved at runtime because one template renders both to
+  the project root and into archive/, which is one level deeper. Opened
+  as desk.html it points at ARCHIVE.html; opened as
+  archive/2026-10-19-desk.html it points at ../ARCHIVE.html. Both resolve
+  to the same page, checked in all four combinations

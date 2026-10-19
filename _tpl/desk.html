@@ -112,6 +112,7 @@ body{
 .tbtn{font:500 11.5px/1 var(--sans);padding:7px 11px;border-radius:8px;border:1px solid var(--line);
   background:var(--panel);color:var(--muted);cursor:pointer}
 .tbtn:hover{color:var(--ink)}
+.tbtn-a{display:inline-flex;align-items:center;text-decoration:none}
 
 /* ---------- content ---------- */
 section{margin:40px 0;scroll-margin-top:80px}
@@ -579,6 +580,7 @@ blockquote p{margin:0 0 8px}
     </div>
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
     <button class="tbtn" onclick="openIndex()">Index</button>
+    <a class="tbtn tbtn-a" href="#" data-archive>Archive</a>
     <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
   </div>
 
@@ -788,6 +790,15 @@ document.getElementById('idx').addEventListener('keydown', e=>{
 document.getElementById('idx').addEventListener('click', e=>{
   if(e.target.closest('a')) closeIndex();
   else if(e.target.id==='idx') closeIndex();   // backdrop
+});
+
+/* ---- archive link ----
+   One template renders to the project root and into archive/, so the
+   relative path differs by one level. Resolving it here means the same
+   file works opened as desk.html, as an archived edition, or straight off
+   the filesystem. */
+document.querySelectorAll('[data-archive]').forEach(function(a){
+  a.href = /\/archive\//.test(location.pathname) ? '../ARCHIVE.html' : 'ARCHIVE.html';
 });
 
 /* ---- back to top ----
