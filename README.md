@@ -278,10 +278,15 @@ One thing does not survive, and it is worth stating plainly: **The Hindu's
 section taxonomy is not in the extract.** The running head carries the edition
 (`Delhi`, on sixteen of twenty-two pages), not the section, and every other
 short all-caps run turned out to be a dateline or a headline kicker. Its
-categories cannot be read off the paper, so they are not guessed. The Hindu's
-Delhi edition also carries little opinion material — one `Opinion` and three
-`Editorial` across the whole issue — which is thin for a briefing that wants
-three opinion pieces and a long-form read to argue with.
+categories cannot be read off the paper, so both newspapers share one list —
+`Politics & Governance | Economy & Trade | Business & Markets | Health |
+Tech & Society | Sports | Culture & Lifestyle`. A paper-specific taxonomy would
+have to be invented, and a shared one means the two briefings are directly
+comparable and a term met in one recurs in the other.
+
+The Hindu's Delhi edition also carries little opinion material — one
+`Opinion` and three `Editorial` across the whole issue — which is thin for a
+briefing that wants three opinion pieces and a long-form read to argue with.
 
 ## Design notes
 
