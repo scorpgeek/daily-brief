@@ -12,11 +12,14 @@
 
 :root{
   --bg:#0f0f0e; --panel:#171716; --panel-2:#1e1e1c; --ink:#eceae4;
-  --muted:#8f8c84; --faint:#5c5a54; --line:#2a2a27; --line-2:#35342f;
+  --muted:#918e86; --faint:#88857e; --line:#2a2a27; --line-2:#35342f;
 
-  --use:#e8735f;            /* band 1 accent — act on these */
-  --ref:#c8a15e;            /* band 2 accent — reference */
-  --lang:#7fa88a;           /* band 3 accent — language */
+  --use:#e87461;            /* band 1 accent — act on these */
+  --ref:#c9a260;            /* band 2 accent — reference */
+  --lang:#80a98b;           /* band 3 accent — language */
+
+  /* chip text solved against a 13% tint of itself — see desk template */
+  --chip-use:#e87563; --chip-ref:#caa362; --chip-faint:#8d8b87; --chip-lang:#81aa8c;
 
   --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.35);
 
@@ -27,11 +30,14 @@
   /* type scale — line-height is the load-bearing value here */
   --t-body:1.62; --t-tight:1.28; --t-measure:68ch;
 }
+/* Warm paper rather than white: no pure #fff, no pure black text. Matches
+   the desk edition so the two editions read as one thing. */
 [data-theme="light"]{
-  --bg:#f7f6f3; --panel:#fff; --panel-2:#faf9f7; --ink:#1a1a19;
-  --muted:#6d6a63; --faint:#a8a49b; --line:#e4e1da; --line-2:#d6d2c9;
-  --use:#a8261a; --ref:#9a6f1f; --lang:#3d6b4c;
-  --shadow:0 1px 2px rgba(0,0,0,.05), 0 10px 30px rgba(0,0,0,.05);
+  --bg:#f7f4ed; --panel:#fdfbf6; --panel-2:#efeade; --ink:#211f1a;
+  --muted:#56534b; --faint:#6b6863; --line:#e3ded1; --line-2:#d1cbba;
+  --use:#a6261a; --ref:#8c611a; --lang:#3b694a;
+  --chip-use:#a4261a; --chip-ref:#8b601a; --chip-faint:#6a6762; --chip-lang:#3a6849;
+  --shadow:0 1px 2px rgba(60,50,30,.06), 0 10px 30px rgba(60,50,30,.07);
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -105,9 +111,9 @@ h1{
 .band-rule{flex:1;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
 .band-note{font:400 12px/1.4 var(--sans);color:var(--faint);margin:0 0 18px}
 
-.band-use{--accent:var(--use)}
-.band-ref{--accent:var(--ref)}
-.band-lang{--accent:var(--lang)}
+.band-use{--accent:var(--use);--accent-chip:var(--chip-use)}
+.band-ref{--accent:var(--ref);--accent-chip:var(--chip-ref)}
+.band-lang{--accent:var(--lang);--accent-chip:var(--chip-lang)}
 
 /* ---------- sections ---------- */
 .sec{
@@ -128,7 +134,7 @@ h1{
 .sec-title{font:600 15.5px/1.3 var(--sans);flex:1;letter-spacing:-.01em}
 .sec-flag{
   font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
+  color:var(--accent-chip);background:color-mix(in srgb,var(--accent) 13%,transparent);
   padding:4px 7px;border-radius:4px;
 }
 .chev{
@@ -166,9 +172,9 @@ em{color:var(--accent);font-style:normal}
   font:700 9.5px/1 var(--mono);letter-spacing:.08em;
   padding:5px 7px;border-radius:4px;height:fit-content;white-space:nowrap;
 }
-.tag.ACT{color:var(--use);background:color-mix(in srgb,var(--use) 16%,transparent)}
-.tag.WATCH{color:var(--ref);background:color-mix(in srgb,var(--ref) 16%,transparent)}
-.tag.KNOW{color:var(--faint);background:color-mix(in srgb,var(--faint) 14%,transparent)}
+.tag.ACT{color:var(--chip-use);background:color-mix(in srgb,var(--use) 13%,transparent)}
+.tag.WATCH{color:var(--chip-ref);background:color-mix(in srgb,var(--ref) 13%,transparent)}
+.tag.KNOW{color:var(--chip-faint);background:color-mix(in srgb,var(--faint) 13%,transparent)}
 .top-text{font-size:15.5px;line-height:1.5}
 .top-note{
   grid-column:2;font-size:13px;color:var(--muted);line-height:1.5;
@@ -397,12 +403,29 @@ blockquote p{margin:0 0 8px}
       <h1>{{DATE_LONG}}</h1>
     </div>
     <div class="meta">{{NEWSPAPER}} · {{PAGES}}pp</div>
-    <button class="toggle" onclick="
-      const r=document.documentElement;
-      r.dataset.theme = r.dataset.theme==='dark' ? 'light' : 'dark';
-    ">Light</button>
+    <button class="toggle" id="thBtn" onclick="toggleTheme()">◐ Light</button>
   </div>
 </header>
+
+<script>
+/* Label shows the theme the button switches TO, and the choice persists —
+   a night reader who picks light should not find dark again on reload. */
+function paintTheme(){
+  const dark = document.documentElement.dataset.theme==='dark';
+  document.getElementById('thBtn').textContent = dark ? '◐ Light' : '◑ Dark';
+}
+function toggleTheme(){
+  const r = document.documentElement;
+  r.dataset.theme = darkNow() ? 'light' : 'dark';
+  paintTheme(); localStorage.setItem('dbth', r.dataset.theme);
+}
+function darkNow(){ return document.documentElement.dataset.theme !== 'light'; }
+(function(){
+  const th = localStorage.getItem('dbth');
+  if(th) document.documentElement.dataset.theme = th;
+  paintTheme();
+})();
+</script>
 
 <div class="shell"><!--SECTIONS-->
   </div>

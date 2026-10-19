@@ -7,8 +7,11 @@
 <style>
 :root{
   --bg:#0e0e0d; --panel:#161615; --panel2:#1c1c1a; --ink:#ecebe6;
-  --muted:#8d8a83; --faint:#5a5852; --line:#282825; --line2:#353430;
-  --use:#e8735f; --ref:#c8a15e; --lang:#7fa88a; --web:#8ab4d8;
+  --muted:#8e8b84; --faint:#868480; --line:#282825; --line2:#353430;
+  --use:#e87461; --ref:#c9a260; --lang:#80a98b; --web:#8bb5d8;
+  /* chip text solved against a 13% tint of itself; the raw accent does not
+     clear 4.5:1 once the tint is under it */
+  --chip-use:#e87563; --chip-ref:#caa362; --chip-faint:#8d8b87; --chip-lang:#81aa8c;
   --shadow:0 2px 4px rgba(0,0,0,.5),0 12px 40px rgba(0,0,0,.4);
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
@@ -17,11 +20,16 @@
   /* phone-CSS variable aliases */
   --line-2:var(--line2); --panel-2:var(--panel2); --t-measure:var(--measure);
 }
+/* Warm paper rather than white: no pure #fff anywhere, and no pure black
+   text. Halation around glyphs on a white field is what makes a light
+   theme tiring after an hour; a warm off-white and a warm near-black
+   both cut it. Read at night, this is the point of the light theme. */
 [data-theme="light"]{
-  --bg:#f6f5f2;--panel:#fff;--panel2:#faf9f6;--ink:#191918;--muted:#6b6860;
-  --faint:#a5a199;--line:#e5e2db;--line2:#d4d0c7;
-  --use:#a8261a;--ref:#96681c;--lang:#3c6a4b;--web:#1f5f8f;
-  --shadow:0 1px 2px rgba(0,0,0,.05),0 12px 40px rgba(0,0,0,.07);
+  --bg:#f7f4ed;--panel:#fdfbf6;--panel2:#efeade;--ink:#211f1a;--muted:#56534b;
+  --faint:#6b6863;--line:#e3ded1;--line2:#d1cbba;
+  --use:#a6261a;--ref:#8c611a;--lang:#3b694a;--web:#1f5e8e;
+  --chip-use:#a4261a;--chip-ref:#8b601a;--chip-faint:#6a6762;--chip-lang:#3a6849;
+  --shadow:0 1px 2px rgba(60,50,30,.06),0 12px 40px rgba(60,50,30,.08);
 }
 *{box-sizing:border-box}
 body{
@@ -95,9 +103,9 @@ p{max-width:var(--measure)}
 .top-item{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
 .top-item:last-child{border-bottom:0}
 .tag{font:700 9.5px/1 var(--mono);letter-spacing:.08em;padding:5px 7px;border-radius:4px;height:fit-content;text-align:center}
-.tag.WATCH{color:var(--ref);background:color-mix(in srgb,var(--ref) 15%,transparent)}
-.tag.KNOW{color:var(--faint);background:color-mix(in srgb,var(--faint) 13%,transparent)}
-.tag.ACT{color:var(--use);background:color-mix(in srgb,var(--use) 15%,transparent)}
+.tag.WATCH{color:var(--chip-ref);background:color-mix(in srgb,var(--ref) 13%,transparent)}
+.tag.KNOW{color:var(--chip-faint);background:color-mix(in srgb,var(--faint) 13%,transparent)}
+.tag.ACT{color:var(--chip-use);background:color-mix(in srgb,var(--use) 13%,transparent)}
 .top-note{grid-column:2;font-size:12.5px;color:var(--muted);padding-top:4px}
 .top-note b{color:var(--ref);font-weight:600}
 
@@ -193,7 +201,7 @@ mark.hidden{display:none}
 /* section flag, used by the desk <h2> header */
 .sec-flag{
   font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ref);background:color-mix(in srgb,var(--ref) 15%,transparent);
+  color:var(--chip-ref);background:color-mix(in srgb,var(--ref) 13%,transparent);
   padding:4px 7px;border-radius:4px;margin-left:12px;
 }
 /* part-of-speech under a vocab word */
@@ -442,6 +450,7 @@ blockquote p{margin:0 0 8px}
       <input id="q" placeholder="Search sections, terms, claims…" oninput="doSearch()">
       <kbd>⌘K</kbd>
     </div>
+    <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
     <button class="tbtn" onclick="document.querySelector('.rail').scrollIntoView()">Index</button>
   </div>
 
@@ -530,13 +539,21 @@ function setFS(n){ document.documentElement.style.setProperty('--fs', n+'px');
   document.querySelectorAll('.fsize button').forEach(b=>b.classList.remove('on'));
   ({16:'fsS',17:'fsM',19:'fsL'})[n] && document.getElementById({16:'fsS',17:'fsM',19:'fsL'}[n]).classList.add('on');
   localStorage.setItem('dbfs',n); }
+/* Both the rail row and the top-bar button show the theme they switch
+   TO, so the control never has to be read twice to know its state. */
+function paintTheme(){
+  const dark = document.documentElement.dataset.theme==='dark';
+  const next = dark ? 'light' : 'dark';
+  ['thLbl','thBtn'].forEach(id=>{ const n=document.getElementById(id);
+    if(n) n.textContent = dark ? '\u25d0 Light' : '\u25d1 Dark'; });
+  return next;
+}
 function toggleTheme(){ const r=document.documentElement;
   r.dataset.theme = r.dataset.theme==='dark'?'light':'dark';
-  document.getElementById('thLbl').textContent = r.dataset.theme==='dark'?'light':'dark';
-  localStorage.setItem('dbth',r.dataset.theme); }
+  paintTheme(); localStorage.setItem('dbth',r.dataset.theme); }
 (function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
-  if(f) setFS(+f); if(th){document.documentElement.dataset.theme=th;
-  document.getElementById('thLbl').textContent = th==='dark'?'light':'dark';} })();
+  if(f) setFS(+f); if(th) document.documentElement.dataset.theme=th;
+  paintTheme(); })();
 
 /* ---- search ---- */
 function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.select(); }
