@@ -58,10 +58,41 @@ def check_css(path):
     return problems
 
 
+def check_elements(path):
+    """Every element the inline JS reaches for must exist in the markup.
+
+    Cutting the templates down to markers dropped <div id="res">, so
+    doSearch() threw on res.innerHTML and search was dead while every
+    other check stayed green. The CSS for .res was still fully present,
+    which is what made it look like a styling problem rather than a
+    missing node.
+    """
+    src = open(path, encoding="utf-8").read()
+    html_only = re.sub(r"<script.*?</script>", "", src, flags=re.S)
+    js = "".join(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", src, re.S))
+
+    ids = set(re.findall(r'\bid="([^"]+)"', html_only))
+    problems = []
+
+    for wanted in sorted(set(re.findall(r"getElementById\(['\"]([^'\"]+)['\"]\)", js))):
+        if wanted not in ids:
+            problems.append(f"getElementById({wanted!r}) -> no such id")
+
+    classes = set()
+    for attr in re.findall(r'\bclass="([^"]+)"', html_only):
+        classes.update(attr.split())
+    for wanted in sorted(set(re.findall(r"querySelector(?:All)?\(['\"]\.([\w-]+)", js))):
+        if wanted not in classes:
+            problems.append(f"querySelector('.{wanted}') -> no element has that class")
+
+    return problems
+
+
 def main():
     fail = False
     for built, tpl in PAIRS:
         css_problems = check_css(tpl)
+        el_problems = check_elements(built)
 
         html = open(built, encoding="utf-8").read()
         css = open(tpl, encoding="utf-8").read()
@@ -81,14 +112,17 @@ def main():
         print(f"  css: {'ok' if not css_problems else ''}")
         for ln, msg in css_problems:
             print(f"    line {ln}: {msg}")
+        for p in el_problems:
+            print(f"    {p}")
         print(f"  {built}: {len(used)} classes in use, "
-              f"{len(unstyled)} with no CSS rule")
+              f"{len(unstyled)} with no CSS rule, "
+              f"{len(el_problems)} missing JS targets")
         for u in unstyled:
             print(f"    unstyled: .{u}")
-        if css_problems or unstyled:
+        if css_problems or unstyled or el_problems:
             fail = True
 
-    print("css parses and every used class is styled"
+    print("css parses, js targets resolve, every used class is styled"
           if not fail else "problems found")
     return 1 if fail else 0
 

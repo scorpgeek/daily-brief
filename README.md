@@ -114,8 +114,15 @@ there. Each of those shipped once.
 
 ```powershell
 python test_build.py     # the rejection paths
-python test_classes.py   # every class the page uses has a CSS rule
+python test_classes.py   # CSS parses, JS targets resolve, classes are styled
 ```
+
+`test_classes.py` also checks that every element the inline JS reaches for
+actually exists. Cutting the templates down to markers had silently dropped
+`<div id="res">`, so `doSearch()` threw on `res.innerHTML` and search was
+dead while every other check stayed green — the CSS for `.res` was still
+fully present, which is exactly what made it look like a styling problem
+rather than a missing node.
 
 Serve locally and open on a phone on the same network:
 

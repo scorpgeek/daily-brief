@@ -87,7 +87,7 @@ def sec_thirty(b, terms):
         f"<dt>{e(k.capitalize())}</dt><dd>{termify(esc_markup(v), terms)}</dd>"
         for k, v in d.items()
     )
-    return ("", "", "", f'<section class="ts"><h2>30 seconds</h2>'
+    return ("", "", "", f'<section class="ts" id="thirty"><h2>30 seconds</h2>'
                         f'<dl class="ts-row">{rows}</dl></section>')
 
 

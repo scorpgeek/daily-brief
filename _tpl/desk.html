@@ -545,7 +545,7 @@ blockquote p{margin:0 0 8px}
   </div>
   <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
 
-  <div class="main"><!--SECTIONS-->
+  <div class="main"><div class="res" id="res"></div><!--SECTIONS-->
   </div>
 </div>
 
@@ -651,17 +651,21 @@ function toggleTheme(){ const r=document.documentElement;
    instead: the section you are in, its number, and how far through you
    are. Cheap to compute on scroll, and it means neither surface has to
    repeat the other's date. */
+function sectionParts(sec){
+  const h = sec ? sec.querySelector('h2') : null;
+  if(!h) return {num:'·', name:'30 seconds'};
+  const n = h.querySelector('.n'), f = h.querySelector('.sec-flag');
+  let s = h.textContent;
+  if(n) s = s.replace(n.textContent,'');
+  if(f) s = s.replace(f.textContent,'');
+  return {num: n ? n.textContent.trim() : '·', name: s.trim() || '30 seconds'};
+}
+function sectionLabel(sec){
+  const p = sectionParts(sec);
+  return p.num + '  ' + p.name;
+}
 (function(){
-  const secs = [...document.querySelectorAll('.main > section')].map(s=>{
-    const h = s.querySelector('h2');
-    if(!h) return {el:s, num:'·', name:''};
-    const n = h.querySelector('.n');
-    const flag = h.querySelector('.sec-flag');
-    let name = h.textContent;
-    if(n) name = name.replace(n.textContent,'');
-    if(flag) name = name.replace(flag.textContent,'');
-    return {el:s, num:n?n.textContent.trim():'·', name:name.trim()||'30 seconds'};
-  });
+  const secs = [...document.querySelectorAll('.main > section')].map(s=>({el:s}));
   const elNum=document.getElementById('nowNum'), elName=document.getElementById('nowName'),
         elCount=document.getElementById('nowCount'), bar=document.getElementById('progBar'),
         prog=document.querySelector('.prog');
@@ -678,8 +682,9 @@ function toggleTheme(){ const r=document.documentElement;
         if(secs[i].el.getBoundingClientRect().top <= y) next = i;
     if(next!==cur){
       cur = next;
-      elNum.textContent = secs[cur].num;
-      elName.textContent = secs[cur].name;
+      const p = sectionParts(secs[cur].el);
+      elNum.textContent = p.num;
+      elName.textContent = p.name;
       elCount.textContent = (cur+1)+' / '+secs.length;
     }
     const p = max>0 ? Math.min(1, Math.max(0, scrollY/max)) : 0;
@@ -723,22 +728,42 @@ function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.selec
 function doSearch(){
   const raw = document.getElementById('q').value.trim().toLowerCase();
   const res = document.getElementById('res');
+  if(!res) return;
+  res.innerHTML = '';
   if(!raw){ res.classList.remove('on'); return; }
+
   const skip = new Set(['SCRIPT','STYLE','HEAD','META','TITLE']);
-  const out = []; let n = 0;
+  // A glossary term is its own text node, so slicing the node that matched
+  // showed a bare "GCC" with no context. Climb to the enclosing block and
+  // quote that instead.
+  const CTX = 'p,li,dd,dt,h4,td,th,blockquote,.phrase,.opt,.trap,.ctx,.beat,.dd,.op,.why,.model,.h3,.num';
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const re = new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  const hl = s => esc(s).replace(re,'<span class="hl">$1</span>');
+
+  const out = [], seen = new Set();
   const walk = document.createTreeWalker(document.querySelector('.main'), NodeFilter.SHOW_TEXT, {
     acceptNode: t => skip.has(t.parentNode.tagName) || !t.nodeValue.trim()
-      ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
-  let t; while((t = walk.nextNode()) && n < 40){
-    const i = t.nodeValue.toLowerCase().indexOf(raw);
-    if(i < 0) continue;
-    n++;
-    const sec = t.parentElement.closest('section');
-    const sn = sec ? (sec.querySelector('.sec')?.textContent.trim().split(/\s+/).slice(0,4).join(' ') || 'Brief') : 'Brief';
-    const snip = (t.nodeValue.slice(Math.max(0,i-58), i+raw.length+72)).replace(/\s+/g,' ').trim();
-    const hl = s => s.replace(new RegExp('('+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<span class="hl">$1</span>');
-    out.push(`<a href="#${sec?sec.id:''}" onclick="document.getElementById('res').classList.remove('on')">
-      ${hl(snip)}<span class="m">${sn}</span></a>`);
+      // never let the previous search match itself
+      || t.parentElement.closest('.res') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+
+  let t;
+  while((t = walk.nextNode()) && out.length < 30){
+    if(t.nodeValue.toLowerCase().indexOf(raw) < 0) continue;
+    const block = t.parentElement.closest(CTX) || t.parentElement;
+    const full = (block.textContent||'').replace(/\s+/g,' ').trim();
+    const fi = full.toLowerCase().indexOf(raw);
+    if(fi < 0) continue;
+    // one row per block, not per occurrence
+    const key = full.slice(Math.max(0,fi-40), fi+raw.length+40);
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const sec = block.closest('section');
+    const snip = (fi>50?'…':'')
+      + full.slice(Math.max(0,fi-58), fi+raw.length+72)
+      + (fi+raw.length+72 < full.length ? '…' : '');
+    out.push(`<a href="#${sec?sec.id:''}" onclick="var r=document.getElementById('res');r.classList.remove('on');r.innerHTML=''">`
+      + hl(snip) + `<span class="m">${esc(sectionLabel(sec))}</span></a>`);
   }
   res.innerHTML = out.length ? out.join('') : '<a style="color:var(--faint)">No matches</a>';
   res.classList.add('on');
