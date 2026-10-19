@@ -107,9 +107,8 @@
 
 <script>
 /* The list is baked into archive/manifest.json because a browser cannot
-   enumerate a directory. It is gitignored, so on the published site this
-   fetch 404s and the page says so — an archive that lists editions it
-   cannot open would be worse than one that admits it has none. */
+   enumerate a directory. It is fetched with no-store so a freshly pushed
+   edition shows up without waiting on the Pages cache. */
 var ALL = [];
 
 function nice(iso){
@@ -168,8 +167,9 @@ fetch('archive/manifest.json', {cache:'no-store'})
   .catch(function(){
     document.getElementById('count').textContent = '';
     document.getElementById('out').innerHTML =
-      '<p class="empty"><b>Nothing archived here.</b><br>'
-      + 'Past editions are kept locally and are not published. '
+      '<p class="empty"><b>No manifest found.</b><br>'
+      + 'The index is built from <code>archive/manifest.json</code>. Run '
+      + '<code>python build_brief.py</code> and commit the <code>archive/</code> folder. '
       + '<a href="index.html" style="color:var(--ink)">Read today&rsquo;s briefing</a>.</p>';
   });
 

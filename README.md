@@ -190,31 +190,30 @@ Every build lands in `archive/` and updates `archive/manifest.json`.
 `ARCHIVE.html` lists them by month with the paper, page count and lead story,
 filterable by date, paper or headline. It degrades honestly: an edition with
 no record shows a dash rather than a guessed figure, and if the manifest is
-missing entirely — which is the case on the published site, since `archive/`
-is gitignored — it says so and links to today's briefing instead of listing
+missing the page says so and links to today's briefing instead of listing
 editions it cannot open.
 
 Archived editions keep whatever design they were built with. The 18 Oct file
 predates the band layout and still renders in the older card format; that is
 what an archive is for.
 
-To publish the history as well as today, drop the `archive/` line from
-`.gitignore` and commit the folder. That is a deliberate choice, not an
-oversight — those files reproduce article text.
+`archive/` is tracked and published. It grows by roughly 140 KB a day. If that
+ever matters, prune old editions rather than untracking the folder — otherwise
+the index will list days whose files are missing.
 
 `index.html` is a launcher, not a briefing. It sends a wide screen to
 `desk.html` and a narrow one to `phone.html`, remembers an explicit choice
 in `localStorage` so it never fights you, and stays put with an explanation
 if either file is missing rather than dumping you on a 404.
 
-To refresh the public site after a build, commit `phone.html` and
-`desk.html`:
+To refresh the public site after a build, commit the aliases and the archive:
 
 ```powershell
-git add phone.html desk.html && git commit -m "Publish today's brief"
+git add phone.html desk.html archive
+git commit -m "Publish today's brief"
 ```
 
-Only those two. The dated editions stay untracked.
+Only those. The extracted article text in `_raw/` stays untracked.
 
 ## Publishing
 

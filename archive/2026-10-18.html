@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Brief — Sunday, 18 October 2026</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#fff; --ink:#1a1a1a; --muted:#6b6b6b;
+  --line:#e2dfd8; --accent:#a8261a; --accent-soft:#fdf0ee;
+  --hi:#a8261a; --med:#b5762a; --lo:#6b6b6b;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.05);
+  --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#121211; --panel:#1c1c1a; --ink:#eceae5; --muted:#96938c;
+  --line:#302f2c; --accent:#e8735f; --accent-soft:#2a1e1b;
+  --hi:#e8735f; --med:#d9a94e; --lo:#96938c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+.mast{position:sticky;top:0;z-index:50;background:var(--bg);
+  border-bottom:1px solid var(--line);padding:18px 0 14px;margin-bottom:32px}
+.mast-in{max-width:1180px;margin:0 auto;padding:0 24px;
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(26px,4vw,40px);line-height:1.1;
+  margin:0;font-weight:600;letter-spacing:-.02em;flex:1 1 320px}
+.dateline{font:400 13px/1.4 var(--mono);color:var(--muted)}
+.dateline b{color:var(--ink);font-weight:600}
+.tally{font:600 12px/1 var(--mono);color:var(--muted);letter-spacing:.04em}
+.tools{display:flex;gap:8px;align-items:center}
+button.ctl{font:500 12px/1 var(--sans);padding:7px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  cursor:pointer;transition:.15s}
+button.ctl:hover{color:var(--ink);border-color:var(--ink)}
+
+.lead{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  margin-bottom:44px}
+.lead-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  cursor:pointer;transition:.18s}
+.lead-card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.lead-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;
+  background:var(--accent)}
+.tag{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-soft);padding:5px 8px;border-radius:4px;
+  display:inline-block;margin-bottom:12px}
+.lead-card h3{font-family:var(--serif);font-size:21px;line-height:1.22;
+  margin:0 0 8px;font-weight:600;letter-spacing:-.01em}
+.lead-card p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+.why{font-size:13px;color:var(--ink);border-top:1px dashed var(--line);
+  padding-top:10px}
+.why b{font:600 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-bottom:4px}
+
+.numbers{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:24px;margin-bottom:44px;box-shadow:var(--shadow)}
+.numbers h2,.sec h2{font:600 11px/1 var(--mono);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 18px;
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+.num-grid{display:grid;gap:20px 28px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.num-val{font:600 26px/1.1 var(--serif);letter-spacing:-.02em;display:block}
+.num-lab{font-size:12.5px;color:var(--muted);display:block;margin-top:5px;line-height:1.4}
+.num-delta{font:600 11px/1 var(--mono);margin-left:6px}
+.up{color:#2e7d4f}.down{color:var(--accent)}
+
+.sec{margin-bottom:44px;scroll-margin-top:120px}
+.sec h2 .n{color:var(--accent);margin-right:8px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:18px;display:flex;flex-direction:column;gap:9px;transition:.15s}
+.item:hover{border-color:var(--ink)}
+.item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dot{font:700 13px/1 var(--mono);letter-spacing:-1px}
+.dot.hi{color:var(--hi)}.dot.med{color:var(--med)}.dot.lo{color:var(--lo)}
+.item h4{font-family:var(--serif);font-size:17.5px;line-height:1.25;margin:0;
+  font-weight:600;letter-spacing:-.01em}
+.item p{margin:0;font-size:14px;color:var(--muted);flex:1}
+.item .src{font:400 10px/1 var(--mono);color:var(--muted);letter-spacing:.06em;
+  text-transform:uppercase;opacity:.75}
+.chip{font:600 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+
+.reads{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.read{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:0 10px 10px 0;padding:16px 18px}
+.read h4{font-family:var(--serif);font-size:16px;margin:0 0 6px;font-weight:600}
+.read p{margin:0;font-size:13.5px;color:var(--muted)}
+.read .mins{font:600 10px/1 var(--mono);color:var(--accent);letter-spacing:.1em;
+  text-transform:uppercase;display:block;margin-bottom:7px}
+.watch{display:grid;gap:10px}
+.watch li{list-style:none;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+  font-size:14px}
+.watch li::before{content:"→";color:var(--accent);font-weight:700;flex:none}
+.watch b{font-weight:600}
+.watch .when{font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-top:3px}
+
+.foot{border-top:1px solid var(--line);padding-top:20px;margin-top:56px;
+  font:400 12px/1.6 var(--mono);color:var(--muted);display:flex;
+  flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+@media (max-width:600px){
+  .wrap{padding:0 16px 64px}.mast-in{padding:0 16px}
+  .lead{grid-template-columns:1fr}.grid{grid-template-columns:1fr}
+  .num-val{font-size:22px}
+}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .mast{position:static;margin-bottom:20px}
+  .tools{display:none}
+  .lead{grid-template-columns:repeat(2,1fr)}
+  .lead-card,.item,.read,.watch li,.numbers{break-inside:avoid;box-shadow:none}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .sec{margin-bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <div>
+      <div class="kicker">Daily Brief</div>
+      <h1>Sunday, 18 October 2026</h1>
+    </div>
+    <div class="dateline">
+      <b>Economic Times — Sunday Magazine</b> · 10 pages<br>
+      <span class="tally">5 leads · 38 items · 10 reads</span>
+    </div>
+    <div class="tools">
+      <button class="ctl" onclick="toggleTheme()">Theme</button>
+      <button class="ctl" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="lead">
+
+    <article class="lead-card">
+      <span class="tag">Global Trade</span>
+      <h3>Trump waives the 100% Russia-oil tariff on India</h3>
+      <p>Executive order late Friday invokes §115(a) of the Graham Act to exempt
+         India and China from duties on being among the top five buyers of Russian
+         oil and gas. The threat had been scheduled to bite on Oct 18 — today.</p>
+      <div class="why"><b>Why it matters</b>
+        Clears the pre-Christmas shipping window. Russian crude was 44% of India's
+        August imports. Rubio visits Mumbai and Jamnagar next; the waiver lands
+        six weeks before the US midterms.</div>
+    </article>
+
+    <article class="lead-card">
+      <span class="tag">Breaking</span>
+      <h3>17 killed in stampede at a Kolkata Durga Puja pandal</h3>
+      <p>A sudden shower Saturday evening sent people rushing for shelter inside
+         the pandal. The crowd surge was uncontrolled. More than 25 injured and
+         taken to hospital; CM Suvendu Adhikari confirmed the toll, which is
+         feared to rise.</p>
+      <div class="why"><b>Why it matters</b>
+        Modi announced ex-gratia compensation for the families. Details on the
+        pandal structure and crowd management are still to come.</div>
+    </article>
+
+    <article class="lead-card">
+      <span class="tag">Technology</span>
+      <h3>AI deepfakes are swamping the protest coverage</h3>
+      <p>Sexually suggestive AI clips, protest footage cut into sexualised
+         montages, forged documents attributed to protest leaders, and old
+         footage relabelled as live — all viral across Instagram, Facebook and X
+         amid the Delhi-NCR and Mumbai agitation against the SIR.</p>
+      <div class="why"><b>Why it matters</b>
+         Detection is losing. Specialised tools caught ~75% of AI images in early
+         2023, only ~40% by late 2025. Demand for verification at pi-labs is up
+         over 100% quarter on quarter.</div>
+    </article>
+
+    <article class="lead-card">
+      <span class="tag">Markets</span>
+      <h3>Q2 banking splits: ICICI +20%, HDFC barely grows</h3>
+      <p>HDFC Bank's net profit rose just 4.7% to ₹19,510 cr as NIM slipped to
+         3.16% and bond yields hardened — a market cap that has fallen 27% in a
+         year. ICICI Bank grew profit 20% to ₹14,843 cr. YES Bank's headline +65%
+         becomes a ₹5,217 cr pro-forma loss once the AT1 ruling lands.</p>
+      <div class="why"><b>Why it matters</b>
+        Anup Bagchi takes over HDFC as MD &amp; CEO this month, ending the
+        succession standoff. Deposits are being priced with 6.5% FCNR(B) money
+        and it is compressing everyone's margins.</div>
+    </article>
+
+    <article class="lead-card">
+      <span class="tag">Healthcare</span>
+      <h3>30% margin cap on 137 cancer drugs, effective Nov 9</h3>
+      <p>NPPA notified the cap on trade margins Saturday, covering Atezolizumab,
+         Bevacizumab, Daratumumab and others across all strengths and
+         formulations. Government claims prices fall up to 70%, saving patients
+         ₹2,500 cr a year.</p>
+      <div class="why"><b>Why it matters</b>
+        Keytruda, the immunotherapy drug, is <em>not</em> on the list. The Supreme
+        Court had called the existing markups "broad daylight dacoity" — drugs
+        bought at ₹2,700 sold at ₹27,000.</div>
+    </article>
+
+  </section>
+
+  <section class="numbers">
+    <h2>The Numbers</h2>
+    <div class="num-grid">
+      <div><span class="num-val">100%</span>
+        <span class="num-lab">Tariff India avoided under the Graham Act</span></div>
+      <div><span class="num-val">44%</span>
+        <span class="num-lab">Russian crude share of India's August oil imports</span></div>
+      <div><span class="num-val">137</span>
+        <span class="num-lab">Cancer drugs under the 30% trade-margin cap</span></div>
+      <div><span class="num-val">₹19,510 cr</span>
+        <span class="num-lab">HDFC Bank Q2 profit <span class="num-delta up">+4.7%</span></span></div>
+      <div><span class="num-val">₹14,843 cr</span>
+        <span class="num-lab">ICICI Bank Q2 profit <span class="num-delta up">+20%</span></span></div>
+      <div><span class="num-val">₹5,217 cr</span>
+        <span class="num-lab">YES Bank pro-forma loss if the AT1 ruling is applied</span></div>
+      <div><span class="num-val">₹2,000 cr</span>
+        <span class="num-lab">Family-office capital into pilgrimage hotels, 12–18 months</span></div>
+      <div><span class="num-val">916%</span>
+        <span class="num-lab">Gemcitabine 1,000mg price gap: Jan Aushadhi vs retail</span></div>
+      <div><span class="num-val">70–80%</span>
+        <span class="num-lab">Share of Indian cancer treatment paid out of pocket</span></div>
+      <div><span class="num-val">17</span>
+        <span class="num-lab">Dead in the Kolkata pandal stampede</span></div>
+      <div><span class="num-val">4 / day</span>
+        <span class="num-lab">Deepfakes seen by an average Indian — McAfee 2026</span></div>
+      <div><span class="num-val">₹52,878 cr</span>
+        <span class="num-lab">Fairfax's price for a 60.72% stake in IDBI Bank</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="banking">
+    <h2><span class="n">01</span>Banking &amp; Markets</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Banking</span></div>
+        <h4>HDFC Bank: the succession premium finally unwinds</h4>
+        <p>Net profit ₹19,510 cr (+4.7%), NII ₹34,620 cr (+9.7%), but NIM fell
+           14bps to 3.16% and RoA to 1.78%. Gross advances up 16.3% to ₹32.2 lakh
+           cr, led by corporate (+16.4%) and mid-market (+23.5%). Jagdishan guides
+           margins up from next quarter as policy rates rise.</p>
+        <span class="src">Outgoing CEO Sashidhar Jagdishan</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">People</span></div>
+        <h4>Kaizad Bharucha steps down from HDFC Bank</h4>
+        <p>The deputy MD and founding member will exit Dec 31, 2026 — weeks after
+           the RBI approved Anup Bagchi. Bharucha was one of two names submitted
+           for the top job; his candidature ran into the central bank's 15-year
+           continuous-tenure cap.</p>
+        <span class="src">Board accepted; referred to RBI</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Banking</span></div>
+        <h4>ICICI Bank out-earns HDFC on every line</h4>
+        <p>Profit ₹14,843 cr (+20%), NII +18% to ₹25,339 cr, provisions down 6.9%.
+           Advances +30% to ₹18.32 lakh cr, deposits +27.1% to ₹20.50 lakh cr — or
+           +17% stripping out the FCNR(B) mop-up. GNPA improved to 1.20% from
+           1.58%. Sandeep Batra warns of another NIM dip in Q3.</p>
+        <span class="src">$18bn raised via the FCNR(B) window</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Legal</span></div>
+        <h4>YES Bank's AT1 wound is deeper than the headline</h4>
+        <p>Q2 profit rose 65% to ₹1,080 cr — but apply the ₹8,415 cr AT1
+           judgment and it becomes a ₹5,217 cr post-tax loss. Net worth falls to
+           ₹46,970 cr from ₹53,268 cr; borrowings rise to ₹86,149 cr; pro-forma
+           RoA goes to <em>negative</em> 4.3% from +0.9%.</p>
+        <span class="src">SC upheld the Bombay HC on Oct 15; review petition under consideration</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Banking</span></div>
+        <h4>Axis, IDBI, Federal, Central Bank — the rest of Q2</h4>
+        <p><b>Axis</b> +38% to ₹7,003 cr, NIM 3.36% (3.47% ex-FCNR), advances
+           +23%. <b>IDBI</b> −39% to ₹2,205 cr on the absence of last year's
+           ₹1,699 cr NSDL gain; adjusted, +14%. <b>Federal</b> record ₹1,386 cr
+           (+45%), NIM +26bps to 3.32%. <b>Central Bank</b> +21% to ₹1,469 cr,
+           cost-to-income down to 58.95% from 62.42%.</p>
+        <span class="src">Bank results, July–September</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">People</span></div>
+        <h4>Rahul Shukla jumps HDFC for Axis</h4>
+        <p>Axis Bank appoints him Group Head, Commercial and Bharat Banking from
+           Oct 19. He led Commercial &amp; Rural Banking and Wholesale Banking
+           at HDFC after 11 years at Citi including head of South Asia Corporate
+           Bank and Asia-Pacific TMT investment banking.</p>
+        <span class="src">Effective October 19, 2026</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Newage</span></div>
+        <h4>Ixigo turns profitable</h4>
+        <p>Net profit ₹63.4 cr, revenue +13% to ₹321 cr. Hotels hit "critical
+           mass" — gross booking value crossed ₹100 cr, +159% YoY, with revenue
+           up over 500%. Take rate is 12%-plus and 86% of growth comes from
+           ixigo's own captive base.</p>
+        <span class="src">Group CEO Aloke Bajpai</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="trade">
+    <h2><span class="n">02</span>Trade &amp; Energy</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Trade</span></div>
+        <h4>The waiver buys time, not diversification</h4>
+        <p>Exporters are relieved ahead of Christmas but the strategic shift is
+           already locked in. Royal Classic Mills cut US exposure from 85% to 40%
+           in fifteen months — the US is still its largest market, then Australia,
+           Canada, the EU and the UK. "Don't put all our eggs in one basket."</p>
+        <span class="src">Gopalakrishnan, R Gopalakrishnan / Royal Classic Mills</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">FTA</span></div>
+        <h4>India's first tariff cuts under the New Zealand FTA</h4>
+        <p>Effective Oct 20. Zero BCD on specified sheep meat, fish, wine and
+           furniture; manuka honey at 51%, kiwi at 15%. TRQs set for honey
+           (40 tonnes) and albumins (200 tonnes). Dairy and specified
+           agricultural goods are excluded. Bilateral goods trade was ~$1.13 bn
+           in 2025-26.</p>
+        <span class="src">Department of Revenue notification</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Energy</span></div>
+        <h4>India deepens the Russia relationship anyway</h4>
+        <p>Long-term LNG contracts are being planned. India became the first
+           official partner country for Russia Energy Week in Moscow, with eight
+           oil companies on the India pavilion. Discussions covered oil and gas,
+           mining, the steel value chain and Far East coking coal.</p>
+        <span class="src">Compounded by the Hormuz attacks and the Iran war</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="policy">
+    <h2><span class="n">03</span>Policy &amp; Regulation</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Drugs</span></div>
+        <h4>What the cancer drug cap actually says</h4>
+        <p>30% of MRP excluding GST — a 42.86% mark-up on the stockist price —
+           applied across all strengths, dosage forms and combinations. Revised MRP
+           is computed off March 2026 stockist prices; government sales excluded.
+           Six months' notice to withdraw. Keytruda is excluded.</p>
+        <span class="src">Notified by NPPA, Saturday</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Courts</span></div>
+        <h4>Reservation expansion runs into the Supreme Court</h4>
+        <p>SC upheld the Madras HC ruling that converting from Hinduism does not
+           entitle anyone to SC or OBC quota — killing Tamil Nadu's 3.5% Muslim
+           OBC quota. Separately the Karnataka HC struck down a 2022 BJP-era SC
+           reservation law, and Madhya Pradesh moved the SC against a HC ruling
+           that capped its OBC quota at 27%.</p>
+        <span class="src">Three states, three separate legal tracks</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Elections</span></div>
+        <h4>Assam begins its Special Summary Revision</h4>
+        <p>Draft roll publishes Nov 12. Duplicate names, deceased electors and
+           permanently shifted voters come off; polling stations get rationalised
+           after 100% physical verification, capped at 1,200 electors each and a
+           two-km travel limit. This SIR is the flashpoint in Delhi and Mumbai.</p>
+        <span class="src">CEO Assam, Bikash Singh</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Ladakh</span></div>
+        <h4>"Article 371 is being amended" — Ladakh's chief secretary</h4>
+        <p>Ashish Kundra said a Ladakh-specific provision akin to 371-K is on the
+           table and a 32-page draft was shared with leaders. They rubbished it
+           within two hours. Two sticking points: who writes the chief secretary's
+           ACR, and the powers of the proposed elected legislature.</p>
+        <span class="src">Meeting with MHA ended inconclusively on Oct 15</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Courts</span></div>
+        <h4>SC panel opens a complaints portal for Jantar Mantar</h4>
+        <p>The High Powered Enquiry Committee — set up after July 2026 violence in
+           Delhi — is collecting representations from people affected at Jantar
+           Mantar and elsewhere. It has committed to prioritising pellet guns,
+           targeted violence against female protesters, and property destruction
+           by either side.</p>
+        <span class="src">First update after a year of proceedings</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">States</span></div>
+        <h4>Uttarakhand takes cabinet meetings on tour</h4>
+        <p>CM Pushkar Singh Dhami is moving meetings out of Dehradun to district
+           headquarters — Banbasa on Oct 4 for border-district infrastructure,
+           Haridwar on Oct 12 for 10% Agniveer reservation in Group-G jobs.
+           Congress calls it an election tour six weeks before the end is near.</p>
+        <span class="src">Pitch built around the Ardha Kumbha from Jan 14</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="health">
+    <h2><span class="n">04</span>Healthcare</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Deep Dive</span></div>
+        <h4>The markup chain nobody can see</h4>
+        <p>Petitioner's data: doxorubicin 50mg is ₹250 at Jan Aushadhi against an
+           average of ₹1,230 at top retail brands. Gemcitabine 1,000mg: ₹631
+           versus ₹6,412. Bortezomib: ₹3,188 versus ₹11,411. Average markup 170%,
+           highest 700%. Scheduled drugs are only 17% of a ₹2.59 lakh crore
+           market.</p>
+        <span class="src">Kishan Chand Jain's court filings</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Deep Dive</span></div>
+        <h4>Why the cap probably won't reach most patients</h4>
+        <p>Patented drugs cost ₹1.5–2 lakh a vial and their price is not driven by
+           markups at all. Margin caps should be calculated on ex-factory price,
+           not printed MRP. 1.5 million new cancer cases a year; ₹7.5 lakh average
+           treatment cost. Tata Memorial and the National Cancer Grid's pooled
+           procurement show the alternative — savings of 23% to 99%.</p>
+        <span class="src">Max Healthcare, HCG, Jan Swasthya Abhiyan respond</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Markets</span></div>
+        <h4>India's cancer drug market triples by 2030</h4>
+        <p>$2.8–3.6 bn in FY26 to $7–10.6 bn by FY30, says Technavio. Insurers
+           are pressing for a health regulator — healthcare pricing remains a
+           state subject with no national framework, which is exactly where
+           reimbursement disputes with hospitals keep landing.</p>
+        <span class="src">Mayank Bathwal, Aditya Birla Health Insurance</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">IPO</span></div>
+        <h4>Paras Healthcare IPO opens Oct 21</h4>
+        <p>Price band ₹660–693 per share, ₹1,450 cr total — ₹500 cr fresh plus
+           ₹950 cr offer for sale. Eight hospitals, 2,211 beds, strongest in
+           Bihar and Jharkhand. Proceeds to repay borrowings and fund Plus
+           Medicare Hospitals in Srinagar. JM Financial, BofA and Nuvama are
+           book-running managers.</p>
+        <span class="src">Subscription window Oct 21–23</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Regulation</span></div>
+        <h4>FIR against Reliance, Blinkit and Hyperpure executives</h4>
+        <p>Maharashtra FDA seized ₹48.09 lakh of food across a multi-district
+           crackdown alleging diversion and sale of expired, damaged and rejected
+           stock. Ten-plus executives named, including V Subramaniam and Blinkit CEO
+           Albinder Dhindsa. Campa and Joyland are among the products involved.
+           Domino's and Olympia Coffee House also served notices.</p>
+        <span class="src">FIR at Shanti Nagar police station, Thane</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="business">
+    <h2><span class="n">05</span>Business &amp; Money</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Real Estate</span></div>
+        <h4>Family offices are buying pilgrimage hotels</h4>
+        <p>~₹2,000 cr committed across religious destinations in 12–18 months: a
+           137-room Salasar Balaji asset, a 145-room ITC Welcomhotel in Khatu
+           Shyamji, a 120-room Royal Orchid near Deoghar, and a Mumbai family
+           office taking a nearly complete Udupi property. Cheques run ₹60 cr for
+           midscale to ₹150 cr-plus for upscale.</p>
+        <span class="src">Noesis Hotel Advisors · faith travel is 60%+ of domestic tourism</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Alternative Assets</span></div>
+        <h4>Litigation funders move into inheritance disputes</h4>
+        <p>LegalPay now gets ~10 inheritance queries a month, up from almost none
+           five years ago — 70% reach evaluation, 10% get funded. Share Samadhan
+           wants claims above ₹50 cr and funds 10–15% of expected recovery.
+           Elf Partners clears under 4%. "A legally meritorious claim is not
+           necessarily an investable claim."</p>
+        <span class="src">LegalPay · Share Samadhan · Elf Partners · Five Rivers Capital</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Consumer</span></div>
+        <h4>Baithaks turn into ticketed concert circuits</h4>
+        <p>Upstairs With Us went from ₹500 to ₹3,000 with dinner and 200 to 41,000
+           followers; Once Upon India is in 20 cities; Tiny Room Concerts charges
+           ₹1,000–1,500 and clears 50%+ repeat attendance. Artist fees run
+           ₹20,000–40,000. The bottleneck is audience, not talent — one host puts
+           90% of his effort into filling the room.</p>
+        <span class="src">Delhi, Agra, Navi Mumbai, Bengaluru, Gurugram</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">F&B</span></div>
+        <h4>Restaurants take the fasting-food occasion out of the home</h4>
+        <p>Ishaara's ₹990 vrat thali, Indian Accent's ₹5,500 six-course Navratri
+           menu, Comorin at ₹1,399, Hosa at ₹1,149. Swiggy delivered 100,000+ vrat
+           thalis in September 2025 alone. Hotels use the season to test recipes
+           before committing them to the main menu.</p>
+        <span class="src">Bellona, Taj, Radisson Blu, Sheraton, Renaissance</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="tech">
+    <h2><span class="n">06</span>Technology &amp; Media</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">AI</span></div>
+        <h4>Detection is losing the race it started</h4>
+        <p>pi-labs sees verification demand rise over 100% every quarter and scans
+           for pixel-level inconsistencies and audio-frequency shifts. But scaling
+           is impossible — over a million pieces of content are uploaded globally
+           in five minutes. A CVPR 2026 study of 150,000+ posts found AI videos
+           took 11.3 hours to draw a community flag against 9.1 for miscaptioned
+           ones.</p>
+        <span class="src">Ankush Tiwari, pi-labs · Amitabh Kumar, Contrails AI</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Censorship</span></div>
+        <h4>Platforms are blocking journalists covering the protests</h4>
+        <p>Internet Freedom Foundation has sent four notices to Meta seeking
+           restoration of temporarily suspended accounts of independent
+           journalists; some have been restored. Apar Gupta says the restrictions
+           look like proactive moderation under the IT Rules rather than government
+           blocking orders. Internet shutdowns are creating an information vacuum.
+           Meta and X did not respond.</p>
+        <span class="src">Delhi-NCR and Mumbai, against the SIR</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Research</span></div>
+        <h4>Four deepfakes a day, and most people can't tell</h4>
+        <p>McAfee's 2026 State of the Scamiverse survey: Indians report seeing an
+           average of four deepfakes daily, mostly on Instagram (65%), Facebook
+           (59%), YouTube (48%), Telegram (44%) and WhatsApp (41%). More than one
+           in three are not confident they could spot a deepfake scam.</p>
+        <span class="src">Survey of 3,000+ users, February 2026</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="politics">
+    <h2><span class="n">07</span>Politics</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot hi">●●●</span><span class="chip">Tamil Nadu</span></div>
+        <h4>DMK demands the CEC's removal and tests a third front</h4>
+        <p>Four resolutions at a Stalin-chaired MPs' meeting: remove Gyanesh Kumar,
+           probe the "unilateral decision" backing the SIR, back the CJP protests,
+           and accuse Congress and TVK of double standards. Kanimozhi met Uddhav
+           Thackeray, Mamata Banerjee; DMK leaders have held talks with YSRCP and
+           BRS about a regional platform outside the INDIA bloc.</p>
+        <span class="src">Janata Takkar / Our Political Bureau</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Opposition</span></div>
+        <h4>Dipke and Neha Bora released after a day in custody</h4>
+        <p>The CJP founder got conditional bail after a peace bond; the AISA
+           president completed Section 65 Delhi Police Act formalities. They were
+           detained Friday ahead of the "Lehra Do Tiranga" march at Connaught
+           Place, where more than 150 protesters were held and multiple FIRs
+           registered. Over 150 detained; the two CJP co-founders are still out.</p>
+        <span class="src">Jatin Takkar</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Maharashtra</span></div>
+        <h4>Supriya Sule contradicts the 'regime change' line</h4>
+        <p>NCP(SCP)'s national working president says the party wants transparency
+           on Election Commission decisions, Gyanesh Kumar's resignation and then
+           reform — not a change of government. Prashant Bhushan had said the
+           opposite, which the BJP used to claim the agitation was a pretext.</p>
+        <span class="src">NCP splits down the middle over the SIR</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Rajasthan</span></div>
+        <h4>BJP banks the local-poll win, Congress keeps infighting</h4>
+        <p>Party unity behind CM Bhajan Lal Sharma after emphatic local body results,
+           with canal projects as the pitch. In Congress, tribal leaders rallied at
+           Gehlot's residence shouting "Gehlot as CM for the fourth time"; state
+           president Dotasara was visibly unhappy, and Gehlot told the next day's
+           Jodhpur meeting to stop the slogans.</p>
+        <span class="src">Our Political Bureau</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="world">
+    <h2><span class="n">08</span>Security &amp; World</h2>
+    <div class="grid">
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Kashmir</span></div>
+        <h4>Army engages infiltrators along the LoC</h4>
+        <p>Brief exchange of fire near Juma Gund village in the Keran sector of
+           Kupwara at around 3am Saturday. At least two were believed severely
+           injured; the army had not confirmed numbers or recovered a body by
+           Saturday evening.</p>
+        <span class="src">Army official</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot med">●●</span><span class="chip">Manipur</span></div>
+        <h4>One killed, four injured in Chassad village attack</h4>
+        <p>Suspected Tangkul militants fired on civilians, including two village
+           chiefs, in Chassad. Kuki organisations allege attackers are using the
+           Chassad police station itself to stage attacks, and accuse authorities
+           of a policy to evict the Kuki-Zo community from Ukhrul district.</p>
+        <span class="src">Committee on Tribal Unity</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Baseball</span></div>
+        <h4>The smallest payrolls in baseball meet in the World Series</h4>
+        <p>Milwaukee swept the Dodgers 4–0 to reach its first World Series in 44
+           years. Brewers ($125.9m opening payroll) will face Cleveland ($75.5m) or
+           Tampa Bay ($90.5m) — three clubs whose combined payrolls the Mets, Dodgers
+           and Yankees each exceed. A lockout is likely from Dec 2 over the
+           salary-cap fight.</p>
+        <span class="src">AP · first such matchup since 1991</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Football</span></div>
+        <h4>Mourinho: "If I were Vinicius, I'd have left Real Madrid"</h4>
+        <p>He called the 26-year-old a "spectacular kid" who keeps smiling through
+           racial abuse, but said he would have forced an exit this summer. Vinicius
+           is banned four matches and will miss the Oct 25 Clasico. Barcelona have
+           won every match and lead Madrid by six points.</p>
+        <span class="src">AFP · plus Emi Martínez's head injury at Chelsea</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Gaza</span></div>
+        <h4>For a day, Gaza's sounds are sounds of joy</h4>
+        <p>The Palestine Strongman Championship was postponed from 2021, delayed
+           again in 2023 when the war began, and finally held — tyre flips, truck
+           pulls and barbell lifts in a courtyard surrounded by rubble, with
+           children watching from the wreckage.</p>
+        <span class="src">AP · organiser Waleed Owda</span>
+      </article>
+
+      <article class="item">
+        <div class="item-top"><span class="dot lo">●</span><span class="chip">Sport</span></div>
+        <h4>Jayawardene quits as Mumbai Indians coach</h4>
+        <p>The 49-year-old leaves after three titles in his first stint (2017–22)
+           but fourth place in 2025 and second-bottom in 2026. India's women face
+           Zimbabwe in the second T20I today after a 19-for-4 collapse in the
+           opener. 168 athletes at the Asian Para Games against 303 in Hangzhou.</p>
+        <span class="src">PTI · Reuters</span>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="reads">
+    <h2><span class="n">09</span>Worth Your Time</h2>
+    <div class="reads">
+
+      <article class="read">
+        <span class="mins">Opinion · 8 min</span>
+        <h4>Too Old to Feel Guilty (Also, I Have a Chudail Problem)</h4>
+        <p>Sonali Kokra on why anticipating guilt destroys pleasure that people
+           actually enjoyed. A 2009 Michigan study: we brace for guilt, then
+           retrofit it afterwards. Doomscrolling doesn't qualify — it's all
+           wanting and none of the joy.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Book · 6 min</span>
+        <h4>Disagree to Disagree? Go Fight with Gandhi</h4>
+        <p>Ramachandra Guha's Arguments with Gandhi, reviewed. The Big Gandhi
+           Debate is really about ahimsa — and Hannah Arendt's point that it worked
+           against England and would have ended in massacre against Stalin's Russia.
+           A world shaped by arguments, not by agreement.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Deep Dive · 12 min</span>
+        <h4>Cash Landing on You</h4>
+        <p>Litigation funders underwriting ancestral-property fights worth hundreds
+           of crores. The skill is not finding good claims but finding
+           <em>recoverable</em> ones — exit via a co-heir buyout, a court-ordered
+           sale or a waiting developer. Returns targeted at 5–10x over seven to
+           eight years.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Deep Dive · 14 min</span>
+        <h4>Burden of Cancer Drugs</h4>
+        <p>A 65-year-old Kerala retiree with stage-2 breast cancer, a "buy one get
+           one" patient assistance offer that lapsed when her infection forced a
+           surgery pause, and ₹35 lakh of her own savings gone. "People are only
+           a prescription away from bankruptcy."</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Deep Dive · 10 min</span>
+        <h4>Music Comes Home</h4>
+        <p>Living rooms, terraces and farmhouses are the new small venues. Why
+           people pay ₹500–3,000 to sit in someone's flat for ghazals and thumri —
+           and why the hardest problem isn't finding artists but filling the room.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Wellness · 7 min</span>
+        <h4>Weather the Weather</h4>
+        <p>Ayurveda's ritu sandhi: the last 15 days of one season and the first 15
+           of the next are for gradual adjustment. A practical reset for summer,
+           monsoon, festivities and winter — food, skin and respiratory basics
+           from four specialists, plus what not to do.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Culture · 4 min</span>
+        <h4>Karwa Chauth and Viewing History Through a Sieve</h4>
+        <p>Egyptian tomb inscriptions, Queen Elizabeth I's sieve emblem, the vestal
+           Tuccia carrying water without spilling a drop. Wilson's line: "a power
+           display disguised as a humble utensil." We have long seen history
+           through a sieve.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Etc · 3 min</span>
+        <h4>At a Pandal Near You</h4>
+        <p>Durga Pujo as a fashion show and a tell. Organiser badges as markers of
+           power, the "mod" girl, the cigarette man, and the camera phone turning
+           every pandal into a location shoot with Ma Durga blurred into the
+           background. "Who is dressed for whom? Who is being watched?"</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Etc · 2 min</span>
+        <h4>No Offence Morparia</h4>
+        <p>The video of an elderly couple unpacking a steel thali on a flight went
+           viral and the comment section coined a new insult, "dehatism." On the
+           people filming strangers eating their own food for engagement.</p>
+      </article>
+
+      <article class="read">
+        <span class="mins">Science · 5 min</span>
+        <h4>Just 10 Minutes of Drawing Can Reset Your Nervous System</h4>
+        <p>Drawing shifts you out of fight-or-flight and into the parasympathetic
+           system, and the benefit comes from sustained attention and repetitive
+           movement, not from skill. Five to twenty minutes is enough. Clay works
+           too, if drawing doesn't.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" id="watch">
+    <h2><span class="n">10</span>Watchlist</h2>
+    <ul class="watch">
+
+      <li><div><b>India–New Zealand FTA concessions take effect.</b>
+        First tranche opens zero-duty sheep meat, wine, furniture, honey and kiwi.
+        <span class="when">Oct 20</span></div></li>
+
+      <li><div><b>Paras Healthcare IPO subscription opens</b> at ₹660–693, a
+        ₹1,450 crore issue.
+        <span class="when">Oct 21–23</span></div></li>
+
+      <li><div><b>Marco Rubio visits Mumbai and Jamnagar.</b> The world largest
+        single-site refinery, days after the tariff waiver. Watch for any renewed
+        India language before the US midterms.
+        <span class="when">This week</span></div></li>
+
+      <li><div><b>Anup Bagchi formally takes over as HDFC Bank MD &amp; CEO</b>,
+        with Kaizad Bharucha's exit following on Dec 31. First strategy signal is
+        the thing to watch.
+        <span class="when">This month</span></div></li>
+
+      <li><div><b>Kolkata stampede investigation.</b> 17 dead, toll may rise.
+        Pandal structure, entry design and crowd management are the open
+        questions.
+        <span class="when">Ongoing</span></div></li>
+
+      <li><div><b>Revised prices for the 137 capped cancer drugs.</b> Keytruda
+        remains outside the list — expect the next round of litigation.
+        <span class="when">Nov 9</span></div></li>
+
+      <li><div><b>Assam's draft electoral roll publishes.</b> The template other
+        SIR states will follow, and the measure the street protests are aimed at.
+        <span class="when">Nov 12</span></div></li>
+
+      <li><div><b>Christmas shipping season closes.</b> Exporters say tariff
+        uncertainty is over "for the next few months" — the test is whether it
+        stays that way.
+        <span class="when">Dec 15</span></div></li>
+
+      <li><div><b>Possible MLB lockout</b> over the salary cap, threatening the
+        2027 season.
+        <span class="when">Dec 2</span></div></li>
+
+      <li><div><b>El Clásico: Real Madrid vs Barcelona.</b> Barcelona have won
+        every match and lead by six; Vinicius serves the first of four matches.
+        <span class="when">Oct 25</span></div></li>
+
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <div>Compiled 18 Oct 2026 · Economic Times Sunday Magazine, Mumbai</div>
+    <div>38 items · 10 long reads · 10 watchlist entries</div>
+  </footer>
+</div>
+
+<script>
+function toggleTheme(){
+  const r=document.documentElement;
+  r.dataset.theme = r.dataset.theme==="light" ? "dark" : "light";
+}
+</script>
+</body>
+</html>

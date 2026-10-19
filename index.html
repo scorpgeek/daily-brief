@@ -75,10 +75,9 @@
     </a>
   </div>
 
-  <p class="note" id="note">
-    <b>Nothing here?</b> The dated editions are not published. Run
-    <code>python build_brief.py</code> and commit <code>desk.html</code> and
-    <code>phone.html</code>.
+  <p class="note" id="note" style="display:none">
+    <b>Nothing here?</b> Run <code>python build_brief.py</code>, then commit
+    <code>desk.html</code>, <code>phone.html</code> and <code>archive/</code>.
   </p>
 
   <p class="note" style="margin-top:14px"><a href="ARCHIVE.html" style="color:inherit">Past editions &rarr;</a></p>
@@ -109,11 +108,14 @@
     if(!r.ok) throw new Error(r.status);
     location.replace(target);
   }).catch(function(){
+    var note = document.getElementById('note');
     document.getElementById('sub').textContent =
       'Pick a surface. Both are the same briefing.';
-    document.getElementById('note').innerHTML =
-      '<b>Neither file is published yet.</b> Run <code>python build_brief.py</code> ' +
-      'and commit <code>desk.html</code> and <code>phone.html</code>.';
+    note.style.display = '';
+    note.innerHTML =
+      '<b>Neither edition is published yet.</b> Run ' +
+      '<code>python build_brief.py</code>, then commit <code>desk.html</code>, ' +
+      '<code>phone.html</code> and <code>archive/</code>.';
   });
 })();
 </script>
