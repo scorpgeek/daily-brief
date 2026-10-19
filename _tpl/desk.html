@@ -613,7 +613,11 @@ function openDrawer(k){
 function closeDrawer(){ document.getElementById('app').dataset.drawer='closed'; sel=null;
   document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel')); }
 
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); if(e.key==='/'){ e.preventDefault(); focusSearch(); } });
+document.addEventListener('keydown', e=>{
+  // Escape peels one layer at a time: results first, drawer second.
+  if(e.key==='Escape'){ if(isSearching()) clearSearch(); else closeDrawer(); }
+  if(e.key==='/'){ e.preventDefault(); focusSearch(); }
+});
 document.addEventListener('mousemove', e=>{
   const t = e.target.closest('.term'); const tip = document.getElementById('tip');
   if(!t){ tip.classList.remove('on'); return; }
@@ -725,6 +729,23 @@ document.addEventListener('click', e=>{
 
 /* ---- search ---- */
 function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.select(); }
+function isSearching(){
+  const res = document.getElementById('res');
+  return !!(res && res.classList.contains('on'));
+}
+function clearSearch(){
+  const box = document.getElementById('q'), res = document.getElementById('res');
+  if(box) box.value = '';
+  if(res){ res.innerHTML=''; res.classList.remove('on'); }
+}
+/* Results used to survive until you deleted the letters by hand, which
+   left a stale panel sitting over the document after you had moved on.
+   They now dismiss on Escape, on a click anywhere else, and on any
+   navigation -- including a rail index link, which needs no handler
+   because the rail is outside both .search and .res. */
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search') && !e.target.closest('.res')) clearSearch();
+});
 function doSearch(){
   const raw = document.getElementById('q').value.trim().toLowerCase();
   const res = document.getElementById('res');
@@ -762,7 +783,7 @@ function doSearch(){
     const snip = (fi>50?'…':'')
       + full.slice(Math.max(0,fi-58), fi+raw.length+72)
       + (fi+raw.length+72 < full.length ? '…' : '');
-    out.push(`<a href="#${sec?sec.id:''}" onclick="var r=document.getElementById('res');r.classList.remove('on');r.innerHTML=''">`
+    out.push(`<a href="#${sec?sec.id:''}" onclick="clearSearch()">`
       + hl(snip) + `<span class="m">${esc(sectionLabel(sec))}</span></a>`);
   }
   res.innerHTML = out.length ? out.join('') : '<a style="color:var(--faint)">No matches</a>';
@@ -770,6 +791,11 @@ function doSearch(){
 }
 document.addEventListener('keydown', e=>{
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); focusSearch(); }
+  // Enter opens the first result — the reflex after typing a term.
+  if(e.key==='Enter' && isSearching() && document.activeElement===document.getElementById('q')){
+    const first = document.querySelector('#res a[href]');
+    if(first){ e.preventDefault(); first.click(); }
+  }
 });
 </script>
 </body>

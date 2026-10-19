@@ -43,6 +43,13 @@ click a term. Adds a glossary with the paper's own sentence and dated
 external sources, a provenance toggle that hides everything not from the
 paper, `Cmd/Ctrl+K` search, and reading-preference controls.
 
+Search results dismiss themselves. They used to sit there until you deleted
+the letters by hand, which left a stale panel over the document after you had
+already moved on. Now Escape, a click anywhere else, and any navigation all
+close them — and Enter opens the first result, because typing a term and
+pressing Enter is the reflex. Escape peels one layer at a time: results
+first, glossary drawer second.
+
 The rail holds the document identity — paper, date, page count, mode — and
 the sticky bar shows where you are: the current section, its number, how far
 through you are, and a progress hairline. They used to print the date twice
