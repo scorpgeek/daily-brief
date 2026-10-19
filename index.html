@@ -1,952 +1,119 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daily Brief — Sunday, 18 October 2026</title>
+<title>Daily Brief</title>
+<meta name="robots" content="noindex">
 <style>
-/* ============================================================
-   DAILY BRIEF — phone-first reading surface
-   17 sections · three bands · collapsible · dark default
-   ============================================================ */
-
-:root{
-  --bg:#0f0f0e; --panel:#171716; --panel-2:#1e1e1c; --ink:#eceae4;
-  --muted:#8f8c84; --faint:#5c5a54; --line:#2a2a27; --line-2:#35342f;
-
-  --use:#e8735f;            /* band 1 accent — act on these */
-  --ref:#c8a15e;            /* band 2 accent — reference */
-  --lang:#7fa88a;           /* band 3 accent — language */
-
-  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.35);
-
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-  --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
-
-  /* type scale — line-height is the load-bearing value here */
-  --t-body:1.62; --t-tight:1.28; --t-measure:68ch;
-}
-[data-theme="light"]{
-  --bg:#f7f6f3; --panel:#fff; --panel-2:#faf9f7; --ink:#1a1a19;
-  --muted:#6d6a63; --faint:#a8a49b; --line:#e4e1da; --line-2:#d6d2c9;
-  --use:#a8261a; --ref:#9a6f1f; --lang:#3d6b4c;
-  --shadow:0 1px 2px rgba(0,0,0,.05), 0 10px 30px rgba(0,0,0,.05);
-}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:16px/var(--t-body) var(--sans);
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  padding-bottom:80px;
-}
-@media (min-width:720px){ body{font-size:17px} }
-
-.shell{max-width:720px;margin:0 auto;padding:0 18px}
-
-/* ---------- masthead ---------- */
-.mast{
-  position:sticky;top:0;z-index:60;
-  background:var(--bg);
-  border-bottom:1px solid var(--line);
-  padding:14px 0 12px;
-}
-.mast::after{
-  content:"";display:block;height:2px;margin-top:12px;border-radius:2px;
-  background:linear-gradient(90deg,var(--use) 0%,var(--ref) 50%,var(--lang) 100%);
-  opacity:.85;
-}
-.mast-in{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.kicker{
-  font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
-  color:var(--faint);margin-bottom:7px;
-}
-h1{
-  font:600 clamp(21px,5.2vw,28px)/1.15 var(--serif);
-  margin:0;letter-spacing:-.02em;flex:1 1 auto;
-}
-.meta{font:400 11px/1.5 var(--mono);color:var(--faint);white-space:nowrap}
-.toggle{
-  font:500 11px/1 var(--sans);padding:7px 11px;border-radius:999px;
-  border:1px solid var(--line-2);background:var(--panel);color:var(--muted);
-  cursor:pointer;transition:background .12s,color .12s;
-}
-.toggle:hover{color:var(--ink);background:var(--panel-2)}
-
-/* ---------- 30-second block ---------- */
-.thirty{
-  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--use);
-  border-radius:0 12px 12px 0;padding:18px 20px;margin:22px 0 8px;
-}
-.thirty h2{
-  font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
-  color:var(--use);margin:0 0 14px;
-}
-.ts-row{display:grid;grid-template-columns:78px 1fr;gap:10px 14px;align-items:start}
-.ts-row dt{
-  font:600 10px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--faint);padding-top:2px;
-}
-.ts-row dd{margin:0;font-size:15px;line-height:1.5}
-@media (max-width:420px){ .ts-row{grid-template-columns:1fr;gap:2px 0}
-  .ts-row dt{margin-top:10px} .ts-row dt:first-of-type{margin-top:0} }
-
-/* ---------- bands ---------- */
-.band{margin:44px 0 0}
-.band-head{
-  display:flex;align-items:center;gap:12px;margin-bottom:6px;
-}
-.band-label{
-  font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
-  color:var(--accent);
-}
-.band-rule{flex:1;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
-.band-note{font:400 12px/1.4 var(--sans);color:var(--faint);margin:0 0 18px}
-
-.band-use{--accent:var(--use)}
-.band-ref{--accent:var(--ref)}
-.band-lang{--accent:var(--lang)}
-
-/* ---------- sections ---------- */
-.sec{
-  background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  margin-bottom:12px;overflow:hidden;
-}
-.sec>summary{
-  list-style:none;cursor:pointer;padding:16px 18px;
-  display:flex;align-items:center;gap:12px;
-  transition:background .12s;
-}
-.sec>summary::-webkit-details-marker{display:none}
-.sec>summary:hover{background:var(--panel-2)}
-.sec-n{
-  font:700 10px/1 var(--mono);letter-spacing:.1em;color:var(--accent);
-  min-width:22px;
-}
-.sec-title{font:600 15.5px/1.3 var(--sans);flex:1;letter-spacing:-.01em}
-.sec-flag{
-  font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
-  padding:4px 7px;border-radius:4px;
-}
-.chev{
-  width:8px;height:8px;border-right:1.5px solid var(--faint);
-  border-bottom:1.5px solid var(--faint);transform:rotate(45deg);
-  transition:transform .12s ease;flex:none;margin-right:2px;
-}
-.sec[open] .chev{transform:rotate(-135deg)}
-.sec-body{
-  padding:2px 18px 20px;border-top:1px solid var(--line);margin-top:-1px;
-}
-.sec-body>*:first-child{margin-top:18px}
-.sec-body>*:last-child{margin-bottom:0}
-
-/* ---------- prose ---------- */
-.sec-body p{margin:0 0 12px;max-width:var(--t-measure)}
-.sec-body ul{margin:0 0 12px;padding-left:20px;max-width:var(--t-measure)}
-.sec-body li{margin-bottom:7px}
-.sec-body b,strong{font-weight:650}
-em{color:var(--accent);font-style:normal}
-.h3{
-  font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--faint);margin:22px 0 10px;padding-top:4px;
-}
-.h3:first-child{margin-top:18px}
-
-/* ---------- top 5 ---------- */
-.top-item{
-  display:grid;grid-template-columns:auto 1fr;gap:10px 12px;
-  padding:14px 0;border-bottom:1px solid var(--line);
-}
-.top-item:last-child{border-bottom:0;padding-bottom:0}
-.top-item:first-child{padding-top:4px}
-.tag{
-  font:700 9.5px/1 var(--mono);letter-spacing:.08em;
-  padding:5px 7px;border-radius:4px;height:fit-content;white-space:nowrap;
-}
-.tag.ACT{color:var(--use);background:color-mix(in srgb,var(--use) 16%,transparent)}
-.tag.WATCH{color:var(--ref);background:color-mix(in srgb,var(--ref) 16%,transparent)}
-.tag.KNOW{color:var(--faint);background:color-mix(in srgb,var(--faint) 14%,transparent)}
-.top-text{font-size:15.5px;line-height:1.5}
-.top-note{
-  grid-column:2;font-size:13px;color:var(--muted);line-height:1.5;
-  padding-top:3px;
-}
-.top-note b{color:var(--accent);font-weight:600}
-
-/* ---------- numbers ---------- */
-.nums{display:grid;gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
-.num{
-  background:var(--panel-2);padding:14px 16px;
-  display:flex;align-items:baseline;gap:14px;
-}
-.num-v{
-  font:600 22px/1 var(--serif);letter-spacing:-.02em;
-  min-width:82px;flex:none;color:var(--accent);
-}
-.num-l{font-size:13.5px;color:var(--muted);line-height:1.45}
-
-/* ---------- dates ---------- */
-.dates{list-style:none;margin:0;padding:0}
-.dates li{
-  display:grid;grid-template-columns:96px 1fr;gap:14px;
-  padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline;
-}
-.dates li:last-child{border-bottom:0}
-.dates .d{
-  font:600 11.5px/1.4 var(--mono);color:var(--muted);letter-spacing:.02em;
-}
-.dates .d.soon{color:var(--use)}
-.dates .w{font-size:14.5px;line-height:1.5}
-
-/* ---------- my lens ---------- */
-.lens{border-left:2px solid var(--accent);padding-left:16px;margin-bottom:20px}
-.lens:last-child{margin-bottom:0}
-.lens dl{margin:0}
-.lens dt{
-  font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--faint);margin-top:11px;
-}
-.lens dt:first-child{margin-top:0}
-.lens dd{margin:2px 0 0;font-size:15px;line-height:1.55}
-
-/* ---------- tables ---------- */
-.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
-table{border-collapse:collapse;width:100%;font-size:14px;min-width:340px}
-caption{
-  caption-side:top;text-align:left;font-size:13.5px;color:var(--muted);
-  line-height:1.5;padding-bottom:12px;max-width:var(--t-measure);
-}
-th{
-  font:600 10px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--faint);text-align:left;padding:0 12px 8px 0;
-  border-bottom:1px solid var(--line-2);
-}
-td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line)}
-tbody tr:last-child td{border-bottom:0}
-td.n{text-align:right;font-variant-numeric:tabular-nums;padding-right:0}
-th.n{text-align:right;padding-right:0}
-
-/* ---------- quotes / citations ---------- */
-.src{
-  font:400 10.5px/1.4 var(--mono);color:var(--faint);
-  letter-spacing:.04em;display:block;margin-top:10px;
-}
-blockquote{
-  margin:14px 0;padding:2px 0 2px 16px;border-left:2px solid var(--line-2);
-  color:var(--muted);font-size:14.5px;max-width:var(--t-measure);
-}
-blockquote p{margin:0 0 8px}
-
-/* ---------- opinion entries ---------- */
-.op{border-top:1px solid var(--line);padding:16px 0}
-.op:first-of-type{border-top:0;padding-top:4px}
-.op h4{font:600 15.5px/1.3 var(--serif);margin:0 0 3px;letter-spacing:-.01em}
-.op-by{font:400 11px/1.4 var(--mono);color:var(--faint);margin:0 0 12px}
-.op-row{display:grid;grid-template-columns:74px 1fr;gap:3px 12px;font-size:14px;line-height:1.55}
-.op-row dt{font:600 9.5px/1.65 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-.op-row dd{margin:0 0 7px}
-@media (max-width:420px){ .op-row{grid-template-columns:1fr} .op-row dt{margin-top:8px} }
-
-/* ---------- tables of vocab ---------- */
-.vocab{width:100%;border-collapse:collapse;font-size:14px}
-.vocab th{
-  font:600 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  text-align:left;padding:0 10px 8px 0;border-bottom:1px solid var(--line-2);
-  color:var(--faint);white-space:nowrap;
-}
-.vocab td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
-.vocab tr:last-child td{border-bottom:0}
-.vocab td:first-child{font-weight:600;white-space:nowrap;color:var(--accent)}
-
-/* ---------- traps ---------- */
-.trap{padding:13px 0;border-bottom:1px solid var(--line)}
-.trap:last-child{border-bottom:0;padding-bottom:0}
-.trap-row{display:grid;gap:5px}
-.trap-bad{
-  font-size:14.5px;color:var(--muted);text-decoration:line-through;
-  text-decoration-color:var(--faint);text-decoration-thickness:1px;
-}
-.trap-good{font-size:14.5px}
-.trap-good b{color:var(--lang)}
-.trap-why{font-size:13px;color:var(--muted);line-height:1.5;padding-top:3px}
-
-/* ---------- speak / quiz ---------- */
-.speak{
-  background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
-  padding:16px 18px;margin-bottom:14px;
-}
-.speak h4,.quiz h4{
-  font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--accent);margin:0 0 10px;
-}
-.speak .q{font:600 15px/1.5 var(--serif);margin:0 0 14px;letter-spacing:-.01em}
-.model{
-  border-top:1px dashed var(--line-2);padding-top:13px;
-  font-size:14.5px;line-height:1.6;color:var(--muted);max-width:var(--t-measure);
-}
-.model em{color:var(--lang);font-style:normal}
-.qa{border-bottom:1px solid var(--line);padding:12px 0}
-.qa:last-child{border-bottom:0}
-.qa .q{font-size:14.5px;line-height:1.55;margin:0 0 5px}
-.qa .a{font-size:13.5px;color:var(--muted);line-height:1.55}
-.qa .a b{color:var(--lang)}
-.ans-head{
-  font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--lang);margin:18px 0 4px;
-}
-
-/* ---------- skip ---------- */
-.skip{
-  background:var(--panel-2);border:1px dashed var(--line-2);border-radius:10px;
-  padding:15px 17px;font-size:14px;color:var(--muted);line-height:1.6;
-}
-
-/* ---------- long-form read ---------- */
-.longform{max-width:var(--t-measure)}
-.longform>p{font-size:15.5px;line-height:1.62}
-.beat{
-  margin:0 0 18px;padding:2px 0 2px 15px;
-  border-left:2px solid var(--line-2);
-}
-.beat:last-child{margin-bottom:0}
-.beat-k{
-  font:600 9.5px/1 var(--mono);letter-spacing:.15em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:7px;
-}
-.beat p{font-size:15px;line-height:1.6;margin:0 0 9px}
-.beat p:last-child{margin-bottom:0}
-.beat.falsifier{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);
-  border-radius:0 8px 8px 0;padding:13px 15px}
-.byline{
-  font:400 11.5px/1.4 var(--mono);color:var(--faint);margin:0 0 20px;
-  padding-bottom:14px;border-bottom:1px solid var(--line);
-}
-
-/* ---------- deep dive ---------- */
-.dd{border-top:1px solid var(--line);padding:18px 0 4px}
-.dd:first-of-type{border-top:0;padding-top:4px}
-.dd h4{
-  font:600 16px/1.3 var(--serif);margin:0 0 4px;letter-spacing:-.01em;
-}
-.dd-page{font:400 10.5px/1.4 var(--mono);color:var(--faint);margin:0 0 14px}
-.dd-row{display:grid;grid-template-columns:96px 1fr;gap:3px 14px;font-size:14.5px;line-height:1.55}
-.dd-row dt{
-  font:600 9.5px/1.7 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--faint);
-}
-.dd-row dd{margin:0 0 9px;max-width:var(--t-measure)}
-@media (max-width:460px){
-  .dd-row{grid-template-columns:1fr}
-  .dd-row dt{margin-top:9px}
-}
-
-/* ---------- hindi / phrases ---------- */
-.hindi{width:100%;border-collapse:collapse;font-size:14.5px}
-.hindi td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:baseline}
-.hindi tr:last-child td{border-bottom:0}
-.hindi td:first-child{font-weight:600;color:var(--accent);white-space:nowrap;width:34%}
-.hindi .dev{font-size:15px}
-.hindi .pron{font:400 12px/1.4 var(--mono);color:var(--faint);white-space:nowrap}
-.phrase{
-  padding:13px 0;border-bottom:1px solid var(--line);
-}
-.phrase:last-child{border-bottom:0;padding-bottom:0}
-.phrase-t{
-  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:5px;
-}
-.phrase-w{font:600 15px/1.3 var(--sans);color:var(--accent)}
-.phrase-tone{
-  font:600 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--faint);border:1px solid var(--line-2);padding:4px 6px;border-radius:4px;
-}
-.phrase-m{font-size:13.5px;color:var(--muted);margin:0 0 6px;line-height:1.5}
-.phrase-e{
-  font-size:14px;line-height:1.55;padding-left:12px;
-  border-left:2px solid var(--line-2);
-}
-
-/* ---------- print ---------- */
-@media print{
-  :root{--shadow:none}
-  body{background:#fff;font-size:10.5pt}
-  .mast{position:static}
-  .toggle{display:none}
-  .sec{break-inside:avoid;border-color:#ccc;margin-bottom:8px}
-  .sec:not([open])>.sec-body{display:block}
-  .band{margin-top:20px}
-  .thirty{border-left-color:#000}
-  .tw{overflow:visible;margin:0;padding:0}
-  details{open:true}
-}
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;html{scroll-behavior:auto}}
-}
+  :root{
+    --bg:#f7f4ed; --panel:#fdfbf6; --panel-2:#efeade; --ink:#211f1a;
+    --muted:#56534b; --faint:#6b6863; --line:#e3ded1; --line2:#d1cbba;
+    --use:#a6261a; --ref:#8c611a; --lang:#3b694a;
+    --chip-use:#a4261a; --chip-ref:#8b601a; --chip-faint:#6a6762; --chip-lang:#3a6849;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
+  }
+  [data-theme="dark"]{
+    --bg:#0e0e0d; --panel:#161615; --panel-2:#1c1c1a; --ink:#ecebe6;
+    --muted:#8e8b84; --faint:#868480; --line:#282825; --line2:#353430;
+    --use:#e87461; --ref:#c9a260; --lang:#80a98b;
+    --chip-use:#e87563; --chip-ref:#caa362; --chip-faint:#8d8b87; --chip-lang:#81aa8c;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;display:grid;place-items:center;padding:32px 20px;
+    background:var(--bg);color:var(--ink);
+    font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;
+  }
+  .w{width:min(560px,100%);text-align:center}
+  .k{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  h1{font:600 30px/1.15 var(--serif);letter-spacing:-.02em;margin:10px 0 6px}
+  .sub{font-size:14px;color:var(--muted);margin:0 0 26px}
+  .row{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-bottom:20px}
+  @media (max-width:460px){ .row{grid-template-columns:1fr} }
+  a.card{
+    display:block;text-decoration:none;color:var(--ink);text-align:left;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;transition:border-color .12s,background .12s;
+  }
+  a.card:hover{border-color:var(--line2);background:var(--panel-2)}
+  a.card:focus-visible{outline:2px solid var(--lang);outline-offset:2px}
+  .card-t{font:600 15px/1.3 var(--serif);margin-bottom:5px}
+  .card-d{font-size:13px;line-height:1.5;color:var(--muted)}
+  .note{font-size:12.5px;color:var(--faint);margin:0}
+  .note b{color:var(--chip-use);font-weight:600}
+  .themedot{
+    position:fixed;top:16px;right:16px;background:none;border:1px solid var(--line);
+    color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;
+    font:500 11px/1 var(--sans);
+  }
+  .themedot:hover{color:var(--ink);background:var(--panel)}
 </style>
 </head>
 <body>
+<button class="themedot" onclick="
+  const r=document.documentElement;
+  r.dataset.theme = r.dataset.theme==='light' ? 'dark' : 'light';
+  localStorage.setItem('dbth', r.dataset.theme);
+">Theme</button>
 
-<header class="mast">
-  <div class="shell mast-in">
-    <div style="flex:1 1 auto">
-      <div class="kicker">Daily Brief</div>
-      <h1>Sunday, 18 October 2026</h1>
-    </div>
-    <div class="meta">ET Sun. Mag · 10pp</div>
-    <button class="toggle" onclick="
-      const r=document.documentElement;
-      r.dataset.theme = r.dataset.theme==='dark' ? 'light' : 'dark';
-    ">Light</button>
-  </div>
-</header>
+<div class="w">
+  <div class="k">Daily Brief</div>
+  <h1>Which surface?</h1>
+  <p class="sub" id="sub">Taking you to the one that fits this screen.</p>
 
-<div class="shell">
-
-  <!-- ============ 30 SECONDS ============ -->
-  <section class="thirty">
-    <h2>30 seconds</h2>
-    <dl class="ts-row">
-      <dt>Today</dt>
-      <dd>Trump lifts a 100% tariff threat over India buying Russian oil. Seventeen die in a Kolkata pandal stampede.</dd>
-      <dt>Do this</dt>
-      <dd>Draft your 90-day listening plan — the incoming bank CEO's approach is the model.</dd>
-      <dt>By when</dt>
-      <dd>Oct 20 — New Zealand FTA concessions take effect.</dd>
-    </dl>
-  </section>
-
-  <!-- ============ BAND 1 · USE THESE ============ -->
-  <div class="band band-use">
-    <div class="band-head">
-      <span class="band-label">Use these</span><span class="band-rule"></span>
-    </div>
-    <p class="band-note">Three quick sections, then the two deep reads. Everything below is reference.</p>
-
-    <details class="sec" open>
-      <summary><span class="chev"></span><span class="sec-n">01</span>
-        <span class="sec-title">Top 5</span><span class="sec-flag">2 WATCH</span></summary>
-      <div class="sec-body">
-
-        <div class="top-item">
-          <span class="tag WATCH">WATCH</span>
-          <div class="top-text">Trump waived the 100% tariff on India and the four other top buyers of Russian oil — Indian buyers had sourced 44% of their August crude from Russia.</div>
-          <div class="top-note"><b>Watch for</b> renewed US pressure before the midterms, or a narrowing of the "national interest" justification.</div>
-        </div>
-
-        <div class="top-item">
-          <span class="tag WATCH">WATCH</span>
-          <div class="top-text">Meta suspended accounts of independent journalists covering the anti-SIR protests while AI-generated footage spread — detection of AI images fell from about 75% to about 40%.</div>
-          <div class="top-note"><b>Watch for</b> platform verification features reaching service channels, and any formal Meta response.</div>
-        </div>
-
-        <div class="top-item">
-          <span class="tag KNOW">KNOW</span>
-          <div class="top-text">17 died in a crowd surge at a Kolkata Durga Puja pandal after a sudden shower drove attendees indoors — more than 25 injured.</div>
-        </div>
-
-        <div class="top-item">
-          <span class="tag KNOW">KNOW</span>
-          <div class="top-text">NPPA capped trade margins on 137 cancer drugs at 30% from Nov 9 — Keytruda sits outside the list.</div>
-        </div>
-
-        <div class="top-item">
-          <span class="tag KNOW">KNOW</span>
-          <div class="top-text">ICICI Bank grew Q2 profit 20% while HDFC Bank grew 4.7% — HDFC's net interest margin fell 14bps to 3.16%.</div>
-        </div>
-
-      </div>
-    </details>
-
-    <details class="sec" open>
-      <summary><span class="chev"></span><span class="sec-n">06</span>
-        <span class="sec-title">My Lens</span></summary>
-      <div class="sec-body">
-
-        <div class="lens"><dl>
-          <dt>What</dt>
-          <dd>HDFC Bank's incoming chief executive said he will meet teams and gather feedback before setting any wider agenda.</dd>
-          <dt>Why me</dt>
-          <dd>Senior Manager to Director is the same handover. The useful part isn't the listening — it's that he said it publicly, in a way that makes it legible to the people affected.</dd>
-          <dt>Do</dt>
-          <dd>Draft a 90-day listening plan before your next promotion conversation: who you meet, what you measure, what you would change. Bring it written, don't describe it from memory.</dd>
-        </dl></div>
-
-        <div class="lens"><dl>
-          <dt>What</dt>
-          <dd>Bank margins compressed because deposits became dearer while lending prices stayed fixed. Foreign currency deposits cost ICICI 6.5% landed, and it expects another dip in Q3.</dd>
-          <dt>Why me</dt>
-          <dd>Identical squeeze on a telecom account. Client revenue is capped by contract; your delivery cost is not. ICICI's note that the cost "has not played out fully" is the part worth keeping.</dd>
-          <dt>Do</dt>
-          <dd>Know your cost floor per contact <em>this</em> month, not last quarter. Say it as: <em>"our margin was compressed by input cost, not demand."</em> That sentence defuses a room.</dd>
-        </dl></div>
-
-        <div class="lens"><dl>
-          <dt>What</dt>
-          <dd>ixigo said 86% of its booking growth came from its own user base rather than third parties, at a take rate above 12%.</dd>
-          <dt>Why me</dt>
-          <dd>If all your account's volume arrives through the client's channel, you are a cost line without pricing power, and you cannot argue the renewal using your own numbers.</dd>
-          <dt>Do</dt>
-          <dd>Find one number that measures quality rather than volume — first-contact resolution, QA score, or attrition on your pod — and get it into the next business review.</dd>
-        </dl></div>
-
-      </div>
-    </details>
-
-    <details class="sec" open>
-      <summary><span class="chev"></span><span class="sec-n">08</span>
-        <span class="sec-title">Shift Huddle Line</span>
-        <span class="sec-flag">Copy</span></summary>
-      <div class="sec-body">
-        <blockquote><p>Today's paper is full of people guessing whether something AI-generated is real, so let's ask what we do when a customer message doesn't sound like our customer.</p></blockquote>
-      </div>
-    </details>
-
-    <details class="sec" open>
-      <summary><span class="chev"></span><span class="sec-n">DEEP</span>
-        <span class="sec-title">Deep Dive — Top 2 Stories</span>
-        <span class="sec-flag">5 beats each</span></summary>
-      <div class="sec-body">
-
-        <div class="dd">
-          <h4>Trump waives the Russia-oil tariff on India</h4>
-          <p class="dd-page">Economy &amp; Trade · p.01, p.02, p.07</p>
-          <dl class="dd-row">
-            <dt>Background</dt>
-            <dd>The Lindsey O Graham Sanctioning Russia and Iran Act passed Congress on Sept 16 and Trump signed it two days later. It proposed tariffs of up to 100% on imports from the top five purchasers of Russian oil and gas, effective 30 days after enactment — Oct 18, today. India and China were both named, and an earlier punitive tariff had landed in August 2025.</dd>
-            <dt>Affected</dt>
-            <dd>Indian exporters facing immediate decisions on US-bound Christmas shipments — Tiruppur knitwear, Surat gems and jewellery, Chennai hair products. Also anyone modelling Indian crude sourcing.</dd>
-            <dt>Next</dt>
-            <dd>Marco Rubio visits Mumbai and Jamnagar, including Reliance's single-site refinery, the largest in the world. Christmas shipping typically runs to Dec 15, so the window closes before any reversal could be tested.</dd>
-            <dt>Watch</dt>
-            <dd>Whether US buyers re-impose pressure before the midterms, and whether a "national interest" justification survives an election cycle — it is discretionary, not permanent. Exporters' response is the better tell: reversal, or pause?</dd>
-            <dt>Scale</dt>
-            <dd><em>44%</em> — Russian crude's share of India's August imports, which is what made India a target.</dd>
-          </dl>
-        </div>
-
-        <div class="dd">
-          <h4>Deepfakes and the anti-SIR protest coverage</h4>
-          <p class="dd-page">Tech &amp; Society · p.01, p.07</p>
-          <dl class="dd-row">
-            <dt>Background</dt>
-            <dd>Protests in Delhi-NCR and Mumbai run against the Chief Electoral Commissioner and the Special Intensive Revision. AI clips of a scantily clad woman stopping a police van, sexualised edits, forged documents attributed to protest leaders, and old footage relabelled as current have drawn millions of views.</dd>
-            <dt>Affected</dt>
-            <dd>Anyone verifying events from social media, including journalists. Platforms have suspended accounts of independent journalists; the Internet Freedom Foundation has sent four notices and some accounts were restored.</dd>
-            <dt>Next</dt>
-            <dd>Verification demand is rising over 100% quarter on quarter. Detection is degrading — tools caught roughly 75% of AI images in early 2023 and about 40% by late 2025.</dd>
-            <dt>Watch</dt>
-            <dd>Whether the IFF's notices produce a formal Meta response rather than silence. Also whether detection recovers — every month without improvement raises the floor of what is unverifiable, and that floor does not come back down.</dd>
-            <dt>Scale</dt>
-            <dd><em>11.3 hours</em> — for an AI video to draw its first community flag, against 9.1 for miscaptioned human footage.</dd>
-          </dl>
-        </div>
-
-      </div>
-    </details>
-
-    <details class="sec" open>
-      <summary><span class="chev"></span><span class="sec-n">10</span>
-        <span class="sec-title">One Long-Form Read</span>
-        <span class="sec-flag">Objection</span></summary>
-      <div class="sec-body">
-
-        <h4 style="font:600 18px/1.3 var(--serif);margin:0 0 4px;letter-spacing:-.01em">Not Every Selection is a Conspiracy</h4>
-        <p class="byline">Anand Vasu · VITALS · p.10</p>
-
-        <div class="longform">
-          <div class="beat">
-            <div class="beat-k">The argument</div>
-            <p>Agarkar has departed as chief selector and his successor hunt is underway, so the squad announcement is being read as a signal. Vasu accepts the outrage is real, then argues it is misdirected. The committee selected Kuldeep over Manav Suthar, and returned Anshul Kamboj in place of Aaqib Nabi; Jaiswal is absent from the ODI squad, Gurnoor Brar is held out of the Test side, and Sarfaraz is omitted again.</p>
-            <p>Each omission, on his reading, is a long-view call: Suthar is better served playing domestic cricket before a five-Test Border-Gavaskar Trophy, Brar is being sharpened for the 2027 World Cup, Jaiswal is playing three four-day matches for India A. Consistency of process, with Gambhir and the captain, is what builds trust — and every feel-good story is backed by exponentially more near misses.</p>
-          </div>
-
-          <div class="beat">
-            <div class="beat-k">The claim I'm attacking</div>
-            <p>That the selections are defensible and the outrage is disproportionate.</p>
-          </div>
-
-          <div class="beat">
-            <div class="beat-k">The joint</div>
-            <p>Vasu asks you to trust the process because it is consistent. But consistency is not evidence of correctness — a consistently poor process is still a poor process, and internal logic is a property of any argument, including the wrong one. His strongest card is that the omissions have identifiable internal reasoning, and he is right about that. The gap is that he never shows the reasoning discriminates between a genuine long view and a story assembled afterwards.</p>
-          </div>
-
-          <div class="beat">
-            <div class="beat-k">The argument</div>
-            <p>Every selector in cricket believes they are playing the long game. That belief is unfalsifiable from outside unless someone specifies it in advance and holds them to it afterwards, and Vasu does neither. He invokes "logic borne out by data" while presenting no data at all — no record of how many previous long-view calls the committee made, how many paid off, or what the base rate was.</p>
-            <p>Absent that, "the long view" is a phrase doing all the work, and it can be fitted to any omission in hindsight. This is why conspiracy accusations persist. A genuine process invites audit; an unfalsifiable one invites conspiracy, because the outsider has no way to distinguish confidence from rationalisation.</p>
-          </div>
-
-          <div class="beat">
-            <div class="beat-k">What I would concede</div>
-            <p>Vasu is substantially right on the merits. Selecting on availability rather than projected role would be worse, and Suthar is genuinely better placed playing first-class cricket than as a tourist in a spin-friendly Test. He is also right that outrage without a counterfactual is cheap. His line about near misses is a fair correction to the assumption that every omission is an injustice.</p>
-          </div>
-
-          <div class="beat falsifier">
-            <div class="beat-k">What would change my mind</div>
-            <p>A track record. If this committee's last two comparable long-view calls paid off, the process has earned trust retrospectively, even though it could not prove itself in advance. Vasu's argument would then be complete, because trust is exactly what he is claiming and evidence of results is exactly what he is missing.</p>
-          </div>
-
-          <div class="beat">
-            <div class="beat-k">How this differs</div>
-            <p>Vasu argues from inside the framing — he accepts the selectors have a coherent long view and defends them on their own terms. My objection accepts his framing completely and shows it does not discriminate: it would produce the same confidence if the committee were wrong.</p>
-          </div>
-        </div>
-
-      </div>
-    </details>
-
+  <div class="row">
+    <a class="card" href="desk.html" data-pick="desk">
+      <div class="card-t">Laptop</div>
+      <div class="card-d">Rail, glossary drawer, search, and the full section index. Built for a wide screen.</div>
+    </a>
+    <a class="card" href="phone.html" data-pick="phone">
+      <div class="card-t">Phone</div>
+      <div class="card-d">Three bands, everything folded except the first. Built for a thumb.</div>
+    </a>
   </div>
 
-  <!-- ============ BAND 2 · REFERENCE ============ -->
-  <div class="band band-ref">
-    <div class="band-head">
-      <span class="band-label">Reference</span><span class="band-rule"></span>
-    </div>
-    <p class="band-note">Scan, don't read. Each section is folded by default.</p>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">02</span>
-        <span class="sec-title">By Category</span><span class="sec-flag">7 headings</span></summary>
-      <div class="sec-body">
-
-        <div class="h3">Politics &amp; Governance</div>
-        <ul>
-          <li>The DMK adopted four resolutions: remove Chief Electoral Commissioner Gyanesh Kumar, probe the roll-revision decision, back the CJP protests, accuse Congress and TVK of double standards. (p.02)</li>
-          <li>CJP founder Abhijeet Dipke and AISA president Neha Bora were released a day after detention; over 150 protesters were held at the Connaught Place march. (p.02)</li>
-          <li>The Supreme Court upheld that conversion from Hinduism grants no SC or OBC reservation, ending Tamil Nadu's 3.5% Muslim OBC quota. (p.02)</li>
-        </ul>
-
-        <div class="h3">Economy &amp; Trade</div>
-        <ul>
-          <li>India notified its first duty concessions under the New Zealand FTA, effective Oct 20 — zero BCD on specified sheep meat, fish, wine and furniture. Bilateral trade ran about $1.13 bn. (p.02)</li>
-          <li>India's FCNR(B) deposits carry a landed cost of 6.5%, which is what compressed bank margins this quarter. (p.02, p.07)</li>
-        </ul>
-
-        <div class="h3">Business &amp; Markets</div>
-        <div class="tw">
-        <table>
-          <caption>ICICI Bank out-earned HDFC Bank this quarter — 20% profit growth against 4.7%, with HDFC's margin falling to 3.16%.</caption>
-          <thead><tr><th>Bank</th><th class="n">Q2 profit</th><th class="n">YoY</th><th class="n">NIM</th></tr></thead>
-          <tbody>
-            <tr><td>ICICI</td><td class="n">₹14,843 cr</td><td class="n">+20%</td><td class="n">4.18%</td></tr>
-            <tr><td>HDFC</td><td class="n">₹19,510 cr</td><td class="n">+4.7%</td><td class="n">3.16%</td></tr>
-            <tr><td>Axis</td><td class="n">₹7,003 cr</td><td class="n">+38%</td><td class="n">3.36%</td></tr>
-            <tr><td>Federal</td><td class="n">₹1,386 cr</td><td class="n">+45%</td><td class="n">3.32%</td></tr>
-            <tr><td>IDBI</td><td class="n">₹2,205 cr</td><td class="n">−39%</td><td class="n">4.11%</td></tr>
-          </tbody>
-        </table>
-        </div>
-        <ul style="margin-top:14px">
-          <li>YES Bank's +65% becomes a ₹5,217 cr pro-forma loss once the Supreme Court's ₹8,415 cr AT1 ruling applies. (p.09)</li>
-          <li>Family offices committed roughly ₹2,000 cr to branded hotels near pilgrimage sites in 12–18 months. (p.01, p.07)</li>
-        </ul>
-
-        <div class="h3">Health</div>
-        <ul>
-          <li>The 30% cap is calculated on printed MRP — a 42.86% mark-up on stockist price — which advocates say leaves patented drugs untouched. (p.09)</li>
-          <li>Patients pay 70–80% of cancer treatment themselves, averaging ₹7.5 lakh against 1.5 million new cases a year. (p.04)</li>
-        </ul>
-
-        <div class="h3">Tech &amp; Society</div>
-        <ul>
-          <li>AI-generated videos took 11.3 hours to draw a first community flag, against 9.1 for miscaptioned human footage, across 150,000 analysed posts. (p.07)</li>
-          <li>Internet Freedom Foundation sent four notices to Meta over suspended journalist accounts; some restored. (p.07)</li>
-        </ul>
-
-        <div class="h3">Sports</div>
-        <ul>
-          <li>Milwaukee Brewers swept the Dodgers 4–0 for their first World Series in 44 years — the lowest combined payroll matchup since 1991. (p.10)</li>
-        </ul>
-
-        <div class="h3">Culture &amp; Lifestyle</div>
-        <ul>
-          <li>Restaurants are selling fasting menus at ₹990–5,500, moving Navratri food out of home kitchens. (p.01, p.07)</li>
-        </ul>
-        <span class="src">Full category detail runs 4–5 bullets each in the chat version.</span>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">03</span>
-        <span class="sec-title">Numbers That Matter</span><span class="sec-flag">8 figures</span></summary>
-      <div class="sec-body">
-        <div class="nums">
-          <div class="num"><span class="num-v">44%</span><span class="num-l">Russian crude's share of India's August oil imports</span></div>
-          <div class="num"><span class="num-v">137</span><span class="num-l">Cancer drugs under the 30% margin cap from Nov 9</span></div>
-          <div class="num"><span class="num-v">₹5,217 cr</span><span class="num-l">YES Bank's pro-forma loss once the AT1 ruling applies</span></div>
-          <div class="num"><span class="num-v">40%</span><span class="num-l">AI image detection rate by late 2025, down from 75%</span></div>
-          <div class="num"><span class="num-v">27%</span><span class="num-l">HDFC Bank's market-cap decline over a year</span></div>
-          <div class="num"><span class="num-v">₹2,000 cr</span><span class="num-l">Family-office capital into pilgrimage hotels</span></div>
-          <div class="num"><span class="num-v">70–80%</span><span class="num-l">Cancer treatment paid out of pocket</span></div>
-          <div class="num"><span class="num-v">11.3 hrs</span><span class="num-l">For an AI video to draw its first community flag</span></div>
-        </div>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">04</span>
-        <span class="sec-title">Dates to Watch</span><span class="sec-flag">4 this week</span></summary>
-      <div class="sec-body">
-        <ul class="dates">
-          <li><span class="d soon">Oct 20</span><span class="w">New Zealand FTA duty concessions take effect</span></li>
-          <li><span class="d soon">Oct 21–23</span><span class="w">Paras Healthcare IPO subscription closes</span></li>
-          <li><span class="d soon">Oct 23</span><span class="w">MLB World Series begins</span></li>
-          <li><span class="d soon">Oct 25</span><span class="w">Real Madrid vs Barcelona, El Clásico</span></li>
-          <li><span class="d">This week</span><span class="w">US Secretary of State Rubio visits Mumbai and Jamnagar</span></li>
-          <li><span class="d">Nov 9</span><span class="w">Revised prices for the 137 capped cancer drugs</span></li>
-          <li><span class="d">Nov 12</span><span class="w">Assam's draft electoral roll publishes</span></li>
-          <li><span class="d">Dec 2</span><span class="w">Possible MLB lockout over the salary cap</span></li>
-          <li><span class="d">Dec 15</span><span class="w">Christmas export shipping season typically ends</span></li>
-        </ul>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">05</span>
-        <span class="sec-title">Client &amp; Industry Watch</span>
-        <span class="sec-flag" style="color:var(--faint)">Empty</span></summary>
-      <div class="sec-body">
-        <p>Nothing today. No CRTC action, Canada–India trade development, BPO contract news, contact-centre labour change, or currency moves.</p>
-        <span class="src">Second consecutive empty run. Consider adding a Canadian source.</span>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">07</span>
-        <span class="sec-title">Verify</span><span class="sec-flag">2 flags</span></summary>
-      <div class="sec-body">
-        <div class="h3">Conflicting figure</div>
-        <p>ICICI Bank's margin is reported two ways. The body text gives 4.18% against 4.36% "in the preceding three months"; the comparison table on the same page gives "down 12 basis points". Two baselines for one figure.</p>
-        <div class="h3">Reported claim</div>
-        <p>HDFC Bank's 27% market-cap decline is attributed "largely to the uncertainty surrounding leadership succession" with no source given. An interpretation presented as explanation — and convenient for current messaging.</p>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">09</span>
-        <span class="sec-title">Opinion: 2-Minute Read</span><span class="sec-flag">3 pieces</span></summary>
-      <div class="sec-body">
-
-        <div class="op">
-          <h4>Too Old to Feel Guilty</h4>
-          <p class="op-by">Sonali Kokra · p.04</p>
-          <dl class="op-row">
-            <dt>Claim</dt><dd>Pre-empting guilt wrecks pleasures people actually enjoyed.</dd>
-            <dt>Support</dt><dd>A 2009 Michigan study — people told to expect guilt enjoyed things just as much at the time, then recalled feeling guilty days later.</dd>
-            <dt>Leaves out</dt><dd>Pre-emptive apology is often rational in a hierarchical workplace. "Sorry, this doesn't look right" is sometimes accurate.</dd>
-            <dt>Question</dt><dd>When did you last apologise for something nobody objected to?</dd>
-            <dt>Steal</dt><dd>Five named guilty types turn an abstraction into characters.</dd>
-          </dl>
-        </div>
-
-        <div class="op">
-          <h4>So, It's Trendy-ing, Grey is the New Black</h4>
-          <p class="op-by">Sudha G Tilak · p.06</p>
-          <dl class="op-row">
-            <dt>Claim</dt><dd>Grey hair has been reframed from a crisis into feminist resistance, and the reframe is now its own pressure.</dd>
-            <dt>Support</dt><dd>She separates dignified silver from the "in-betweeners" — streaks of purple and magenta — who get criticised more than either extreme.</dd>
-            <dt>Leaves out</dt><dd>She argues only about women. Men going grey are called distinguished and never questioned, so the double standard is named then left standing.</dd>
-            <dt>Question</dt><dd>Which of your objections to appearance are about standards, and which about who they are?</dd>
-            <dt>Steal</dt><dd>Concedes the trend's premise and refuses its conclusion in eleven words.</dd>
-          </dl>
-        </div>
-
-        <div class="op">
-          <h4>Mocking Ghar Ka Khana Types on Flights</h4>
-          <p class="op-by">Ruchir Joshi · p.06</p>
-          <dl class="op-row">
-            <dt>Claim</dt><dd>Mocking passengers who carry home food is class snobbery dressed as civility.</dd>
-            <dt>Support</dt><dd>He turns the commenters' logic back on them — the airline tray makes the same mess in turbulence.</dd>
-            <dt>Leaves out</dt><dd>He ignores the non-snobbish concern about shared-space etiquette — smell, smoke, tray-table space.</dd>
-            <dt>Question</dt><dd>Which of your objections are about standards, and which about who they are?</dd>
-            <dt>Steal</dt><dd>He never argues against the video — he argues against the audience.</dd>
-          </dl>
-        </div>
-
-      </div>
-    </details>
-
-  </div>
-
-  <!-- ============ BAND 3 · LANGUAGE ============ -->
-  <div class="band band-lang">
-    <div class="band-head">
-      <span class="band-label">Language</span><span class="band-rule"></span>
-    </div>
-    <p class="band-note">Words, corrections, and the practice set.</p>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">11</span>
-        <span class="sec-title">Words to Learn</span><span class="sec-flag">7 words</span></summary>
-      <div class="sec-body">
-        <div class="tw">
-        <table class="vocab">
-          <thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead>
-          <tbody>
-            <tr><td>electorate</td><td>Common</td><td>the group who can vote in an area</td><td>A single missed call can lose an entire electorate block.</td></tr>
-            <tr><td>absolution</td><td>Formal</td><td>forgiveness for something done wrong</td><td>No SLA clause offers absolution for a service failure.</td></tr>
-            <tr><td>flippant</td><td>Common</td><td>treating something serious as a joke</td><td>Don't be flippant about attrition when we're two down.</td></tr>
-            <tr><td>arbiter</td><td>Formal</td><td>someone who decides what is right</td><td>The client is the final arbiter on what counts as breach.</td></tr>
-            <tr><td>parody</td><td>Common</td><td>a copy meant to ridicule</td><td>The escalation email read as a parody of a real request.</td></tr>
-            <tr><td>furore</td><td>Formal</td><td>a sudden burst of anger or excitement</td><td>The call-out policy caused a furore on the floor.</td></tr>
-            <tr><td>ephemeral</td><td>Formal</td><td>lasting a very short time</td><td>Most QA wins are ephemeral unless we document them.</td></tr>
-          </tbody>
-        </table>
-        </div>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">12</span>
-        <span class="sec-title">Hindi</span><span class="sec-flag">7 words</span></summary>
-      <div class="sec-body">
-        <table class="hindi">
-          <tbody>
-            <tr><td>electorate</td><td class="dev">मतदाता वर्ग</td><td class="pron">mata-da-ta varg</td></tr>
-            <tr><td>absolution</td><td class="dev">क्षमा</td><td class="pron">ksh-maa</td></tr>
-            <tr><td>flippant</td><td class="dev">ठिठोले भाव से</td><td class="pron">thi-tho-le bhaav se</td></tr>
-            <tr><td>arbiter</td><td class="dev">निर्णायक</td><td class="pron">nir-nyaa-yak</td></tr>
-            <tr><td>parody</td><td class="dev">व्यंग्य</td><td class="pron">vyang-ya</td></tr>
-            <tr><td>furore</td><td class="dev">कोलाहल</td><td class="pron">ko-la-hal</td></tr>
-            <tr><td>ephemeral</td><td class="dev">अस्थायी</td><td class="pron">as-thaa-yaa-ee</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">13</span>
-        <span class="sec-title">Phrases for Daily Life</span><span class="sec-flag">5 phrases</span></summary>
-      <div class="sec-body">
-
-        <div class="phrase">
-          <div class="phrase-t"><span class="phrase-w">the tip of the iceberg</span>
-            <span class="phrase-tone">neutral</span></div>
-          <p class="phrase-m">small visible part of a bigger problem</p>
-          <p class="phrase-e">One bad call is the tip of the iceberg.</p>
-        </div>
-
-        <div class="phrase">
-          <div class="phrase-t"><span class="phrase-w">keep someone posted</span>
-            <span class="phrase-tone">neutral</span></div>
-          <p class="phrase-m">update them regularly</p>
-          <p class="phrase-e">Keep me posted on the vendor's response.</p>
-        </div>
-
-        <div class="phrase">
-          <div class="phrase-t"><span class="phrase-w">rule of thumb</span>
-            <span class="phrase-tone">neutral</span></div>
-          <p class="phrase-m">a rough guide, not a firm rule</p>
-          <p class="phrase-e">As a rule of thumb, clear the queue before shift change.</p>
-        </div>
-
-        <div class="phrase">
-          <div class="phrase-t"><span class="phrase-w">throw good money after bad</span>
-            <span class="phrase-tone">neutral</span></div>
-          <p class="phrase-m">keep spending on something already failing</p>
-          <p class="phrase-e">We can't throw good money after bad on that process.</p>
-        </div>
-
-        <div class="phrase">
-          <div class="phrase-t"><span class="phrase-w">get the hang of something</span>
-            <span class="phrase-tone">casual</span></div>
-          <p class="phrase-m">learn how it works</p>
-          <p class="phrase-e">You'll get the hang of the report format in a week.</p>
-        </div>
-
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">14</span>
-        <span class="sec-title">Traps in My English</span><span class="sec-flag">5 errors</span></summary>
-      <div class="sec-body">
-        <div class="trap"><div class="trap-row">
-          <span class="trap-bad">"The team will be collectively responsible for the shift"</span>
-          <span class="trap-good"><b>→</b> "I'll own the shift and Priya will own the QA numbers"</span>
-          <div class="trap-why">Passive voice that names no owner. The most common finding in a performance review, because it can't be repeated back as an action.</div>
-        </div></div>
-
-        <div class="trap"><div class="trap-row">
-          <span class="trap-bad">"Your mail and mine"</span>
-          <span class="trap-good"><b>→</b> "As I understand it, the escalation window is 24 hours"</span>
-          <div class="trap-why">Asserts agreement without stating what is agreed.</div>
-        </div></div>
-
-        <div class="trap"><div class="trap-row">
-          <span class="trap-bad">"There is no last-minute change in the schedule"</span>
-          <span class="trap-good"><b>→</b> "There are no last-minute changes in the schedule"</span>
-          <div class="trap-why">Subject–verb agreement. "Change" is singular, so the verb is "is".</div>
-        </div></div>
-
-        <div class="trap"><div class="trap-row">
-          <span class="trap-bad">"Please find attached the compliance report"</span>
-          <span class="trap-good"><b>→</b> "I've attached the compliance report"</span>
-          <div class="trap-why">A calque from a formal template. Shorter, and sounds like a person wrote it.</div>
-        </div></div>
-
-        <div class="trap"><div class="trap-row">
-          <span class="trap-bad">"We request you to kindly arrange to send the report by EOD"</span>
-          <span class="trap-good"><b>→</b> "Please send the report by end of day today"</span>
-          <div class="trap-why">Three hedges in one line. Each dilutes the other and the deadline gets lost.</div>
-        </div></div>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">15</span>
-        <span class="sec-title">Speak</span><span class="sec-flag">60 sec</span></summary>
-      <div class="sec-body">
-        <div class="speak">
-          <h4>Prompt</h4>
-          <p class="q">An error you knew about reached the client before you raised it, and they've asked why they heard it from us. Speak to your team.</p>
-          <h4>Model answer</h4>
-          <div class="model">
-            Alright — straight up, this one's on me. I knew about the mapping error on Wednesday. I didn't raise it because I thought we'd fix it before the report went out. We didn't, and it went out, and that's on me.<br><br>
-            Here's what I'm not going to do. I'm not going to get <em>flippant</em> about it, and I'm not going to write a long explanation of why the process failed. The client is the <em>arbiter</em> here, and they decided I should have escalated. That's a fair read.<br><br>
-            We also don't get <em>absolution</em> for the fact that it worked out okay. If we'd been wrong about that, we'd be having a different conversation.<br><br>
-            What changes from tomorrow: anything that reaches the client gets a 24-hour hold, and I own that list personally. Questions?
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">16</span>
-        <span class="sec-title">Quiz</span><span class="sec-flag">5 questions</span></summary>
-      <div class="sec-body">
-        <div class="qa"><p class="q"><b>1.</b> Gandhi opposed <em>separate electorates</em>. An electorate is:</p>
-          <p class="a">a) voters in an area &nbsp;·&nbsp; b) reserved seats &nbsp;·&nbsp; c) candidates &nbsp;·&nbsp; d) the vote count</p></div>
-        <div class="qa"><p class="q"><b>2.</b> Which uses <em>flippant</em> correctly?</p>
-          <p class="a">a) only affected billing &nbsp;·&nbsp; b) gave a flippant answer &nbsp;·&nbsp; c) don't be flippant about attrition &nbsp;·&nbsp; d) flippant tone made it longer</p></div>
-        <div class="qa"><p class="q"><b>3.</b> <b>Register.</b> Need the client to escalate by 5pm. Which is right?</p>
-          <p class="a">a) "We request you to kindly escalate at the earliest." &nbsp;·&nbsp; b) "Please escalate the vendor issue by 5pm today." &nbsp;·&nbsp; c) "The issue needs escalation, we think."</p></div>
-        <div class="qa"><p class="q"><b>4.</b> "Throw good money after bad" means:</p>
-          <p class="a">a) saving carefully &nbsp;·&nbsp; b) investing more in something already failing &nbsp;·&nbsp; c) paying twice &nbsp;·&nbsp; d) losing unexpectedly</p></div>
-        <div class="qa"><p class="q"><b>5.</b> "Never seeking <em>absolution</em>." Absolution means:</p>
-          <p class="a">a) a refused apology &nbsp;·&nbsp; b) forgiveness &nbsp;·&nbsp; c) an excuse &nbsp;·&nbsp; d) a complaint</p></div>
-
-        <div class="ans-head">Answers</div>
-        <div class="qa"><p class="a"><b>1. a</b> — an electorate is the body of voters. (b) is the reserved-seats mechanism Gandhi opposed.</p></div>
-        <div class="qa"><p class="a"><b>2. c</b> — treating something serious as trivial. (a) and (d) misuse it as a synonym for "informal".</p></div>
-        <div class="qa"><p class="a"><b>3. b</b> — hedge-free, carries the deadline. (c) withholds the ask entirely, which is worst: the client must guess what's wanted.</p></div>
-        <div class="qa"><p class="a"><b>4. b</b> — continuing to spend on something already failing, hoping to recover the loss.</p></div>
-        <div class="qa"><p class="a"><b>5. b</b> — forgiveness. The point is that she never asks the reader to excuse her, which is a different act.</p></div>
-      </div>
-    </details>
-
-    <details class="sec">
-      <summary><span class="chev"></span><span class="sec-n">17</span>
-        <span class="sec-title">Skip List</span></summary>
-      <div class="sec-body">
-        <div class="skip">p6 crossword and Sudoku grids · p8 infographic block · p1 subscription and advertising lines · the MLB salary-cap explainer until Oct 23. No sponsored or advertorial content detected.</div>
-      </div>
-    </details>
-
-  </div>
-
+  <p class="note" id="note">
+    <b>Nothing here?</b> The dated editions are not published. Run
+    <code>python build_brief.py</code> and commit <code>desk.html</code> and
+    <code>phone.html</code>.
+  </p>
 </div>
+
+<script>
+/* One URL, both devices. The launcher picks by viewport unless you have
+   said otherwise, and remembers that choice so it never fights you.
+   The delay is deliberate: if either edition is missing you land here and
+   find out, instead of staring at a 404. */
+(function(){
+  var KEYS = {desk:'desk.html', phone:'phone.html'};
+  var saved = null;
+  try { saved = localStorage.getItem('dbed'); } catch(e){}
+
+  document.querySelectorAll('[data-pick]').forEach(function(a){
+    a.addEventListener('click', function(){
+      try { localStorage.setItem('dbed', a.dataset.pick); } catch(e){}
+    });
+  });
+
+  function pick(){
+    return saved || (window.innerWidth >= 900 ? 'desk' : 'phone');
+  }
+
+  var target = KEYS[pick()];
+  fetch(target, {method:'HEAD'}).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    location.replace(target);
+  }).catch(function(){
+    document.getElementById('sub').textContent =
+      'Pick a surface. Both are the same briefing.';
+    document.getElementById('note').innerHTML =
+      '<b>Neither file is published yet.</b> Run <code>python build_brief.py</code> ' +
+      'and commit <code>desk.html</code> and <code>phone.html</code>.';
+  });
+})();
+</script>
 </body>
 </html>

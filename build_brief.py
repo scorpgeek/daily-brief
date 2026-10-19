@@ -561,7 +561,7 @@ def lint_quiz(b: dict) -> None:
         sys.exit("quiz: " + "; ".join(bad))
 
 
-def render(tpl_name: str, b: dict, out_path: str, mode: str) -> None:
+def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     with open(os.path.join(TPL, tpl_name), encoding="utf-8") as fh:
         tpl = fh.read()
 
@@ -590,6 +590,7 @@ def render(tpl_name: str, b: dict, out_path: str, mode: str) -> None:
         fh.write(tpl)
     print(f"  wrote {os.path.basename(out_path)}  ({len(tpl)//1024} KB)")
     check_scripts(out_path)
+    return out_path
 
 
 SCRIPT_RE = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
@@ -646,8 +647,16 @@ def main() -> None:
         lint_terms(b)
         lint_quiz(b)
         if not desk_only:
-            render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
-        render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
+            out = render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
+            # Stable alias for index.html to route to. Dated editions are
+            # gitignored, so without this the published site has nothing
+            # current to point at and serves whatever sample was last
+            # committed.
+            shutil.copyfile(out, os.path.join(HERE, "phone.html"))
+            print("  wrote phone.html            (stable alias)")
+        out = render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
+        shutil.copyfile(out, os.path.join(HERE, "desk.html"))
+        print("  wrote desk.html             (stable alias)")
     except (ValueError, KeyError) as exc:
         # A hand-written brief should fail with a sentence, not a traceback.
         sys.exit(f"{stem}.json: {exc}")

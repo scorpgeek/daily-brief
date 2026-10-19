@@ -1,0 +1,19 @@
+Route the published root to the right edition
+
+The GitHub Pages root served index.html, which was the phone sample -- and
+a stale one, hardcoded from Sunday the 18th. Every file the pipeline
+produces is gitignored, so Pages had nothing current to serve and kept
+whatever sample was last committed.
+
+- build_brief.py now also writes phone.html and desk.html as stable
+  aliases, so there is something current to publish
+- index.html is a launcher: wide viewport goes to desk.html, narrow to
+  phone.html, and an explicit choice is remembered so it stops guessing
+- it probes the target first and stays put with an explanation if either
+  edition is missing, rather than dumping you on a 404
+- removed DESK.html, superseded by desk.html
+
+Note for the record: Windows filenames are case-insensitive, so removing
+the old DESK.html sample silently deleted the freshly built desk.html and
+the launcher correctly reported that neither file was published. That was
+a real 404, not a routing bug.

@@ -21,7 +21,14 @@ extract_pdf.py   PDF -> _raw/YYYY-MM-DD.txt
                  _raw/YYYY-MM-DD.json
 build_brief.py   _raw/YYYY-MM-DD.json -> YYYY-MM-DD.html        (phone)
                                            YYYY-MM-DD-desk.html  (laptop)
+                                           phone.html            (stable alias)
+                                           desk.html             (stable alias)
 ```
+
+The stable aliases are what `index.html` routes to. The dated editions are
+gitignored, so without them the published site has nothing current to serve
+and falls back to whatever sample was last committed — which is how it came
+to be serving a hardcoded snapshot from two days ago.
 
 The JSON is the single source of truth. Both editions render from it, so
 they cannot drift, and the glossary that powers the laptop tooltips is the
@@ -86,8 +93,9 @@ test_css_parser.py proves the CSS check actually fires
 test_position_parser.py proves the positioning check actually fires
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
-index.html         published phone sample
-DESK.html          published laptop sample
+index.html         launcher: picks an edition by viewport, remembers the choice
+phone.html         published phone edition
+desk.html          published laptop edition
 README.md          this file
 ```
 
@@ -168,6 +176,22 @@ python -m http.server 8899 --bind 0.0.0.0
 ```
 
 Then `http://<your-ip>:8899/`.
+
+## Publishing
+
+`index.html` is a launcher, not a briefing. It sends a wide screen to
+`desk.html` and a narrow one to `phone.html`, remembers an explicit choice
+in `localStorage` so it never fights you, and stays put with an explanation
+if either file is missing rather than dumping you on a 404.
+
+To refresh the public site after a build, commit `phone.html` and
+`desk.html`:
+
+```powershell
+git add phone.html desk.html && git commit -m "Publish today's brief"
+```
+
+Only those two. The dated editions stay untracked.
 
 ## Extraction notes
 
