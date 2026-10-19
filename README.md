@@ -4,6 +4,9 @@ Turns a newspaper PDF into two single-page HTML briefings — one built for a
 phone, one built for a laptop — plus a categorised written briefing with a
 reading-practice section.
 
+It reads more than one paper. The Economic Times and The Hindu both work, and
+each gets its own complete edition; `index.html` asks which one you want.
+
 ## What it is
 
 A personal reading pipeline:
@@ -19,22 +22,30 @@ A personal reading pipeline:
 extract_pdf.py   PDF -> _raw/YYYY-MM-DD.txt
                  (brief is written by hand / by the assistant)
                  _raw/YYYY-MM-DD.json
-build_brief.py   _raw/YYYY-MM-DD.json -> archive/YYYY-MM-DD.html      (phone)
-                                           archive/YYYY-MM-DD-desk.html (laptop)
-                                           phone.html                  (stable alias)
-                                           desk.html                   (stable alias)
+build_brief.py   _raw/YYYY-MM-DD.json -> archive/<paper>-YYYY-MM-DD.html      (phone)
+                                           archive/<paper>-YYYY-MM-DD-desk.html (laptop)
+                                           <paper>.html                       (stable alias)
+                                           <paper>-desk.html                  (stable alias)
                                            archive/manifest.json
 ```
 
-The stable aliases are what `index.html` routes to. The dated editions live
-in `archive/` and are gitignored, so without the aliases the published site
-has nothing current to point at and falls back to whatever sample was last
-committed — which is how it came to be serving a hardcoded snapshot from two
-days ago.
+`<paper>` is a short slug derived from `meta.newspaper` — `et`, `hindu` — and it
+appears in every filename. It has to: two papers on the same date would both
+want `archive/2026-10-19.html`, and the second build would silently overwrite
+the first, leaving the archive with a hole where a day should be.
 
-`archive/manifest.json` is written on every build: one line per edition,
-with the paper, page count, mode and lead story. `ARCHIVE.html` reads it,
-because a browser cannot enumerate a directory.
+The stable aliases are what `index.html` routes to. They are generated at build
+time, so the launcher checks one exists with a `HEAD` request before sending
+anyone to it; an alias that was never committed lands you on the chooser with an
+explanation instead of a 404. `phone.html` and `desk.html` survive as one-line
+redirects to that chooser, because they were published and bookmarked and there
+is no longer a single paper they could honestly point at.
+
+`archive/manifest.json` is written on every build: one line per edition, keyed
+by paper and date, with the page count, mode and lead story. `ARCHIVE.html`
+reads it, because a browser cannot enumerate a directory. Rows naming a file
+that isn't on disk are dropped on write, so the index can't advertise an
+edition that 404s.
 
 The JSON is the single source of truth. Both editions render from it, so
 they cannot drift, and the glossary that powers the laptop tooltips is the
@@ -99,10 +110,11 @@ test_css_parser.py proves the CSS check actually fires
 test_position_parser.py proves the positioning check actually fires
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
-index.html         launcher: picks an edition by viewport, remembers the choice
-ARCHIVE.html       past editions, grouped by month, filterable
-phone.html         published phone edition
-desk.html          published laptop edition
+index.html         launcher: picks a newspaper, then an edition by viewport
+ARCHIVE.html       past editions, grouped by newspaper then month, filterable
+<paper>.html       published phone edition, one per newspaper
+<paper>-desk.html  published laptop edition, one per newspaper
+phone.html / desk.html   old paths, now redirects to the launcher
 README.md          this file
 ```
 
@@ -193,8 +205,8 @@ publishes itself without being read first.
 ```powershell
 python extract_pdf.py                 # PDF -> _raw/YYYY-MM-DD.txt
 # ... write _raw/YYYY-MM-DD.json ...
-python build_brief.py 2026-10-20      # -> archive/, plus the two aliases
-git add phone.html desk.html archive
+python build_brief.py 2026-10-20      # -> archive/, plus that paper's two aliases
+git add et.html et-desk.html archive
 git commit -m "Publish 2026-10-20"
 git push
 ```
@@ -216,33 +228,60 @@ what an archive is for.
 ever matters, prune old editions rather than untracking the folder — otherwise
 the index will list days whose files are missing.
 
-`index.html` is a launcher, not a briefing. It sends a wide screen to
-`desk.html` and a narrow one to `phone.html`, remembers an explicit choice
-in `localStorage` so it never fights you, and stays put with an explanation
-if either file is missing rather than dumping you on a 404.
+`index.html` is a launcher, not a briefing. It reads the newspaper list out of
+`archive/manifest.json` rather than hardcoding it, so a new paper appears by
+being built and committed, with no edit to this page. It sends you to the
+newspaper you chose last time, on the surface that suits the screen, and only
+asks when the choice is genuinely ambiguous — more than one paper, and none
+remembered. `ARCHIVE.html` groups by newspaper first and month second, so two
+papers on the same day sit side by side instead of interleaving.
 
-To refresh the public site after a build, commit the aliases and the archive:
+To refresh the public site after a build, commit that paper's aliases and the
+archive:
 
 ```powershell
-git add phone.html desk.html archive
+git add et.html et-desk.html archive
 git commit -m "Publish today's brief"
 ```
 
 Only those. The extracted article text in `_raw/` stays untracked.
 
-## Publishing
-
 ## Extraction notes
 
-Magazine PDFs are multi-column and `pypdf` reads across columns rather than
-down them. In practice this is recoverable — headlines, decks and bullet
-points land next to their own body text. Two things to watch:
-
-- **Sidebar boxes** split from their article. Reassign by content, not position.
-- **Continuation articles** are marked `From Page 1`. Join them before
-  summarising or the story gets attributed to the wrong headline.
+`pypdf` reads across columns rather than down them, which is recoverable in
+most layouts — headlines, decks and bullet points land next to their own body
+text. How well it works is a property of the paper, so it is worth measuring
+per paper rather than assuming.
 
 Install with `pip install pypdf`.
+
+**The Economic Times.** Multi-column, and the damage shows. Four of eighteen
+pages come out nearly empty, and continuation articles are marked
+`From Page 1` — join them before summarising or the story gets attributed to
+the wrong headline. Sidebar boxes split from their article; reassign them by
+content, not position.
+
+**The Hindu.** Extracts much better. Of 22 pages only four are empty, and those
+are masthead and furniture rather than lost content; at 0–6 full-width lines
+per page, columns are being read down rather than across. Total artifact count
+is 279 in 246,000 characters — 0.1%, and all cosmetic: 21 `/Lnnnn` font
+markers, 7 words split at a line break, 2 letter-spaced runs, 241 ligature
+glyphs. The same extractor, so this is the layout, not the tool.
+
+Two things survive that the ET PDF never gave us. The front-page `IN BRIEF`
+box keeps its **section cross-references** (`EDITORIAL » PAGE 6`,
+`WORLD » PAGE 14`), so Categories can carry a real page number instead of a
+guess. And **datelines** are intact — `NEW DELHI` seventeen times, plus
+Lucknow, Guwahati, Kolkata, Mumbai — so a story's geography is derivable.
+
+One thing does not survive, and it is worth stating plainly: **The Hindu's
+section taxonomy is not in the extract.** The running head carries the edition
+(`Delhi`, on sixteen of twenty-two pages), not the section, and every other
+short all-caps run turned out to be a dateline or a headline kicker. Its
+categories cannot be read off the paper, so they are not guessed. The Hindu's
+Delhi edition also carries little opinion material — one `Opinion` and three
+`Editorial` across the whole issue — which is thin for a briefing that wants
+three opinion pieces and a long-form read to argue with.
 
 ## Design notes
 

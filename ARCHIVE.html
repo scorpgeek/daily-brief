@@ -54,6 +54,15 @@
     color:var(--faint);margin:30px 0 10px;padding-bottom:8px;
     border-bottom:1px solid var(--line);
   }
+  /* Papers sit above months. With one paper this heading never appears,
+     so a single-source archive looks exactly as it did before. */
+  h2.paper{
+    font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink);margin:38px 0 0;padding:0 0 9px;
+    border-bottom:2px solid var(--line2);
+  }
+  h2.paper + h2.month{margin-top:20px;border-bottom:1px solid var(--line)}
+  h2.month:first-of-type{margin-top:20px}
   .row{
     display:grid;grid-template-columns:96px 1fr;gap:8px 18px;
     padding:15px 0;border-bottom:1px solid var(--line);
@@ -125,11 +134,26 @@ function esc(s){
   });
 }
 
+/* An edition built before the archive carried a paper name may only have
+   `newspaper`; one built now carries `paper` and a `slug`. Both are read
+   so an older manifest still renders instead of going blank. */
+function paperOf(e){ return e.paper || e.newspaper || ''; }
+/* Grouping keys on the slug, which every row has, and labels with the
+   name, which not every row has. An edition whose brief was never
+   recorded still belongs beside its own newspaper rather than in a
+   separate bucket of strangers. */
+function groupOf(e){
+  return e.slug || paperOf(e).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function stemOf(e){
+  return e.date && e.slug ? e.slug + '-' + e.date : (e.date || '');
+}
+
 function draw(){
   var q = document.getElementById('q').value.trim().toLowerCase();
   var rows = ALL.filter(function(e){
     if(!q) return true;
-    return (e.date + ' ' + e.newspaper + ' ' + e.mode + ' ' + e.headline)
+    return (e.date + ' ' + paperOf(e) + ' ' + e.mode + ' ' + e.headline)
       .toLowerCase().indexOf(q) !== -1;
   });
   document.getElementById('count').textContent =
@@ -141,17 +165,40 @@ function draw(){
     return;
   }
 
-  var html = '', cur = null;
+  // A paper's editions must be contiguous, or its heading prints once per
+  // run. Sorted purely by date they interleave the moment two papers share
+  // a day -- 19 Oct ET, 19 Oct Hindu, 18 Oct ET -- so group order wins and
+  // date breaks the ties inside it.
+  var groupOrder = [], named = {};
   rows.forEach(function(e){
-    if(e.date.slice(0,7) !== cur){
-      cur = e.date.slice(0,7);
+    var g = groupOf(e);
+    if(groupOrder.indexOf(g) === -1) groupOrder.push(g);
+    if(paperOf(e)) named[g] = paperOf(e);
+  });
+  rows = rows.slice().sort(function(a, b){
+    var ga = groupOrder.indexOf(groupOf(a)), gb = groupOrder.indexOf(groupOf(b));
+    if(ga !== gb) return ga - gb;
+    return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+  });
+
+  var html = '', curPaper = null, curMonth = null;
+  rows.forEach(function(e){
+    var g = groupOf(e);
+    if(g !== curPaper){
+      curPaper = g;
+      curMonth = null;
+      html += '<h2 class="paper">' + esc(named[g] || (e.slug || 'other').toUpperCase()) + '</h2>';
+    }
+    if(e.date.slice(0,7) !== curMonth){
+      curMonth = e.date.slice(0,7);
       html += '<h2 class="month">' + esc(month(e.date)) + '</h2>';
     }
-    var links = '<a class="tag phone" href="archive/' + esc(e.date) + '.html">Phone</a>';
-    if(e.desk) links += '<a class="tag desk" href="archive/' + esc(e.date) + '-desk.html">Laptop</a>';
+    var stem = stemOf(e);
+    var links = '<a class="tag phone" href="archive/' + esc(stem) + '.html">Phone</a>';
+    if(e.desk) links += '<a class="tag desk" href="archive/' + esc(stem) + '-desk.html">Laptop</a>';
     html += '<div class="row">'
       + '<div><div class="d">' + esc(nice(e.date)) + '</div>'
-      + '<div class="meta">' + (esc(e.newspaper) || '—')
+      + '<div class="meta">' + (e.mode ? esc(e.mode) : '—')
       + (e.pages ? ' · ' + esc(e.pages) + 'pp' : '') + '</div></div>'
       + '<div>'
       + (e.headline ? '<p class="hl">' + esc(e.headline) + '</p>' : '')

@@ -33,6 +33,12 @@
   .sub{font-size:14px;color:var(--muted);margin:0 0 26px}
   .row{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-bottom:20px}
   @media (max-width:460px){ .row{grid-template-columns:1fr} }
+  /* Paper groups stack: name, then its two surfaces. With one paper the
+     heading is skipped so the page stays as spare as it was. */
+  .grp{margin-bottom:22px;text-align:left}
+  .grp:last-child{margin-bottom:0}
+  .grp-n{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);margin:0 0 9px;padding-bottom:8px;border-bottom:1px solid var(--line)}
   a.card{
     display:block;text-decoration:none;color:var(--ink);text-align:left;
     background:var(--panel);border:1px solid var(--line);border-radius:12px;
@@ -44,6 +50,8 @@
   .card-d{font-size:13px;line-height:1.5;color:var(--muted)}
   .note{font-size:12.5px;color:var(--faint);margin:0}
   .note b{color:var(--chip-use);font-weight:600}
+  .note code{font-family:var(--mono);font-size:11.5px}
+  .empty{font-size:14px;color:var(--muted);padding:10px 0 4px}
   .themedot{
     position:fixed;top:16px;right:16px;background:none;border:1px solid var(--line);
     color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;
@@ -61,62 +69,158 @@
 
 <div class="w">
   <div class="k">Daily Brief</div>
-  <h1>Which surface?</h1>
-  <p class="sub" id="sub">Taking you to the one that fits this screen.</p>
+  <h1 id="title">Daily Brief</h1>
+  <p class="sub" id="sub">Working out what&rsquo;s here&hellip;</p>
 
-  <div class="row">
-    <a class="card" href="desk.html" data-pick="desk">
-      <div class="card-t">Laptop</div>
-      <div class="card-d">Rail, glossary drawer, search, and the full section index. Built for a wide screen.</div>
-    </a>
-    <a class="card" href="phone.html" data-pick="phone">
-      <div class="card-t">Phone</div>
-      <div class="card-d">Three bands, everything folded except the first. Built for a thumb.</div>
-    </a>
-  </div>
+  <div id="picks"></div>
 
-  <p class="note" id="note" style="display:none">
-    <b>Nothing here?</b> Run <code>python build_brief.py</code>, then commit
-    <code>desk.html</code>, <code>phone.html</code> and <code>archive/</code>.
-  </p>
+  <p class="note" id="note" style="display:none"></p>
 
-  <p class="note" style="margin-top:14px"><a href="ARCHIVE.html" style="color:inherit">Past editions &rarr;</a></p>
+  <p class="note" style="margin-top:20px"><a href="ARCHIVE.html" style="color:inherit">Past editions &rarr;</a></p>
 </div>
 
 <script>
-/* One URL, both devices. The launcher picks by viewport unless you have
-   said otherwise, and remembers that choice so it never fights you.
-   The delay is deliberate: if either edition is missing you land here and
-   find out, instead of staring at a 404. */
+/* One URL, every device and every paper.
+
+   The paper list is read from archive/manifest.json rather than written
+   here, so adding a third newspaper needs no edit to this file -- build
+   it, commit, and it appears. Each edition is checked with a HEAD request
+   before we send anyone to it, because the alias is generated at build
+   time and a stale deploy should land on the chooser, not a 404. */
 (function(){
-  var KEYS = {desk:'desk.html', phone:'phone.html'};
-  var saved = null;
-  try { saved = localStorage.getItem('dbed'); } catch(e){}
+  var K_PAPER = 'dbpaper', K_SURF = 'dbed';
+  var savedPaper = null, savedSurf = null;
+  try {
+    savedPaper = localStorage.getItem(K_PAPER);
+    savedSurf  = localStorage.getItem(K_SURF);
+  } catch(e){}
 
-  document.querySelectorAll('[data-pick]').forEach(function(a){
-    a.addEventListener('click', function(){
-      try { localStorage.setItem('dbed', a.dataset.pick); } catch(e){}
-    });
-  });
-
-  function pick(){
-    return saved || (window.innerWidth >= 900 ? 'desk' : 'phone');
+  function viewportSurface(){
+    return window.innerWidth >= 900 ? 'desk' : 'phone';
   }
 
-  var target = KEYS[pick()];
-  fetch(target, {method:'HEAD'}).then(function(r){
-    if(!r.ok) throw new Error(r.status);
-    location.replace(target);
-  }).catch(function(){
-    var note = document.getElementById('note');
-    document.getElementById('sub').textContent =
-      'Pick a surface. Both are the same briefing.';
-    note.style.display = '';
-    note.innerHTML =
-      '<b>Neither edition is published yet.</b> Run ' +
-      '<code>python build_brief.py</code>, then commit <code>desk.html</code>, ' +
-      '<code>phone.html</code> and <code>archive/</code>.';
-  });
+  /* Latest edition per paper. Both surfaces are always written by the
+     build, so neither is filtered here -- a HEAD probe on the chosen one
+     catches a stale deploy instead. */
+  function papersFrom(rows){
+    var bySlug = {}, order = [];
+    rows.forEach(function(e){
+      if(!e || !e.slug || !e.date) return;
+      var cur = bySlug[e.slug];
+      var name = e.paper || e.newspaper || '';
+      if(!cur){
+        cur = bySlug[e.slug] = {slug:e.slug, paper:name, date:e.date};
+        order.push(e.slug);
+      }
+      if(e.date > cur.date){ cur.date = e.date; if(name) cur.paper = name; }
+    });
+    // The manifest is ordered by date then slug, so papers arrive in reverse
+    // alphabetical order for no reason. A chooser should read the same way
+    // every time.
+    return order.map(function(s){ return bySlug[s]; })
+      .sort(function(a, b){
+        var an = (a.paper || a.slug).toLowerCase();
+        var bn = (b.paper || b.slug).toLowerCase();
+        return an < bn ? -1 : an > bn ? 1 : 0;
+      });
+  }
+
+  function cardFor(p, surf, title, blurb){
+    return '<a class="card" href="' + p.slug + (surf === 'desk' ? '-desk' : '') + '.html"'
+      + ' data-slug="' + esc(p.slug) + '" data-surf="' + surf + '">'
+      + '<div class="card-t">' + title + '</div>'
+      + '<div class="card-d">' + blurb + '</div></a>';
+  }
+
+  function draw(list){
+    document.getElementById('sub').textContent = list.length === 1
+      ? 'One newspaper. Pick the surface that fits this screen.'
+      : 'Pick a newspaper, then a surface. Same briefing, two shapes.';
+    document.getElementById('picks').innerHTML = list.map(function(p){
+      var name = p.paper || p.slug;
+      var cards = cardFor(p, 'desk', 'Laptop',
+        'Rail, glossary drawer, search, and the full section index. Built for a wide screen.');
+      cards += cardFor(p, 'phone', 'Phone',
+        'Three bands, everything folded except the first. Built for a thumb.');
+      var head = list.length > 1
+        ? '<div class="grp-n">' + esc(name) + '</div>' : '';
+      return '<div class="grp">' + head + '<div class="row">' + cards + '</div></div>';
+    }).join('');
+
+    document.querySelectorAll('[data-slug]').forEach(function(a){
+      a.addEventListener('click', function(){
+        try {
+          localStorage.setItem(K_PAPER, a.dataset.slug);
+          localStorage.setItem(K_SURF, a.dataset.surf);
+        } catch(e){}
+      });
+    });
+  }
+
+  function warn(html){
+    var n = document.getElementById('note');
+    n.style.display = '';
+    n.innerHTML = html;
+  }
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  function go(p, surf, list){
+    var t = p.slug + (surf === 'desk' ? '-desk' : '') + '.html';
+    fetch(t, {method:'HEAD'}).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      location.replace(t);
+    }).catch(function(){
+      // The paper exists in the manifest but its alias isn't published --
+      // an uncommitted build, or a deploy that hasn't landed. Show the
+      // choices rather than bouncing.
+      document.getElementById('sub').textContent = 'Pick a surface.';
+      warn('<b>That edition isn&rsquo;t published yet.</b> Run '
+         + '<code>python build_brief.py</code>, then commit the '
+         + '<code>&lt;paper&gt;.html</code> aliases and <code>archive/</code>.');
+      draw(list);
+    });
+  }
+
+  function start(rows){
+    var list = papersFrom(rows);
+    if(!list.length){
+      document.getElementById('sub').textContent = 'No editions built yet.';
+      warn('<b>Nothing in the archive.</b> Run <code>python build_brief.py</code>, '
+         + 'then commit the aliases and <code>archive/</code>.');
+      return;
+    }
+
+    // Route automatically when we can be confident which paper is meant:
+    // either it was chosen before, or there is only one to choose from.
+    var known = null;
+    list.forEach(function(p){ if(p.slug === savedPaper) known = p; });
+    if(known) return go(known, savedSurf || viewportSurface(), list);
+    if(list.length === 1) return go(list[0], savedSurf || viewportSurface(), list);
+
+    document.getElementById('title').textContent = 'Which newspaper?';
+    draw(list);
+  }
+
+  fetch('archive/manifest.json', {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){ start(Array.isArray(d) ? d : []); })
+    .catch(function(){
+      document.getElementById('sub').textContent = 'The index could not be read.';
+      warn('<b>No manifest found.</b> This page lists newspapers from '
+         + '<code>archive/manifest.json</code>. Run <code>python build_brief.py</code> '
+         + 'and commit <code>archive/</code>. '
+         + '<a href="ARCHIVE.html" style="color:inherit">Browse the archive &rarr;</a>');
+    });
+
+  (function(){
+    var th = localStorage.getItem('dbth');
+    if(th) document.documentElement.dataset.theme = th;
+  })();
 })();
 </script>
 </body>

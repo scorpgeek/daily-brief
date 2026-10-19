@@ -563,6 +563,38 @@ def lint_quiz(b: dict) -> None:
         sys.exit("quiz: " + "; ".join(bad))
 
 
+def paper_slug(name: str) -> str:
+    """Short stable id for a newspaper, used in filenames and URLs.
+
+    Matched on name rather than configured, so adding a paper needs no
+    edit here -- but explicit names win, and anything unrecognised falls
+    back to its first word rather than colliding with another paper.
+    """
+    n = (name or "").strip().lower()
+    for needle, slug in (("hindu", "hindu"),
+                         ("economic times", "et"),
+                         ("times of india", "toi"),
+                         ("mint", "mint"),
+                         ("business standard", "bs")):
+        if needle in n:
+            return slug
+    word = re.sub(r"[^a-z]", "", n.split()[0]) if n.split() else ""
+    return word or "brief"
+
+
+def split_stem(stem: str) -> tuple:
+    """Split a brief filename into (paper slug or None, date).
+
+    Accepts both `2026-10-19` and `hindu-2026-10-19`. The bare form is the
+    original single-paper workflow and still works; the prefixed form is
+    what lets two papers share a date, since without it both would want
+    `_raw/2026-10-19.json` and the second build would overwrite the first
+    before any of this code ran.
+    """
+    m = re.fullmatch(r"([a-z0-9]+)-?(\d{4}-\d{2}-\d{2})", stem)
+    return (m.group(1), m.group(2)) if m else (None, stem)
+
+
 def write_manifest(b: dict = None, stem: str = "") -> None:
     """Record one line per archived edition so ARCHIVE.html has something
     to list. A browser cannot enumerate a directory, so the list has to be
@@ -579,37 +611,77 @@ def write_manifest(b: dict = None, stem: str = "") -> None:
     if os.path.exists(MANIFEST):
         try:
             with open(MANIFEST, encoding="utf-8") as fh:
-                entries = {e["date"]: e for e in json.load(fh)}
-        except (ValueError, KeyError, OSError):
+                loaded = json.load(fh)
+            for e in loaded if isinstance(loaded, list) else []:
+                if not isinstance(e, dict) or "date" not in e:
+                    continue
+                # An older manifest has no slug and no paper; fill them in
+                # rather than crashing on a shape we wrote ourselves. An
+                # entry with no paper at all is left out entirely -- the
+                # scan below rebuilds it from the filename, which knows
+                # the real slug, and guessing one here produced a duplicate
+                # row for the same date.
+                name = e.get("paper") or e.get("newspaper") or ""
+                slug = e.get("slug") or (paper_slug(name) if name else "")
+                if not slug:
+                    continue
+                entry = {"date": e["date"], "slug": slug, "paper": name,
+                         "pages": e.get("pages", ""), "mode": e.get("mode", ""),
+                         "headline": e.get("headline", ""),
+                         "desk": bool(e.get("desk"))}
+                entries[f"{slug}|{entry['date']}"] = entry
+        except (ValueError, KeyError, OSError, AttributeError):
             entries = {}
 
     # any edition on disk, even one we have no record of
     for name in os.listdir(ARCHIVE):
-        m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})(-desk)?\.html", name)
+        m = re.fullmatch(r"([a-z0-9]+)-(\d{4}-\d{2}-\d{2})(-desk)?\.html", name)
         if m:
-            date = m.group(1)
-            entries.setdefault(date, {
-                "date": date,
-                "newspaper": "", "pages": "", "mode": "", "headline": "",
-                "desk": os.path.exists(os.path.join(ARCHIVE, f"{date}-desk.html")),
+            slug, date = m.group(1), m.group(2)
+            key = f"{slug}|{date}"
+            entries.setdefault(key, {
+                "date": date, "slug": slug, "paper": "",
+                "pages": "", "mode": "", "headline": "",
+                "desk": os.path.exists(os.path.join(ARCHIVE, f"{slug}-{date}-desk.html")),
             })
 
     if b is not None:
         meta = b.get("meta", {})
         top = b.get("top") or []
-        entries[stem] = {
+        slug = paper_slug(meta.get("newspaper", ""))
+        entries[f"{slug}|{stem}"] = {
             "date": stem,
-            "newspaper": meta.get("newspaper", ""),
+            "slug": slug,
+            "paper": meta.get("newspaper", ""),
             "pages": meta.get("pages", ""),
             "mode": meta.get("mode", ""),
             "headline": (top[0]["text"] if top else "")[:160],
-            "desk": os.path.exists(os.path.join(ARCHIVE, f"{stem}-desk.html")),
+            "desk": os.path.exists(os.path.join(ARCHIVE, f"{slug}-{stem}-desk.html")),
         }
 
-    with open(MANIFEST, "w", encoding="utf-8") as fh:
-        json.dump(sorted(entries.values(), key=lambda e: e["date"], reverse=True),
-                  fh, ensure_ascii=False, indent=1)
-        fh.write("\n")
+    # The manifest is the archive's front door, so it must not list an
+    # edition that isn't there -- a 404 in the index is worse than a
+    # missing row. Legacy rows that name no real file are dropped.
+    entries = {k: e for k, e in entries.items()
+               if os.path.exists(os.path.join(ARCHIVE, f"{e['slug']}-{e['date']}.html"))
+               or os.path.exists(os.path.join(ARCHIVE, f"{e['slug']}-{e['date']}-desk.html"))}
+
+    ordered = sorted(entries.values(),
+                     key=lambda e: (e.get("date", ""), e.get("slug", "")),
+                     reverse=True)
+    # Write through a temp file. A plain open() truncates first, so anything
+    # that raised during serialisation left the archive index empty --
+    # which reads as "every day has been deleted".
+    fd, tmp = tempfile.mkstemp(dir=ARCHIVE, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(ordered, fh, ensure_ascii=False, indent=1)
+            fh.write("\n")
+        os.replace(tmp, MANIFEST)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
 
 
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
@@ -693,24 +765,37 @@ def main() -> None:
     if missing:
         sys.exit(f"brief is missing required field(s): {', '.join(missing)}")
 
-    print(f"building {stem}")
+    # The paper can be named in the filename or in the brief. When both say
+    # something, they had better agree -- an `et-` file that says The Hindu
+    # publishes under whichever wins here and is unfindable under the other,
+    # which is the sort of thing that only shows up a week later.
+    slug_hint, date = split_stem(stem)
+    slug = paper_slug(b.get("meta", {}).get("newspaper", ""))
+    if slug_hint and slug_hint != slug:
+        sys.exit(f"brief is named {stem!r} but meta.newspaper reads "
+                 f"{b.get('meta', {}).get('newspaper', '')!r}, which slugs to "
+                 f"{slug!r}. Rename the file to {slug}-{date}.json or fix the "
+                 f"newspaper field.")
+
+    print(f"building {slug}-{date}")
     try:
         lint_terms(b)
         lint_quiz(b)
         os.makedirs(ARCHIVE, exist_ok=True)
+        # One edition per paper per day, so the archive filename carries the
+        # paper. Two papers on the same date would otherwise overwrite each
+        # other and one would vanish from the index.
         if not desk_only:
-            out = render("phone.html", b, os.path.join(ARCHIVE, stem + ".html"), "phone")
-            # Stable alias for index.html to route to. The dated editions are
-            # gitignored, so without this the published site has nothing
-            # current to point at and serves whatever sample was last
-            # committed.
-            shutil.copyfile(out, os.path.join(HERE, "phone.html"))
-            print("  wrote phone.html            (stable alias)")
-        out = render("desk.html", b, os.path.join(ARCHIVE, stem + "-desk.html"), "desk")
-        shutil.copyfile(out, os.path.join(HERE, "desk.html"))
-        print("  wrote desk.html             (stable alias)")
-        write_manifest(b, stem)
-        print(f"  updated archive/manifest.json")
+            out = render("phone.html", b,
+                         os.path.join(ARCHIVE, f"{slug}-{date}.html"), "phone")
+            shutil.copyfile(out, os.path.join(HERE, f"{slug}.html"))
+            print(f"  wrote {slug}.html              (stable alias)")
+        out = render("desk.html", b,
+                     os.path.join(ARCHIVE, f"{slug}-{date}-desk.html"), "desk")
+        shutil.copyfile(out, os.path.join(HERE, f"{slug}-desk.html"))
+        print(f"  wrote {slug}-desk.html           (stable alias)")
+        write_manifest(b, date)
+        print("  updated archive/manifest.json")
     except (ValueError, KeyError) as exc:
         # A hand-written brief should fail with a sentence, not a traceback.
         sys.exit(f"{stem}.json: {exc}")

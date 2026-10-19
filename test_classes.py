@@ -33,7 +33,11 @@ def pairs():
     one. The aliases always exist; the archive entry means a template
     change that breaks an older edition is caught too."""
     out = []
-    p, d = newest("archive/*[0-9].html"), newest("archive/*-desk.html")
+    # Editions are <paper-slug>-<date>.html. Matching the date explicitly
+    # keeps these honest: a bare "*[0-9].html" also matched by luck and
+    # would silently start picking up a differently-named file.
+    p = newest("archive/*-????-??-??.html")
+    d = newest("archive/*-????-??-??-desk.html")
     if p:
         out.append((p, "_tpl/phone.html"))
     if d:

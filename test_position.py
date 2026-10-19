@@ -111,14 +111,34 @@ def check(built, tpl):
 if __name__ == "__main__":
     import glob
     import os
+    import re
     pairs = []
-    p = sorted(glob.glob("archive/*[0-9].html"))
-    d = sorted(glob.glob("archive/*-desk.html"))
+    # <paper-slug>-<date>[-desk].html -- the date is spelled out so a
+    # differently-named file can't be picked up by accident.
+    p = sorted(glob.glob("archive/*-????-??-??.html"))
+    d = sorted(glob.glob("archive/*-????-??-??-desk.html"))
     if p:
         pairs.append((p[-1], "_tpl/phone.html"))
     if d:
         pairs.append((d[-1], "_tpl/desk.html"))
-    pairs += [("phone.html", "_tpl/phone.html"), ("desk.html", "_tpl/desk.html")]
+
+    # Every paper's stable alias, derived from its newest archived
+    # edition rather than hardcoded -- the aliases are what the launcher
+    # links to, so they are the ones that must survive a template change.
+    aliases = set()
+    for f in p + d:
+        m = re.match(r"(.*?)-\d{4}-\d{2}-\d{2}(-desk)?\.html$", os.path.basename(f))
+        if m:
+            aliases.add(m.group(1) + ".html")
+            aliases.add(m.group(1) + "-desk.html")
+    for a in sorted(aliases):
+        pairs.append((a, "_tpl/desk.html" if a.endswith("-desk.html") else "_tpl/phone.html"))
+
+    missing = [a for a in sorted(aliases) if not os.path.exists(a)]
+    if missing:
+        print(f"FAIL  alias missing from build: {', '.join(missing)}")
+        sys.exit(1)
+
     pairs = [(a, b) for a, b in pairs if os.path.exists(a)]
     fail = False
     for built, tpl in pairs:

@@ -1,7 +1,8 @@
 [
  {
   "date": "2026-10-19",
-  "newspaper": "ET Delhi",
+  "slug": "et",
+  "paper": "ET Delhi",
   "pages": 18,
   "mode": "LONG+DEEP",
   "headline": "The Big Four are fighting each other for global capability centre work — GCCs generated $98.4 bn in India last year across 2,100-plus centres, employing 2.36 mi",
@@ -9,7 +10,8 @@
  },
  {
   "date": "2026-10-18",
-  "newspaper": "",
+  "slug": "et",
+  "paper": "",
   "pages": "",
   "mode": "",
   "headline": "",
