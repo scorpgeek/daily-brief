@@ -109,9 +109,17 @@ def check(built, tpl):
 
 
 if __name__ == "__main__":
+    import glob
     import os
-    pairs = [("2026-10-19.html", "_tpl/phone.html"),
-             ("2026-10-19-desk.html", "_tpl/desk.html")]
+    pairs = []
+    p = sorted(glob.glob("archive/*[0-9].html"))
+    d = sorted(glob.glob("archive/*-desk.html"))
+    if p:
+        pairs.append((p[-1], "_tpl/phone.html"))
+    if d:
+        pairs.append((d[-1], "_tpl/desk.html"))
+    pairs += [("phone.html", "_tpl/phone.html"), ("desk.html", "_tpl/desk.html")]
+    pairs = [(a, b) for a, b in pairs if os.path.exists(a)]
     fail = False
     for built, tpl in pairs:
         probs = check(built, tpl)

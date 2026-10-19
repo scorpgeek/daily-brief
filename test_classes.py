@@ -15,11 +15,31 @@ closing brace once nested the whole back-to-top block inside
 had reduced motion switched on. Valid-looking file, zero rules applied.
 """
 
+import glob
+import os
 import re
 import sys
 
-PAIRS = [("2026-10-19.html", "_tpl/phone.html"),
-         ("2026-10-19-desk.html", "_tpl/desk.html")]
+
+def newest(pattern):
+    """Latest match by filename, so the checks follow the archive rather
+    than a hardcoded date that goes stale the next build."""
+    hits = sorted(glob.glob(pattern))
+    return hits[-1] if hits else None
+
+
+def pairs():
+    """(built, template) for the current edition plus the newest archived
+    one. The aliases always exist; the archive entry means a template
+    change that breaks an older edition is caught too."""
+    out = []
+    p, d = newest("archive/*[0-9].html"), newest("archive/*-desk.html")
+    if p:
+        out.append((p, "_tpl/phone.html"))
+    if d:
+        out.append((d, "_tpl/desk.html"))
+    out += [("phone.html", "_tpl/phone.html"), ("desk.html", "_tpl/desk.html")]
+    return [(a, b) for a, b in out if a and os.path.exists(a)]
 
 # Markup shared by both editions, styled differently by each. On the phone
 # these have their own rules; on the desk they are picked up from a parent.
@@ -110,7 +130,7 @@ def check_anchors(path):
 
 def main():
     fail = False
-    for built, tpl in PAIRS:
+    for built, tpl in pairs():
         css_problems = check_css(tpl)
         el_problems = check_elements(built)
         anchor_problems = check_anchors(built)

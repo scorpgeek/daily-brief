@@ -14,3 +14,8 @@ Thumbs.db
 20??-??-??.html
 20??-??-??-desk.html
 index-local.html
+
+# Past editions — reproduced article content. phone.html / desk.html are the
+# published current build; archive/ is local only. Comment this out and commit
+# the folder if you decide you want the history public.
+archive/

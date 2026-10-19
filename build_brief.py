@@ -33,6 +33,8 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(HERE, "_raw")
 TPL = os.path.join(HERE, "_tpl")
+ARCHIVE = os.path.join(HERE, "archive")
+MANIFEST = os.path.join(ARCHIVE, "manifest.json")
 
 TAGS = {"ACT", "WATCH", "KNOW"}
 
@@ -561,6 +563,55 @@ def lint_quiz(b: dict) -> None:
         sys.exit("quiz: " + "; ".join(bad))
 
 
+def write_manifest(b: dict = None, stem: str = "") -> None:
+    """Record one line per archived edition so ARCHIVE.html has something
+    to list. A browser cannot enumerate a directory, so the list has to be
+    baked into a file it can fetch.
+
+    Every edition on disk gets an entry, including ones built before this
+    existed and ones with no JSON brief — they get blanks rather than
+    being dropped, because an archive that silently loses days is worse
+    than one with a blank row.
+    """
+    if not os.path.isdir(ARCHIVE):
+        return
+    entries = {}
+    if os.path.exists(MANIFEST):
+        try:
+            with open(MANIFEST, encoding="utf-8") as fh:
+                entries = {e["date"]: e for e in json.load(fh)}
+        except (ValueError, KeyError, OSError):
+            entries = {}
+
+    # any edition on disk, even one we have no record of
+    for name in os.listdir(ARCHIVE):
+        m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})(-desk)?\.html", name)
+        if m:
+            date = m.group(1)
+            entries.setdefault(date, {
+                "date": date,
+                "newspaper": "", "pages": "", "mode": "", "headline": "",
+                "desk": os.path.exists(os.path.join(ARCHIVE, f"{date}-desk.html")),
+            })
+
+    if b is not None:
+        meta = b.get("meta", {})
+        top = b.get("top") or []
+        entries[stem] = {
+            "date": stem,
+            "newspaper": meta.get("newspaper", ""),
+            "pages": meta.get("pages", ""),
+            "mode": meta.get("mode", ""),
+            "headline": (top[0]["text"] if top else "")[:160],
+            "desk": os.path.exists(os.path.join(ARCHIVE, f"{stem}-desk.html")),
+        }
+
+    with open(MANIFEST, "w", encoding="utf-8") as fh:
+        json.dump(sorted(entries.values(), key=lambda e: e["date"], reverse=True),
+                  fh, ensure_ascii=False, indent=1)
+        fh.write("\n")
+
+
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     with open(os.path.join(TPL, tpl_name), encoding="utf-8") as fh:
         tpl = fh.read()
@@ -646,17 +697,20 @@ def main() -> None:
     try:
         lint_terms(b)
         lint_quiz(b)
+        os.makedirs(ARCHIVE, exist_ok=True)
         if not desk_only:
-            out = render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
-            # Stable alias for index.html to route to. Dated editions are
+            out = render("phone.html", b, os.path.join(ARCHIVE, stem + ".html"), "phone")
+            # Stable alias for index.html to route to. The dated editions are
             # gitignored, so without this the published site has nothing
             # current to point at and serves whatever sample was last
             # committed.
             shutil.copyfile(out, os.path.join(HERE, "phone.html"))
             print("  wrote phone.html            (stable alias)")
-        out = render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
+        out = render("desk.html", b, os.path.join(ARCHIVE, stem + "-desk.html"), "desk")
         shutil.copyfile(out, os.path.join(HERE, "desk.html"))
         print("  wrote desk.html             (stable alias)")
+        write_manifest(b, stem)
+        print(f"  updated archive/manifest.json")
     except (ValueError, KeyError) as exc:
         # A hand-written brief should fail with a sentence, not a traceback.
         sys.exit(f"{stem}.json: {exc}")

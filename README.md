@@ -19,16 +19,22 @@ A personal reading pipeline:
 extract_pdf.py   PDF -> _raw/YYYY-MM-DD.txt
                  (brief is written by hand / by the assistant)
                  _raw/YYYY-MM-DD.json
-build_brief.py   _raw/YYYY-MM-DD.json -> YYYY-MM-DD.html        (phone)
-                                           YYYY-MM-DD-desk.html  (laptop)
-                                           phone.html            (stable alias)
-                                           desk.html             (stable alias)
+build_brief.py   _raw/YYYY-MM-DD.json -> archive/YYYY-MM-DD.html      (phone)
+                                           archive/YYYY-MM-DD-desk.html (laptop)
+                                           phone.html                  (stable alias)
+                                           desk.html                   (stable alias)
+                                           archive/manifest.json
 ```
 
-The stable aliases are what `index.html` routes to. The dated editions are
-gitignored, so without them the published site has nothing current to serve
-and falls back to whatever sample was last committed — which is how it came
-to be serving a hardcoded snapshot from two days ago.
+The stable aliases are what `index.html` routes to. The dated editions live
+in `archive/` and are gitignored, so without the aliases the published site
+has nothing current to point at and falls back to whatever sample was last
+committed — which is how it came to be serving a hardcoded snapshot from two
+days ago.
+
+`archive/manifest.json` is written on every build: one line per edition,
+with the paper, page count, mode and lead story. `ARCHIVE.html` reads it,
+because a browser cannot enumerate a directory.
 
 The JSON is the single source of truth. Both editions render from it, so
 they cannot drift, and the glossary that powers the laptop tooltips is the
@@ -94,6 +100,7 @@ test_position_parser.py proves the positioning check actually fires
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
 index.html         launcher: picks an edition by viewport, remembers the choice
+ARCHIVE.html       past editions, grouped by month, filterable
 phone.html         published phone edition
 desk.html          published laptop edition
 README.md          this file
@@ -177,7 +184,23 @@ python -m http.server 8899 --bind 0.0.0.0
 
 Then `http://<your-ip>:8899/`.
 
-## Publishing
+## Archive
+
+Every build lands in `archive/` and updates `archive/manifest.json`.
+`ARCHIVE.html` lists them by month with the paper, page count and lead story,
+filterable by date, paper or headline. It degrades honestly: an edition with
+no record shows a dash rather than a guessed figure, and if the manifest is
+missing entirely — which is the case on the published site, since `archive/`
+is gitignored — it says so and links to today's briefing instead of listing
+editions it cannot open.
+
+Archived editions keep whatever design they were built with. The 18 Oct file
+predates the band layout and still renders in the older card format; that is
+what an archive is for.
+
+To publish the history as well as today, drop the `archive/` line from
+`.gitignore` and commit the folder. That is a deliberate choice, not an
+oversight — those files reproduce article text.
 
 `index.html` is a launcher, not a briefing. It sends a wide screen to
 `desk.html` and a narrow one to `phone.html`, remembers an explicit choice
@@ -192,6 +215,8 @@ git add phone.html desk.html && git commit -m "Publish today's brief"
 ```
 
 Only those two. The dated editions stay untracked.
+
+## Publishing
 
 ## Extraction notes
 
