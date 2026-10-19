@@ -56,6 +56,9 @@ body{
 .brand{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:0 18px 4px}
 .rail-date{font:600 17px/1.2 var(--serif);padding:0 18px 2px;letter-spacing:-.01em}
 .rail-src{font:400 10.5px/1.4 var(--mono);color:var(--faint);padding:0 18px 16px}
+/* The rail scrolls on a short viewport. Since the top bar no longer
+   repeats the date, the identity has to stay put here. */
+.rhead{position:sticky;top:0;z-index:1;background:var(--panel);padding-top:20px}
 .rail h4{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
   padding:16px 18px 8px;margin:0;border-top:1px solid var(--line)}
 .rail a{display:block;padding:5px 18px;font-size:12.5px;color:var(--muted);text-decoration:none;
@@ -89,6 +92,18 @@ body{
   padding:14px 44px;display:flex;align-items:center;gap:14px}
 .top .kick{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
 .top h1{font:600 21px/1.2 var(--serif);margin:0;flex:1;letter-spacing:-.01em}
+/* The bar used to repeat the rail's date and paper name. Both the rail and
+   the bar are sticky, so that duplication was permanent and side by side.
+   The rail keeps the document identity; the bar now shows where you are. */
+.now{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px}
+.now-n{font:600 15px/1.2 var(--serif);letter-spacing:-.01em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.now-n b{color:var(--use);font:600 10px/1 var(--mono);letter-spacing:.1em;
+  margin-right:9px;vertical-align:2px}
+.now-c{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--faint);white-space:nowrap}
+.prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:transparent}
+.prog i{display:block;height:100%;width:0;background:var(--use);
+  transition:width .12s linear}
 .search{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
   border-radius:8px;padding:7px 12px;min-width:280px;cursor:text}
 .search input{background:none;border:0;outline:0;color:var(--ink);font:13px var(--sans);flex:1;width:100%}
@@ -484,9 +499,11 @@ blockquote p{margin:0 0 8px}
 
 <!-- ================= RAIL ================= -->
 <aside class="rail">
-  <div class="brand">Daily Brief</div>
-  <div class="rail-date">{{DATE_LONG}}</div>
-  <div class="rail-src">{{NEWSPAPER}} · {{PAGES}}pp · {{MODE}}</div>
+  <div class="rhead">
+    <div class="brand">Daily Brief</div>
+    <div class="rail-date">{{DATE_LONG}}</div>
+    <div class="rail-src">{{NEWSPAPER}} · {{PAGES}}pp · {{MODE}}</div>
+  </div>
 
   <h4>Use these</h4>
   <a href="#top5"><span class="n">01</span>Top 5</a>
@@ -515,9 +532,9 @@ blockquote p{margin:0 0 8px}
 <!-- ================= MAIN ================= -->
 <div>
   <div class="top">
-    <div style="flex:1">
-      <div class="kick">Economic Times — Delhi</div>
-      <h1>Monday, 19 October 2026</h1>
+    <div class="now">
+      <span class="now-n"><b id="nowNum">01</b><span id="nowName">Top 5</span></span>
+      <span class="now-c" id="nowCount">1 / 21</span>
     </div>
     <div class="search" onclick="focusSearch()">
       <input id="q" placeholder="Search sections, terms, claims…" oninput="doSearch()">
@@ -526,6 +543,7 @@ blockquote p{margin:0 0 8px}
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
     <button class="tbtn" onclick="document.querySelector('.rail').scrollIntoView()">Index</button>
   </div>
+  <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
 
   <div class="main"><!--SECTIONS-->
   </div>
@@ -627,6 +645,51 @@ function toggleTheme(){ const r=document.documentElement;
 (function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
   if(f) setFS(+f); if(th) document.documentElement.dataset.theme=th;
   paintTheme(); })();
+
+/* ---- where am I ----
+   The rail holds the document identity, so the sticky bar shows position
+   instead: the section you are in, its number, and how far through you
+   are. Cheap to compute on scroll, and it means neither surface has to
+   repeat the other's date. */
+(function(){
+  const secs = [...document.querySelectorAll('.main > section')].map(s=>{
+    const h = s.querySelector('h2');
+    if(!h) return {el:s, num:'·', name:''};
+    const n = h.querySelector('.n');
+    const flag = h.querySelector('.sec-flag');
+    let name = h.textContent;
+    if(n) name = name.replace(n.textContent,'');
+    if(flag) name = name.replace(flag.textContent,'');
+    return {el:s, num:n?n.textContent.trim():'·', name:name.trim()||'30 seconds'};
+  });
+  const elNum=document.getElementById('nowNum'), elName=document.getElementById('nowName'),
+        elCount=document.getElementById('nowCount'), bar=document.getElementById('progBar'),
+        prog=document.querySelector('.prog');
+  let cur = -1;
+
+  function update(){
+    const y = 170;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    // The last section can never cross the line — there is not enough page
+    // left to scroll it up there — so pin to it once the bottom is reached.
+    let next = (max > 0 && scrollY >= max - 2) ? secs.length-1 : 0;
+    if(next !== secs.length-1)
+      for(let i=0;i<secs.length;i++)
+        if(secs[i].el.getBoundingClientRect().top <= y) next = i;
+    if(next!==cur){
+      cur = next;
+      elNum.textContent = secs[cur].num;
+      elName.textContent = secs[cur].name;
+      elCount.textContent = (cur+1)+' / '+secs.length;
+    }
+    const p = max>0 ? Math.min(1, Math.max(0, scrollY/max)) : 0;
+    bar.style.width = (p*100).toFixed(2)+'%';
+    prog.setAttribute('aria-valuenow', Math.round(p*100));
+  }
+  addEventListener('scroll', update, {passive:true});
+  addEventListener('resize', update);
+  update();
+})();
 
 /* ---- back to top ----
    Appears once you are past the first screen, so the top of the page

@@ -1,0 +1,18 @@
+Stop printing the date twice
+
+The rail carried "Mon 19 Oct 2026 / ET Delhi" and the sticky bar carried
+"Monday, 19 October 2026 / ECONOMIC TIMES - DELHI" right beside it. Both
+surfaces are sticky, so the duplication was permanent rather than
+something you saw only at the top, and the two formats made it look
+like a rendering fault rather than a decision.
+
+- the rail keeps the document identity: paper, date, pages, mode
+- the bar now shows position instead: current section, its number, how
+  far through the document you are, and a progress hairline
+- that is what a sticky bar is for, and it removes the duplication
+  rather than restyling it
+- the rail header is now sticky within the rail, since the bar no longer
+  carries the date and the rail scrolls on a short viewport
+- the last section could never become current because there is not enough
+  page left to scroll it past the marker, so the bar read 20/21 at the
+  very bottom; it now pins to the last section once the bottom is reached

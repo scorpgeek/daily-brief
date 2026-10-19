@@ -43,6 +43,12 @@ click a term. Adds a glossary with the paper's own sentence and dated
 external sources, a provenance toggle that hides everything not from the
 paper, `Cmd/Ctrl+K` search, and reading-preference controls.
 
+The rail holds the document identity — paper, date, page count, mode — and
+the sticky bar shows where you are: the current section, its number, how far
+through you are, and a progress hairline. They used to print the date twice
+in two different formats, side by side, because both surfaces are sticky and
+neither was willing to give it up.
+
 Both editions carry a back-to-top button that appears once you are past the
 first screen. Seventeen folds stack a long way down and neither device has a
 useful Home key.
