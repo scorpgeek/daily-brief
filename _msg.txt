@@ -1,0 +1,26 @@
+Anchor the reading-progress bar to the top bar
+
+The progress bar rendered as a 2px red line pinned to the bottom of the
+viewport, full width, with the page sliding behind it -- which reads as
+"the bar moves with scroll".
+
+It was emitted as a sibling of .top rather than a child. .app is not
+positioned, so the absolutely positioned .prog fell through to the
+initial containing block. Nothing was mis-coloured or mis-sized; it was
+exactly where CSS said it should be, just not where anyone meant. The
+rail was never involved -- the bar simply started at x=0 and passed
+behind it.
+
+- .prog now sits inside .top, which is position:sticky and therefore the
+  containing block it was always assumed to have
+- verified filling 0 -> 18 -> 44 -> 62 -> 100% and reaching full width
+  at the true bottom of the document
+
+test_position.py checks that every position:absolute element has a
+positioned ancestor, and test_position_parser.py runs that checker
+against the exact broken shape plus three controls so it cannot pass
+vacuously.
+
+Separately: the Index button in the top bar is a dead control. It calls
+scrollIntoView() on the rail, which is sticky and permanently in view,
+so it does nothing. Left alone rather than redesigned unasked.

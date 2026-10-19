@@ -70,8 +70,10 @@ allowed into a news section; it appears only in the glossary and the
 extract_pdf.py     PDF -> _raw/YYYY-MM-DD.txt
 build_brief.py     _raw/YYYY-MM-DD.json -> both HTML editions
 test_build.py      rejection paths for the build lints
-test_classes.py    CSS parses, and every class the page uses has a CSS rule
-test_css_parser.py proves that CSS check actually fires
+test_classes.py    CSS parses, JS targets resolve, classes are styled
+test_position.py   every absolutely-positioned element is anchored
+test_css_parser.py proves the CSS check actually fires
+test_position_parser.py proves the positioning check actually fires
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
 index.html         published phone sample
@@ -122,6 +124,7 @@ there. Each of those shipped once.
 ```powershell
 python test_build.py     # the rejection paths
 python test_classes.py   # CSS parses, JS targets resolve, classes are styled
+python test_position.py  # every absolutely-positioned element is anchored
 ```
 
 `test_classes.py` also checks that every element the inline JS reaches for
@@ -130,6 +133,19 @@ actually exists. Cutting the templates down to markers had silently dropped
 dead while every other check stayed green — the CSS for `.res` was still
 fully present, which is exactly what made it look like a styling problem
 rather than a missing node.
+
+`test_position.py` checks that every `position:absolute` element has a
+positioned ancestor, because that ancestor is what defines its containing
+block. The reading-progress bar was once emitted as a *sibling* of `.top`
+rather than a child; `.app` is not positioned, so it fell through to the
+initial containing block and rendered pinned to the bottom of the viewport,
+full width, 2px of red — with the page sliding behind it, which read as
+"the bar moves with scroll". Nothing was mis-coloured or mis-sized; it was
+exactly where CSS said it should be, just not where anyone meant.
+
+Each checker has a companion `test_*_parser.py` that runs it against the
+exact shape it was written for. A lint that never fails reads as coverage
+and is not.
 
 Serve locally and open on a phone on the same network:
 
