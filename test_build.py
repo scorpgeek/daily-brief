@@ -41,6 +41,24 @@ def _exp_missing(d):
     return d
 
 
+def _quiz_no_opts(d):
+    d = json.loads(json.dumps(d))
+    del d["quiz"][0]["opts"]
+    return d
+
+
+def _quiz_bad_answer(d):
+    d = json.loads(json.dumps(d))
+    d["quiz"][0]["a"] = "z"
+    return d
+
+
+def _quiz_one_opt(d):
+    d = json.loads(json.dumps(d))
+    d["quiz"][0]["opts"] = d["quiz"][0]["opts"][:1]
+    return d
+
+
 CASES = [
     ("missing date", None, "does-not-exist"),
     ("no top section", lambda d: {k: v for k, v in d.items() if k != "top"}, "no-top"),
@@ -48,6 +66,9 @@ CASES = [
     ("bad tag", _bad_tag, "bad-tag"),
     ("exp repeats term", _exp_repeats_term, "exp-echo"),
     ("exp field missing", _exp_missing, "exp-gone"),
+    ("quiz without opts", _quiz_no_opts, "quiz-no-opts"),
+    ("quiz answer not an option", _quiz_bad_answer, "quiz-bad-key"),
+    ("quiz with one option", _quiz_one_opt, "quiz-one-opt"),
 ]
 
 

@@ -131,12 +131,12 @@ td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}
 td.n,th.n{text-align:right;padding-right:0;font-variant-numeric:tabular-nums}
 
 /* ---------- terms ---------- */
-.t{border-bottom:1.5px dotted color-mix(in srgb,var(--web) 65%,transparent);cursor:pointer;
+.term{border-bottom:1.5px dotted color-mix(in srgb,var(--web) 65%,transparent);cursor:pointer;
   color:inherit;position:relative;transition:background .12s}
-.t:hover{background:color-mix(in srgb,var(--web) 15%,transparent);border-radius:2px}
-.t::after{content:"";position:absolute;left:0;right:0;bottom:-1.5px;height:1.5px;
+.term:hover{background:color-mix(in srgb,var(--web) 15%,transparent);border-radius:2px}
+.term::after{content:"";position:absolute;left:0;right:0;bottom:-1.5px;height:1.5px;
   background:var(--web);opacity:0;transition:opacity .15s}
-.t:hover::after,.t.sel::after{opacity:1}
+.term:hover::after,.term.sel::after{opacity:1}
 /* tooltip */
 .tip{position:fixed;z-index:90;max-width:340px;background:var(--panel2);border:1px solid var(--line2);
   border-radius:8px;padding:10px 13px;font:13px/1.5 var(--sans);color:var(--ink);
@@ -332,15 +332,53 @@ blockquote p{margin:0 0 8px}
   font-size:14.5px;line-height:1.6;color:var(--muted);max-width:var(--t-measure);
 }
 .model em{color:var(--lang);font-style:normal}
-.qa{border-bottom:1px solid var(--line);padding:12px 0}
-.qa:last-child{border-bottom:0}
-.qa .q{font-size:14.5px;line-height:1.55;margin:0 0 5px}
-.qa .a{font-size:13.5px;color:var(--muted);line-height:1.55}
-.qa .a b{color:var(--lang)}
-.ans-head{
-  font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--lang);margin:18px 0 4px;
+/* ---------- quiz ---------- */
+.quiz{border-bottom:1px solid var(--line);padding:16px 0;max-width:var(--t-measure)}
+.quiz:last-child{border-bottom:0}
+.quiz .q{font-size:15px;line-height:1.55;margin:0 0 11px}
+.opts{display:grid;gap:7px}
+.opt{
+  display:grid;grid-template-columns:24px 1fr;gap:11px;align-items:start;
+  width:100%;text-align:left;cursor:pointer;font:inherit;position:relative;
+  font-size:14.5px;line-height:1.5;color:var(--muted);padding-right:38px;
+  background:none;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
 }
+/* the mark is the feedback — a tint alone is too quiet to read as "right" */
+.opt::after{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font:600 14px/1 var(--sans);opacity:0;
+}
+.opt.right::after{content:"\2713";color:var(--chip-lang);opacity:1}
+.opt.wrong::after{content:"\2715";color:var(--chip-use);opacity:1}
+.opt:hover{border-color:var(--line2);color:var(--ink)}
+.opt .k{
+  font:600 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;text-align:center;
+}
+.quiz .why{
+  display:none;margin:12px 0 0;padding:10px 0 0 13px;
+  border-left:2px solid var(--lang);
+  font-size:14px;line-height:1.55;color:var(--muted);
+}
+.quiz.done .why{display:block}
+.quiz.ans-a.done .opt[data-k="a"],
+.quiz.ans-b.done .opt[data-k="b"],
+.quiz.ans-c.done .opt[data-k="c"],
+.quiz.ans-d.done .opt[data-k="d"]{
+  border-color:var(--lang);color:var(--ink);
+  background:color-mix(in srgb,var(--lang) 11%,transparent);
+}
+.quiz.ans-a.done .opt[data-k="a"] .k,
+.quiz.ans-b.done .opt[data-k="b"] .k,
+.quiz.ans-c.done .opt[data-k="c"] .k,
+.quiz.ans-d.done .opt[data-k="d"] .k{color:var(--chip-lang);border-color:transparent}
+.opt.wrong{
+  border-color:var(--use);color:var(--faint);
+  background:color-mix(in srgb,var(--use) 9%,transparent);
+}
+.opt.wrong .k{color:var(--chip-use);border-color:transparent}
+.opt.wrong .ot{text-decoration:line-through}
+.opt:disabled{cursor:default}
 
 /* skip */
 .skip{
@@ -499,12 +537,12 @@ let sel = null;
 })();
 
 document.addEventListener('click', e=>{
-  const t = e.target.closest('.t'); const row = e.target.closest('td[data-k]');
+  const t = e.target.closest('.term'); const row = e.target.closest('td[data-k]');
   const jump = e.target.closest('[data-jump]');
   if(jump){ openDrawer(jump.dataset.jump); return; }
   if(t){ openDrawer(t.dataset.term); return; }
   if(row){ openDrawer(row.dataset.k); return; }
-  if(!e.target.closest('.drawer') && !e.target.closest('.t')) closeDrawer();
+  if(!e.target.closest('.drawer') && !e.target.closest('.term')) closeDrawer();
 });
 
 /* ---- drawer ---- */
@@ -524,15 +562,15 @@ function openDrawer(k){
       <p style="font:11px var(--mono);color:var(--faint);margin-top:10px">Web-sourced. Not part of the paper.</p></div>`:''}
     ${g.srcs?'':`<div class="dsec"><h5>Source</h5><p style="font:11px var(--mono);color:var(--faint)">Defined from the paper${g.page?', '+g.page:''}. No external research.</p></div>`}`;
   document.getElementById('app').dataset.drawer='open';
-  document.querySelectorAll('.t.sel').forEach(x=>x.classList.remove('sel'));
-  document.querySelectorAll('.t[data-term="'+k+'"]').forEach(x=>x.classList.add('sel'));
+  document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('.term[data-term="'+k+'"]').forEach(x=>x.classList.add('sel'));
 }
 function closeDrawer(){ document.getElementById('app').dataset.drawer='closed'; sel=null;
-  document.querySelectorAll('.t.sel').forEach(x=>x.classList.remove('sel')); }
+  document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel')); }
 
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); if(e.key==='/'){ e.preventDefault(); focusSearch(); } });
 document.addEventListener('mousemove', e=>{
-  const t = e.target.closest('.t'); const tip = document.getElementById('tip');
+  const t = e.target.closest('.term'); const tip = document.getElementById('tip');
   if(!t){ tip.classList.remove('on'); return; }
   tip.innerHTML = `<span class="k">${t.dataset.term}</span>${G[t.dataset.term].def}`;
   tip.classList.add('on');
@@ -562,6 +600,22 @@ function toggleTheme(){ const r=document.documentElement;
 (function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
   if(f) setFS(+f); if(th) document.documentElement.dataset.theme=th;
   paintTheme(); })();
+
+/* ---- quiz ----
+   One answer per question: the tap is marked, the right option is
+   revealed either way, and the explanation opens. */
+document.addEventListener('click', e=>{
+  const o = e.target.closest('.opt');
+  if(!o) return;
+  const z = o.closest('.quiz');
+  if(!z || z.classList.contains('done')) return;
+  z.querySelectorAll('.opt').forEach(b=>{
+    if(b.dataset.k===z.dataset.answer) b.classList.add('right');
+    else if(b===o) b.classList.add('wrong');
+    b.disabled = true;
+  });
+  z.classList.add('done');
+});
 
 /* ---- search ---- */
 function focusSearch(){ const q=document.getElementById('q'); q.focus(); q.select(); }

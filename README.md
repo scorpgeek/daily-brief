@@ -52,6 +52,8 @@ allowed into a news section; it appears only in the glossary and the
 ```
 extract_pdf.py     PDF -> _raw/YYYY-MM-DD.txt
 build_brief.py     _raw/YYYY-MM-DD.json -> both HTML editions
+test_build.py      rejection paths for the build lints
+test_classes.py    every class the page uses has a CSS rule
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
 index.html         published phone sample
@@ -93,6 +95,16 @@ The build refuses to write a file with unsubstituted markers, and
 syntax-checks every inline `<script>` with `node --check` — a bad glossary
 substitution otherwise produces a page that looks fine and silently kills
 the whole interactive layer.
+
+It also lints the brief: a `WATCH` item with no trigger, a top tag that is
+not ACT/WATCH/KNOW, a glossary `exp` that just echoes its term, a quiz
+question with no options or an answer key pointing at an option that is not
+there. Each of those shipped once.
+
+```powershell
+python test_build.py     # the rejection paths
+python test_classes.py   # every class the page uses has a CSS rule
+```
 
 Serve locally and open on a phone on the same network:
 

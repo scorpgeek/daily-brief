@@ -55,7 +55,7 @@ def esc_markup(s: str) -> str:
 
 
 def termify(text: str, terms: dict) -> str:
-    """Wrap whole-word glossary matches in <span class="t">.
+    """Wrap whole-word glossary matches in <span class="term">.
     Skips anything inside a tag, so existing markup survives.
     Applied only in the desk edition, where the tooltips live."""
     if not terms:
@@ -69,7 +69,7 @@ def termify(text: str, terms: dict) -> str:
         if head.count("<") > head.count(">"):
             continue
         out.append(head)
-        out.append(f'<span class="t" data-term="{e(m.group(1))}">{e(m.group(1))}</span>')
+        out.append(f'<span class="term" data-term="{e(m.group(1))}">{e(m.group(1))}</span>')
         pos = en
     out.append(text[pos:])
     return "".join(out)
@@ -377,16 +377,23 @@ def sec_quiz(b, terms):
     q = b.get("quiz", [])
     if not q:
         return None
-    items = "".join(
-        f'<div class="qa"><p class="q"><b>{i}.</b> {esc_markup(x["q"])}</p></div>'
-        for i, x in enumerate(q, 1)
-    )
-    ans = "".join(
-        f'<div class="qa"><p class="a"><b>{e(x["a"])}</b> — {esc_markup(x["why"])}</p></div>'
-        for x in q
-    )
-    return ("16", "Quiz", None,
-            f'{items}<div class="ans-head">Answers</div>{ans}')
+    items = []
+    for i, x in enumerate(q, 1):
+        opts = x.get("opts") or []
+        rows = "".join(
+            f'<button class="opt" type="button" data-k="{e(o["k"])}">'
+            f'<span class="k">{e(o["k"].upper())}</span>'
+            # `.ot`, not `.t` — the desk already uses .t for glossary tooltips
+            f'<span class="ot">{esc_markup(o["t"])}</span></button>'
+            for o in opts
+        )
+        items.append(
+            f'<div class="quiz" data-answer="{e(x["a"])}">'
+            f'<p class="q"><b>{i}.</b> {esc_markup(x["q"])}</p>'
+            f'<div class="opts">{rows}</div>'
+            f'<p class="why">{esc_markup(x["why"])}</p></div>'
+        )
+    return ("16", "Quiz", f"{len(q)} questions", "".join(items))
 
 
 def sec_skip(b, terms):
@@ -520,6 +527,28 @@ def lint_terms(b: dict) -> None:
         sys.exit("glossary: " + "; ".join(bad))
 
 
+def lint_quiz(b: dict) -> None:
+    """A quiz with no options is not a quiz.
+
+    Every question shipped with a bare answer letter and no options behind
+    it, so the section rendered as a list of stems followed by 'Answers: b
+    — ...'. If `opts` is absent the answer key points at nothing.
+    """
+    bad = []
+    for n, x in enumerate(b.get("quiz", []), 1):
+        opts = x.get("opts")
+        if not opts:
+            bad.append(f"Q{n}: no opts")
+            continue
+        keys = [o["k"] for o in opts]
+        if x.get("a") not in keys:
+            bad.append(f"Q{n}: answer {x.get('a')!r} is not one of {keys}")
+        if len(keys) < 2:
+            bad.append(f"Q{n}: only {len(keys)} option")
+    if bad:
+        sys.exit("quiz: " + "; ".join(bad))
+
+
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> None:
     with open(os.path.join(TPL, tpl_name), encoding="utf-8") as fh:
         tpl = fh.read()
@@ -603,6 +632,7 @@ def main() -> None:
     print(f"building {stem}")
     try:
         lint_terms(b)
+        lint_quiz(b)
         if not desk_only:
             render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
         render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
