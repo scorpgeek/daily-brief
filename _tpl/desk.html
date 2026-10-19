@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-prov="off">
+<html lang="en" data-theme="light" data-prov="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -62,6 +62,15 @@ body{
 .rail a:hover{color:var(--ink);background:var(--panel2)}
 .rail a.on{color:var(--ink);border-left-color:var(--use);background:var(--panel2)}
 .rail a .n{font:600 9px/1 var(--mono);color:var(--faint);display:inline-block;width:26px}
+/* Glossary index. The rail is too narrow to set term and expansion side by
+   side, and reusing the fixed 26px number column made long terms like
+   FCNR(B) and Bancassurance overflow and collide with the text beside them.
+   Stack them, and drop the expansion when it just repeats the term. */
+#glist a{padding:6px 18px}
+#glist .g-t{display:block;font:600 12.5px/1.35 var(--sans);color:var(--ink)}
+#glist .g-x{display:block;font:400 11px/1.35 var(--sans);color:var(--faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#glist a:hover .g-x{color:var(--muted)}
 .ctl{display:flex;align-items:center;justify-content:space-between;padding:6px 18px;font-size:12px;color:var(--muted);cursor:pointer}
 .ctl:hover{color:var(--ink)}
 .sw{width:30px;height:17px;border-radius:9px;background:var(--line2);position:relative;transition:.15s;flex:none}
@@ -433,7 +442,7 @@ blockquote p{margin:0 0 8px}
     <button onclick="setFS(17)" id="fsM" class="on">M</button>
     <button onclick="setFS(19)" id="fsL">L</button>
   </div>
-  <div class="ctl" onclick="toggleTheme()">Theme<span id="thLbl" style="font:10px var(--mono)">light</span></div>
+  <!-- theme lives in the top bar only; one control, not two -->
 
   <h4>Glossary</h4>
   <div id="glist"></div>
@@ -483,7 +492,9 @@ let sel = null;
     const srcTxt = g.srcs ? 'web + paper' : 'paper p.'+(g.page||'—').replace('PDF ','');
     gb.insertAdjacentHTML('beforeend',
       `<tr><td data-k="${k}">${k}</td><td>${g.def}</td><td class="src">${srcTxt}</td></tr>`);
-    gl.insertAdjacentHTML('beforeend',`<a data-jump="${k}"><span class="n">${k}</span>${g.exp.split('—')[0].trim().slice(0,18)}</a>`);
+    gl.insertAdjacentHTML('beforeend',
+      `<a data-jump="${k}"><span class="g-t">${k}</span>` +
+      (k===g.exp ? '' : `<span class="g-x">${g.exp.split('—')[0].trim()}</span>`) + `</a>`);
   });
 })();
 
@@ -539,14 +550,11 @@ function setFS(n){ document.documentElement.style.setProperty('--fs', n+'px');
   document.querySelectorAll('.fsize button').forEach(b=>b.classList.remove('on'));
   ({16:'fsS',17:'fsM',19:'fsL'})[n] && document.getElementById({16:'fsS',17:'fsM',19:'fsL'}[n]).classList.add('on');
   localStorage.setItem('dbfs',n); }
-/* Both the rail row and the top-bar button show the theme they switch
-   TO, so the control never has to be read twice to know its state. */
+/* The top-bar button is the only theme control, and it shows the theme it
+   switches TO so the control never has to be read twice to know its state. */
 function paintTheme(){
   const dark = document.documentElement.dataset.theme==='dark';
-  const next = dark ? 'light' : 'dark';
-  ['thLbl','thBtn'].forEach(id=>{ const n=document.getElementById(id);
-    if(n) n.textContent = dark ? '\u25d0 Light' : '\u25d1 Dark'; });
-  return next;
+  document.getElementById('thBtn').textContent = dark ? '\u25d0 Light' : '\u25d1 Dark';
 }
 function toggleTheme(){ const r=document.documentElement;
   r.dataset.theme = r.dataset.theme==='dark'?'light':'dark';

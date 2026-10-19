@@ -118,9 +118,9 @@ Install with `pip install pypdf`.
 
 - Serif headings, sans body, generous line-height. The measure is capped so
   lines don't run long on a laptop.
-- Dark by default — this is built for reading at night. A warm-paper light
-  theme sits alongside it, toggled from the top bar or the rail; the choice
-  persists.
+- Light by default, dark one click away in the top bar. There is only one
+  theme control — an earlier version had a second copy in the rail and two
+  controls for one setting is one too many. The choice persists.
 - The light theme uses no pure white and no pure black. Halation around
   glyphs on a white field is what makes a light theme tiring after an hour,
   so the surface is a warm off-white and the text a warm near-black.
@@ -131,6 +131,11 @@ Install with `pip install pypdf`.
 - Chips keep a 13% tint of their own accent, because below that they stop
   reading as chips. That tint eats the contrast the accent just won, so each
   chip has its own text token solved against the tinted background.
+- The rail glossary stacks term over expansion rather than setting them side
+  by side. The rail is too narrow for two columns, and a fixed-width term
+  column made long terms collide with the text beside them. The expansion is
+  dropped when it only repeats the term, so the list reads `NIM`, not
+  `NIM NIM`.
 - One 120 ms transition on the disclosure chevron, nothing else. Motion in a
   late-night reading document is a cost, not a feature.
 - Tables are capped at 4 columns and always preceded by a sentence carrying
