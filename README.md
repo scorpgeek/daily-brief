@@ -56,6 +56,16 @@ through you are, and a progress hairline. They used to print the date twice
 in two different formats, side by side, because both surfaces are sticky and
 neither was willing to give it up.
 
+The **Index** button opens the whole section list — all twenty-one, grouped
+the way the document is grouped. The rail can only hold seven without
+becoming a wall, so fourteen sections were unreachable from it.
+
+Built from the sections actually on the page and grouped by a `data-band`
+the renderer stamps on each one, so a short brief and a long one both index
+correctly and nothing is listed twice. Arrow keys move, Enter jumps, Escape
+or a backdrop click closes. Native `<dialog>`, so focus trapping is the
+browser's problem, not ours.
+
 Both editions carry a back-to-top button that appears once you are past the
 first screen. Seventeen folds stack a long way down and neither device has a
 useful Home key.
@@ -70,7 +80,7 @@ allowed into a news section; it appears only in the glossary and the
 extract_pdf.py     PDF -> _raw/YYYY-MM-DD.txt
 build_brief.py     _raw/YYYY-MM-DD.json -> both HTML editions
 test_build.py      rejection paths for the build lints
-test_classes.py    CSS parses, JS targets resolve, classes are styled
+test_classes.py    CSS parses, JS targets resolve, anchors resolve, classes styled
 test_position.py   every absolutely-positioned element is anchored
 test_css_parser.py proves the CSS check actually fires
 test_position_parser.py proves the positioning check actually fires
@@ -128,11 +138,15 @@ python test_position.py  # every absolutely-positioned element is anchored
 ```
 
 `test_classes.py` also checks that every element the inline JS reaches for
-actually exists. Cutting the templates down to markers had silently dropped
+actually exists, and that every `href="#..."` resolves to an id that is
+actually there. Cutting the templates down to markers had silently dropped
 `<div id="res">`, so `doSearch()` threw on `res.innerHTML` and search was
 dead while every other check stayed green — the CSS for `.res` was still
 fully present, which is exactly what made it look like a styling problem
-rather than a missing node.
+rather than a missing node. Three of the seven rail links pointed at
+`#top5`, `#markets` and `#glossary` when the sections are `#top`, `#cats`
+and `#terms`; the links looked fine and the ids looked fine, they just did
+not correspond.
 
 `test_position.py` checks that every `position:absolute` element has a
 positioned ancestor, because that ancestor is what defines its containing

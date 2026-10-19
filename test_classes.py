@@ -88,11 +88,32 @@ def check_elements(path):
     return problems
 
 
+def check_anchors(path):
+    """Every in-page link must resolve to an element that exists.
+
+    Three of the seven rail links pointed at #top5, #markets and
+    #glossary; the sections are #top, #cats and #terms. The links looked
+    fine and the ids looked fine — they just did not correspond, so
+    clicking did nothing. Nothing else in the build looks at hrefs.
+    """
+    src = open(path, encoding="utf-8").read()
+    body = src[src.index("<body"):]
+    body = re.sub(r"<script.*?</script>", "", body, flags=re.S)
+
+    ids = set(re.findall(r'\bid="([^"]+)"', src))
+    targets = set()
+    for href in re.findall(r'href="#([^"]+)"', body):
+        targets.add(href)
+    # links the Index dialog builds at runtime, from the same ids
+    return sorted(f"href=\"#{t}\" -> no element with that id" for t in targets - ids)
+
+
 def main():
     fail = False
     for built, tpl in PAIRS:
         css_problems = check_css(tpl)
         el_problems = check_elements(built)
+        anchor_problems = check_anchors(built)
 
         html = open(built, encoding="utf-8").read()
         css = open(tpl, encoding="utf-8").read()
@@ -112,17 +133,18 @@ def main():
         print(f"  css: {'ok' if not css_problems else ''}")
         for ln, msg in css_problems:
             print(f"    line {ln}: {msg}")
-        for p in el_problems:
+        for p in el_problems + anchor_problems:
             print(f"    {p}")
         print(f"  {built}: {len(used)} classes in use, "
-              f"{len(unstyled)} with no CSS rule, "
-              f"{len(el_problems)} missing JS targets")
+              f"{len(unstyled)} unstyled, "
+              f"{len(el_problems)} missing JS targets, "
+              f"{len(anchor_problems)} dead anchors")
         for u in unstyled:
             print(f"    unstyled: .{u}")
-        if css_problems or unstyled or el_problems:
+        if css_problems or unstyled or el_problems or anchor_problems:
             fail = True
 
-    print("css parses, js targets resolve, every used class is styled"
+    print("css parses, js targets resolve, anchors resolve, classes are styled"
           if not fail else "problems found")
     return 1 if fail else 0
 

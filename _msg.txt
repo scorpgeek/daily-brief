@@ -1,0 +1,23 @@
+Give the Index button a job, and fix three dead rail links
+
+The Index button called scrollIntoView() on the rail, which is sticky and
+permanently in view, so it did nothing at all.
+
+The rail index lists seven sections; the document has twenty-one. So the
+button now opens the whole list, grouped the way the document is grouped:
+Start, Use these, Reference, Language. Arrow keys move, Enter jumps,
+Escape or a backdrop click closes. Native <dialog>, so focus trapping and
+the Escape key are the browser's problem rather than ours.
+
+- built from the sections actually on the page, grouped by a data-band
+  the renderer stamps on each one, so a short brief and a long one both
+  index correctly and nothing is listed twice
+- DESK_BANDS now drives both render order and the index grouping, so the
+  two cannot disagree
+- showModal() moves focus to the first control, so it has to run before
+  the list is built or it takes focus back off the first row
+
+Chasing this turned up a separate defect: three of the seven rail links
+pointed at #top5, #markets and #glossary, while the sections are #top,
+#cats and #terms. They looked right and clicked to nothing. test_classes.py
+now checks every href="#..." resolves, and that check catches all three.

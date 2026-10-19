@@ -223,6 +223,43 @@ mark.hidden{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
 
+/* ---------- index ----------
+   The rail can only hold seven entries without becoming a wall; the
+   document has twenty-one sections. The Index is the whole list. */
+.idx{
+  border:1px solid var(--line2);border-radius:14px;background:var(--panel);
+  color:var(--ink);padding:0;width:min(560px,92vw);max-height:78vh;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);overflow:hidden;
+}
+.idx::backdrop{background:rgba(20,18,14,.42);backdrop-filter:blur(2px)}
+.idx-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 12px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--panel);
+}
+.idx-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.idx-x{
+  background:none;border:0;color:var(--muted);font-size:19px;line-height:1;
+  cursor:pointer;padding:2px 6px;border-radius:6px;
+}
+.idx-x:hover{color:var(--ink);background:var(--panel2)}
+.idx-b{max-height:calc(78vh - 96px);overflow-y:auto;padding:6px 0}
+.idx-g{
+  font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:14px 16px 6px;
+}
+.idx a{
+  display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:baseline;
+  padding:7px 16px;text-decoration:none;color:var(--muted);font-size:14px;
+}
+.idx a:hover,.idx a:focus-visible{background:var(--panel2);color:var(--ink);outline:none}
+.idx a .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right}
+.idx a:hover .n,.idx a:focus-visible .n{color:var(--use)}
+.idx-f{
+  margin:0;padding:10px 16px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+
 /* ---------- back to top ----------
    A 74-column reading column is a long scroll and the Index only covers
    the sections that were in the rail. One utility, one 120ms opacity
@@ -506,15 +543,15 @@ blockquote p{margin:0 0 8px}
   </div>
 
   <h4>Use these</h4>
-  <a href="#top5"><span class="n">01</span>Top 5</a>
+  <a href="#top"><span class="n">01</span>Top 5</a>
   <a href="#lens"><span class="n">06</span>My Lens</a>
   <a href="#huddle"><span class="n">08</span>Huddle line</a>
 
   <h4>Reference</h4>
-  <a href="#markets"><span class="n">02</span>Business &amp; Markets</a>
+  <a href="#cats"><span class="n">02</span>Business &amp; Markets</a>
   <a href="#context"><span class="n">＋</span>Context (web)</a>
   <a href="#opinion"><span class="n">09</span>Opinion</a>
-  <a href="#glossary"><span class="n">11</span>Terms &amp; acronyms</a>
+  <a href="#terms"><span class="n">11</span>Terms &amp; acronyms</a>
 
   <h4>Reading</h4>
   <div class="ctl" onclick="setProv()">Show provenance<span class="sw"></span></div>
@@ -541,9 +578,18 @@ blockquote p{margin:0 0 8px}
       <kbd>⌘K</kbd>
     </div>
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
-    <button class="tbtn" onclick="document.querySelector('.rail').scrollIntoView()">Index</button>
+    <button class="tbtn" onclick="openIndex()">Index</button>
     <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
   </div>
+
+  <dialog class="idx" id="idx" aria-label="Jump to section">
+    <div class="idx-h">
+      <span class="idx-t">Jump to</span>
+      <button class="idx-x" onclick="closeIndex()" aria-label="Close">&times;</button>
+    </div>
+    <div class="idx-b" id="idxBody"></div>
+    <p class="idx-f">&uarr;&darr; to move &middot; Enter to jump &middot; Esc to close</p>
+  </dialog>
 
   <div class="main"><div class="res" id="res"></div><!--SECTIONS-->
   </div>
@@ -614,8 +660,12 @@ function closeDrawer(){ document.getElementById('app').dataset.drawer='closed'; 
   document.querySelectorAll('.term.sel').forEach(x=>x.classList.remove('sel')); }
 
 document.addEventListener('keydown', e=>{
-  // Escape peels one layer at a time: results first, drawer second.
-  if(e.key==='Escape'){ if(isSearching()) clearSearch(); else closeDrawer(); }
+  // Escape peels one layer at a time: the Index dialog handles its own,
+  // then results, then the drawer.
+  if(e.key==='Escape'){
+    if(document.getElementById('idx').open) return;
+    if(isSearching()) clearSearch(); else closeDrawer();
+  }
   if(e.key==='/'){ e.preventDefault(); focusSearch(); }
 });
 document.addEventListener('mousemove', e=>{
@@ -699,6 +749,46 @@ function sectionLabel(sec){
   addEventListener('resize', update);
   update();
 })();
+
+/* ---- index ----
+   Built from the sections that are actually on the page, grouped by the
+   data-band the renderer stamped on them, so a short brief or a long one
+   both index correctly without anything being listed twice. */
+function buildIndex(){
+  const body = document.getElementById('idxBody');
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let band = null, html = '';
+  document.querySelectorAll('.main > section[data-band]').forEach(s=>{
+    const b = s.dataset.band;
+    if(b !== band){ band = b; html += `<div class="idx-g">${esc(b)}</div>`; }
+    const p = sectionParts(s);
+    html += `<a href="#${s.id}" data-jump="${s.id}"><span class="n">${esc(p.num)}</span>`
+          + `${esc(p.name)}</a>`;
+  });
+  body.innerHTML = html;
+  // firstElementChild is the group heading, which cannot take focus
+  const firstRow = body.querySelector('a');
+  firstRow && firstRow.focus();
+}
+function openIndex(){
+  const d=document.getElementById('idx');
+  if(d.open) return;
+  d.showModal();      // showModal moves focus to the first control, so it
+  buildIndex();       // has to happen first or it takes focus back
+}
+function closeIndex(){ document.getElementById('idx').close(); }
+document.getElementById('idx').addEventListener('keydown', e=>{
+  if(e.key!=='ArrowDown' && e.key!=='ArrowUp') return;
+  const rows=[...document.querySelectorAll('#idxBody a')];
+  const i=rows.indexOf(document.activeElement);
+  if(i<0) return;
+  e.preventDefault();
+  rows[(i + (e.key==='ArrowDown'?1:-1) + rows.length) % rows.length].focus();
+});
+document.getElementById('idx').addEventListener('click', e=>{
+  if(e.target.closest('a')) closeIndex();
+  else if(e.target.id==='idx') closeIndex();   // backdrop
+});
 
 /* ---- back to top ----
    Appears once you are past the first screen, so the top of the page

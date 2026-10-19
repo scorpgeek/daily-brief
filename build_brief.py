@@ -412,10 +412,18 @@ SECTIONS = {
     "traps": sec_traps, "speak": sec_speak, "quiz": sec_quiz, "skip": sec_skip,
 }
 
-DESK_ORDER = ["thirty", "top", "lens", "huddle", "deep", "longform",
-              "cats", "nums", "dates", "client", "verify", "context",
-              "opinion", "words", "terms", "hindi", "phrases",
-              "traps", "speak", "quiz", "skip"]
+# Groups for the desk edition. These drive the order sections render in and
+# the data-band attribute the Index dialog groups them by, so the two can
+# never disagree. The rail lists only seven of these; the Index lists all.
+DESK_BANDS = [
+    ("Start", ["thirty"]),
+    ("Use these", ["top", "lens", "huddle", "deep", "longform"]),
+    ("Reference", ["cats", "nums", "dates", "client", "verify", "context", "opinion"]),
+    ("Language", ["words", "terms", "hindi", "phrases", "traps", "speak",
+                  "quiz", "skip"]),
+]
+DESK_ORDER = [k for _, keys in DESK_BANDS for k in keys]
+BAND_OF = {k: label for label, keys in DESK_BANDS for k in keys}
 
 # (class, label, note, keys, open by default?)
 PHONE_BANDS = [
@@ -443,11 +451,15 @@ def build_desk(b, terms) -> str:
         if not got:
             continue
         num, title, flag, body = got
+        band = e(BAND_OF.get(key, ""))
         if key == "thirty":
-            out.append(body)          # plain block, no section heading
+            # sec_thirty emits its own <section>; add the band so the Index
+            # can group it alongside everything else.
+            out.append(body.replace('<section class="ts" id="thirty">',
+                                    f'<section class="ts" id="thirty" data-band="{band}">', 1))
             continue
         flag_html = f'<span class="sec-flag">{e(flag)}</span>' if flag else ""
-        out.append(f'<section id="{key}">\n'
+        out.append(f'<section id="{key}" data-band="{band}">\n'
                    f'<h2 class="sec"><span class="n">{e(num)}</span>{title}'
                    f"{flag_html}</h2>\n{body}\n</section>")
     return "\n\n".join(out)
