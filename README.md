@@ -43,6 +43,10 @@ click a term. Adds a glossary with the paper's own sentence and dated
 external sources, a provenance toggle that hides everything not from the
 paper, `Cmd/Ctrl+K` search, and reading-preference controls.
 
+Both editions carry a back-to-top button that appears once you are past the
+first screen. Seventeen folds stack a long way down and neither device has a
+useful Home key.
+
 The external-sourced material is always labelled. Nothing web-sourced is
 allowed into a news section; it appears only in the glossary and the
 `Context` blocks, which carry their own source lists.
@@ -53,7 +57,8 @@ allowed into a news section; it appears only in the glossary and the
 extract_pdf.py     PDF -> _raw/YYYY-MM-DD.txt
 build_brief.py     _raw/YYYY-MM-DD.json -> both HTML editions
 test_build.py      rejection paths for the build lints
-test_classes.py    every class the page uses has a CSS rule
+test_classes.py    CSS parses, and every class the page uses has a CSS rule
+test_css_parser.py proves that CSS check actually fires
 _tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
 _tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
 index.html         published phone sample
@@ -148,8 +153,9 @@ Install with `pip install pypdf`.
   column made long terms collide with the text beside them. The expansion is
   dropped when it only repeats the term, so the list reads `NIM`, not
   `NIM NIM`.
-- One 120 ms transition on the disclosure chevron, nothing else. Motion in a
-  late-night reading document is a cost, not a feature.
+- One 120 ms transition on the disclosure chevron, and one on the
+  back-to-top button's fade. Nothing else. Motion in a late-night reading
+  document is a cost, not a feature.
 - Tables are capped at 4 columns and always preceded by a sentence carrying
   the headline number, so a phone reader who never scrolls still gets it.
 - Part-of-speech is shown in the laptop vocab table and hidden on the phone,

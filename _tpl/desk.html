@@ -16,7 +16,7 @@
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --mono:ui-monospace,"SF Mono",Cascadia Code,Menlo,Consolas,monospace;
-  --fs:17px; --measure:74ch; --rail:236px; --drawer:0px;
+  --fs:17px; --measure:74ch; --rail:236px; --drawer:0px; --drawer-w:430px;
   /* phone-CSS variable aliases */
   --line-2:var(--line2); --panel-2:var(--panel2); --t-measure:var(--measure);
 }
@@ -32,6 +32,7 @@
   --shadow:0 1px 2px rgba(60,50,30,.06),0 12px 40px rgba(60,50,30,.08);
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
   margin:0;background:var(--bg);color:var(--ink);
   font:var(--fs)/1.62 var(--sans);-webkit-font-smoothing:antialiased;
@@ -49,7 +50,7 @@ body{
   opacity:0;pointer-events:none;transition:opacity .18s;
 }
 .app[data-drawer="open"] .drawer{opacity:1;pointer-events:auto}
-.app[data-drawer="open"]{grid-template-columns:var(--rail) minmax(0,1fr) 430px}
+.app[data-drawer="open"]{--drawer:var(--drawer-w)}
 
 /* ---------- rail ---------- */
 .brand{font:600 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:0 18px 4px}
@@ -205,7 +206,32 @@ mark.hidden{display:none}
   .app[data-drawer="open"] .drawer{transform:none}
   .tip{display:none}
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* ---------- back to top ----------
+   A 74-column reading column is a long scroll and the Index only covers
+   the sections that were in the rail. One utility, one 120ms opacity
+   fade to match the disclosure chevron — nothing else animates.
+   Right offset tracks the drawer so it never lands underneath it. */
+.totop{
+  position:fixed;z-index:50;bottom:24px;right:calc(24px + var(--drawer));
+  width:38px;height:38px;border-radius:50%;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line2);color:var(--muted);
+  box-shadow:var(--shadow);font:400 16px/1 var(--sans);
+  opacity:0;pointer-events:none;transition:opacity .12s;
+}
+.totop.show{opacity:1;pointer-events:auto}
+.totop:hover{color:var(--ink);border-color:var(--muted)}
+.totop:focus-visible{outline:2px solid var(--web);outline-offset:2px}
+/* The button is a sibling of .app, not a descendant, so it does not
+   inherit --drawer from it. Step aside when the drawer is open. */
+.app[data-drawer="open"] ~ .totop{right:calc(24px + var(--drawer-w))}
+@media (max-width:900px){
+  .totop{bottom:16px;right:16px}
+  /* narrow layout makes the drawer a fixed overlay, so no stepping aside */
+  .app[data-drawer="open"] ~ .totop{right:16px}
+}
 /* --- ported from phone --- */
 /* section flag, used by the desk <h2> header */
 .sec-flag{
@@ -510,6 +536,7 @@ blockquote p{margin:0 0 8px}
 </div>
 
 <div class="tip" id="tip"></div>
+<button class="totop" id="toTop" type="button" aria-label="Back to top" title="Back to top">&#8593;</button>
 
 <script>
 /* ================= GLOSSARY =================
@@ -600,6 +627,17 @@ function toggleTheme(){ const r=document.documentElement;
 (function(){ const f=localStorage.getItem('dbfs'), th=localStorage.getItem('dbth');
   if(f) setFS(+f); if(th) document.documentElement.dataset.theme=th;
   paintTheme(); })();
+
+/* ---- back to top ----
+   Appears once you are past the first screen, so the top of the page
+   stays clean. html{scroll-behavior:smooth} does the scrolling. */
+(function(){
+  const b = document.getElementById('toTop');
+  const onScroll = ()=>b.classList.toggle('show', window.scrollY > 600);
+  addEventListener('scroll', onScroll, {passive:true});
+  b.addEventListener('click', ()=>scrollTo({top:0, behavior:'smooth'}));
+  onScroll();
+})();
 
 /* ---- quiz ----
    One answer per question: the tap is marked, the right option is
