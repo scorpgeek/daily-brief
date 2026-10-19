@@ -489,7 +489,7 @@ def glossary_js(terms) -> str:
 # label an abbreviation and its expansion separately.
         '{k}: {{t:{k},exp:{e},def:{d},full:{f},paper:{p},page:{g},srcs:{s}}}'.format(
                 k=json.dumps(t["term"]),
-                e=json.dumps(t.get("exp") or t["term"]),
+                e=json.dumps(t.get("exp") or ""),
                 d=json.dumps(t["def"]),
                 f=json.dumps(t.get("full", "")),
                 p=json.dumps(t.get("paper", "")),
@@ -498,6 +498,26 @@ def glossary_js(terms) -> str:
             )
         )
     return "{" + ",\n ".join(payload) + "}"
+
+
+def lint_terms(b: dict) -> None:
+    """Every term must say whether it is an abbreviation, and say so honestly.
+
+    The rail prints the full form under the term; the drawer labels it
+    'abbreviation' or 'term'. Copying the term into `exp` to mean 'no
+    expansion' is the failure mode that shipped six entries reading
+    'NIM NIM' and one labelled a term when it is an abbreviation. Use an
+    empty string instead.
+    """
+    bad = []
+    for t in b.get("terms", []):
+        name = t.get("term", "?")
+        if "exp" not in t:
+            bad.append(f"{name}: no exp field — use \"\" if it is not an abbreviation")
+        elif t["exp"] == t.get("term"):
+            bad.append(f'{name}: exp repeats the term — use "" or the real full form')
+    if bad:
+        sys.exit("glossary: " + "; ".join(bad))
 
 
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> None:
@@ -582,6 +602,7 @@ def main() -> None:
 
     print(f"building {stem}")
     try:
+        lint_terms(b)
         if not desk_only:
             render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
         render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")

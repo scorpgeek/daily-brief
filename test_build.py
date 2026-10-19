@@ -29,11 +29,25 @@ def _bad_tag(d):
     return d
 
 
+def _exp_repeats_term(d):
+    d = json.loads(json.dumps(d))
+    d["terms"][0]["exp"] = d["terms"][0]["term"]
+    return d
+
+
+def _exp_missing(d):
+    d = json.loads(json.dumps(d))
+    del d["terms"][1]["exp"]
+    return d
+
+
 CASES = [
     ("missing date", None, "does-not-exist"),
     ("no top section", lambda d: {k: v for k, v in d.items() if k != "top"}, "no-top"),
     ("WATCH without watchFor", _strip_watchfor, "no-watchfor"),
     ("bad tag", _bad_tag, "bad-tag"),
+    ("exp repeats term", _exp_repeats_term, "exp-echo"),
+    ("exp field missing", _exp_missing, "exp-gone"),
 ]
 
 

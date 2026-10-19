@@ -494,7 +494,7 @@ let sel = null;
       `<tr><td data-k="${k}">${k}</td><td>${g.def}</td><td class="src">${srcTxt}</td></tr>`);
     gl.insertAdjacentHTML('beforeend',
       `<a data-jump="${k}"><span class="g-t">${k}</span>` +
-      (k===g.exp ? '' : `<span class="g-x">${g.exp.split('—')[0].trim()}</span>`) + `</a>`);
+      (g.exp && g.exp!==k ? `<span class="g-x">${g.exp.split('—')[0].trim()}</span>` : '') + `</a>`);
   });
 })();
 
@@ -515,7 +515,7 @@ function openDrawer(k){
   document.getElementById('dwrap').innerHTML = `
     <button class="dclose" onclick="closeDrawer()">&times;</button>
     <div class="dterm">${g.exp||k}</div>
-    <div class="dexp">${k} · ${k===g.exp?'term':'abbreviation'}</div>
+    <div class="dexp">${k} · ${g.exp?'abbreviation':'term'}</div>
     <div class="dsec" style="border:0;padding:0;margin-top:0"><p>${g.def}</p></div>
     ${g.full?`<div class="dsec"><h5>In full</h5><p>${g.full}</p></div>`:''}
     ${g.paper?`<div class="dsec"><h5>The paper's sentence</h5><div class="dquote">${g.paper}</div>
