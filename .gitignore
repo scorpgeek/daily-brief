@@ -6,6 +6,8 @@ PROMPT.md
 
 # Local artefacts
 *.log
+__pycache__/
+*.pyc
 .DS_Store
 Thumbs.db
 # Daily edition � TEMPLATE.html/index.html serve as the demo instead
