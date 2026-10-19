@@ -581,9 +581,13 @@ def main() -> None:
         sys.exit(f"brief is missing required field(s): {', '.join(missing)}")
 
     print(f"building {stem}")
-    if not desk_only:
-        render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
-    render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
+    try:
+        if not desk_only:
+            render("phone.html", b, os.path.join(HERE, stem + ".html"), "phone")
+        render("desk.html", b, os.path.join(HERE, stem + "-desk.html"), "desk")
+    except (ValueError, KeyError) as exc:
+        # A hand-written brief should fail with a sentence, not a traceback.
+        sys.exit(f"{stem}.json: {exc}")
 
 
 if __name__ == "__main__":
