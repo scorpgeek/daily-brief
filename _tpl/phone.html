@@ -463,6 +463,7 @@ blockquote p{margin:0 0 8px}
       <h1>{{DATE_LONG}}</h1>
     </div>
     <div class="meta">{{NEWSPAPER}} · {{PAGES}}pp</div>
+    <a class="toggle toggle-a" href="#" data-today>Today</a>
     <a class="toggle toggle-a" href="#" data-archive>Archive</a>
     <button class="toggle" id="thBtn" onclick="toggleTheme()">◐ Light</button>
   </div>
@@ -489,11 +490,15 @@ function darkNow(){ return document.documentElement.dataset.theme !== 'light'; }
   paintTheme();
 })();
 
-/* One template renders to the project root and into archive/, so the
-   relative path differs by one level. */
-document.querySelectorAll('[data-archive]').forEach(function(a){
-  a.href = /\/archive\//.test(location.pathname) ? '../ARCHIVE.html' : 'ARCHIVE.html';
-});
+/* One template renders to the project root and into archive/, so these
+   relative paths differ. An archived edition opens today's phone build. */
+(function(){
+  var up = /\/archive\//.test(location.pathname) ? '../' : '';
+  var map = {'[data-archive]':'ARCHIVE.html', '[data-today]':'phone.html'};
+  Object.keys(map).forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(a){ a.href = up + map[sel]; });
+  });
+})();
 
 /* Appears once you are past the first screen; html{scroll-behavior:smooth}
    does the scrolling. */

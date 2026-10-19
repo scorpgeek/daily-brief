@@ -1,0 +1,37 @@
+Give every edition a way back to today
+
+An archived edition had nowhere to go. The Archive link was on the current
+editions but nothing pointed forward, so opening a past day was a dead
+end -- and the 18th, which predates even the Archive link, was doubly
+stuck.
+
+- both editions now carry Today and Archive side by side: the laptop top
+  bar, and the phone masthead
+- the paths are resolved at runtime because the same file is served from
+  the root and from archive/, one level deeper. An archived phone edition
+  opens today's phone edition, not today's laptop one
+- checked in all five locations: both root aliases, the 18th, and both 19th
+  editions all resolve correctly
+
+The 18th was patched rather than rebuilt -- there is no JSON brief for that
+day, and re-deriving one would mean inventing figures. Navigation only,
+one comment in the file saying so, not one word of the briefing changed.
+
+Two things that went wrong doing it, both caught:
+
+- the patcher's first version used re.sub against a trailing-only </body>
+  pattern, which matched nothing because </html> follows. It reported
+  success. It now inserts by index and refuses to write if the result
+  does not contain what it intended to add.
+- its idempotence guard checked for the links alone, so a run that added
+  the links but failed to add the script looked "already done" on retry,
+  and a retry added them twice. The guard now keys on a marker only the
+  finished patch produces, and the script verifies the anchor count and
+  script count before writing. Restored from git and applied once clean.
+
+test_classes.py now verifies the nav hooks are actually wired to a
+resolver. It ships as href="#" because the same file lives at two depths,
+so if the resolver is renamed the links silently do nothing. The first
+version of that check used a substring test and passed on a deliberately
+broken copy, since [data-archiveX] still contains data-archive; it now
+matches the bracketed selector and fires.

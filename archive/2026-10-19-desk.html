@@ -580,6 +580,7 @@ blockquote p{margin:0 0 8px}
     </div>
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
     <button class="tbtn" onclick="openIndex()">Index</button>
+    <a class="tbtn tbtn-a" href="#" data-today>Today</a>
     <a class="tbtn tbtn-a" href="#" data-archive>Archive</a>
     <div class="prog" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progBar"></i></div>
   </div>
@@ -939,14 +940,19 @@ document.getElementById('idx').addEventListener('click', e=>{
   else if(e.target.id==='idx') closeIndex();   // backdrop
 });
 
-/* ---- archive link ----
-   One template renders to the project root and into archive/, so the
-   relative path differs by one level. Resolving it here means the same
-   file works opened as desk.html, as an archived edition, or straight off
-   the filesystem. */
-document.querySelectorAll('[data-archive]').forEach(function(a){
-  a.href = /\/archive\//.test(location.pathname) ? '../ARCHIVE.html' : 'ARCHIVE.html';
-});
+/* ---- navigation between editions ----
+   One template renders to the project root and into archive/, which is one
+   level deeper, so these relative paths differ. Resolving them here means
+   the same file works opened as desk.html, as an archived edition, or
+   straight off the filesystem. An archived edition opens today's laptop
+   build, not today's phone one. */
+(function(){
+  var up = /\/archive\//.test(location.pathname) ? '../' : '';
+  var map = {'[data-archive]':'ARCHIVE.html', '[data-today]':'desk.html'};
+  Object.keys(map).forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(a){ a.href = up + map[sel]; });
+  });
+})();
 
 /* ---- back to top ----
    Appears once you are past the first screen, so the top of the page

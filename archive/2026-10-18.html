@@ -41,6 +41,8 @@ button.ctl{font:500 12px/1 var(--sans);padding:7px 12px;border-radius:999px;
   border:1px solid var(--line);background:var(--panel);color:var(--muted);
   cursor:pointer;transition:.15s}
 button.ctl:hover{color:var(--ink);border-color:var(--ink)}
+/* archive navigation */
+.ctl-a{display:inline-block;text-decoration:none}
 
 .lead{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
   margin-bottom:44px}
@@ -138,6 +140,8 @@ button.ctl:hover{color:var(--ink);border-color:var(--ink)}
       <span class="tally">5 leads · 38 items · 10 reads</span>
     </div>
     <div class="tools">
+      <a class="ctl ctl-a" href="#" data-today>Today</a>
+      <a class="ctl ctl-a" href="#" data-archive>Archive</a>
       <button class="ctl" onclick="toggleTheme()">Theme</button>
       <button class="ctl" onclick="window.print()">Print</button>
     </div>
@@ -856,6 +860,19 @@ function toggleTheme(){
   const r=document.documentElement;
   r.dataset.theme = r.dataset.theme==="light" ? "dark" : "light";
 }
+</script>
+<script>
+/* Navigation only. The briefing content below is exactly as built on the
+   18th; this file predates the links the newer editions carry. */
+(function(){
+  var up = /\/archive\//.test(location.pathname) ? '../' : '';
+  var map = {'[data-archive]':'ARCHIVE.html', '[data-today]':'phone.html'};
+  Object.keys(map).forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(a){ a.href = up + map[sel]; });
+  });
+  var th = localStorage.getItem('dbth');
+  if(th) document.documentElement.dataset.theme = th;
+})();
 </script>
 </body>
 </html>

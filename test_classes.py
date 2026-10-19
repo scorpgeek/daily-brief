@@ -105,6 +105,17 @@ def check_elements(path):
         if wanted not in classes:
             problems.append(f"querySelector('.{wanted}') -> no element has that class")
 
+    # Nav links ship as href="#" because the same file is served from the
+    # root and from archive/, which is one level deeper. If the resolver is
+    # renamed or removed they stay at "#" and silently do nothing, so check
+    # the hooks are actually wired.
+    for hook in sorted(set(re.findall(r"\b(data-(?:archive|today))[\s>]", html_only))):
+        # match the bracketed selector, not a bare substring: "[data-archiveX]"
+        # contains "data-archive" and would pass a substring test while being
+        # exactly the rename this is meant to catch
+        if f"[{hook}]" not in js:
+            problems.append(f"{hook} anchors present but no script resolves them")
+
     return problems
 
 
