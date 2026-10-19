@@ -297,6 +297,84 @@ mark.hidden{display:none}
   font:400 10.5px/1.4 var(--mono);color:var(--faint);
 }
 
+/* ---------- read aloud ----------
+   A panel rather than a toolbar: the section list is the point, and a
+   popover would hide it behind a scroll. Uses the same dialog pattern as
+   the Index, so focus trapping and Escape are the browser's job. */
+.tts{
+  border:1px solid var(--line2);border-radius:14px;padding:0;
+  background:var(--panel);color:var(--ink);
+  width:min(460px,92vw);max-height:86vh;
+  box-shadow:var(--shadow);
+}
+.tts::backdrop{background:rgba(20,18,14,.42);backdrop-filter:blur(2px)}
+/* Flex only while open. Setting display on the dialog at all would defeat
+   the user-agent rule that keeps a closed dialog hidden. */
+.tts[open]{display:flex;flex-direction:column}
+.tts-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 0;
+}
+.tts-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.tts-now{
+  margin:12px 18px 0;padding:10px 12px;border-radius:9px;
+  background:var(--panel2);border:1px solid var(--line);
+  font:500 13px/1.4 var(--sans);color:var(--ink);
+}
+.tts-ctl{display:flex;align-items:center;gap:7px;padding:12px 18px 0;flex-wrap:wrap}
+.tts-b{
+  font:500 12px/1 var(--sans);padding:9px 12px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-b:hover{color:var(--ink);border-color:var(--line2)}
+.tts-p{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:74px}
+.tts-p:hover{color:var(--panel);background:var(--ink);opacity:.88}
+.tts-rate{display:flex;gap:4px;margin-left:auto}
+.tts-rate button{
+  font:500 11px/1 var(--mono);padding:8px 9px;border-radius:7px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-rate button.on{color:var(--ink);border-color:var(--line2);background:var(--panel2)}
+.tts-vl{
+  display:block;margin:12px 18px 4px;
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+}
+.tts-v{
+  display:block;width:calc(100% - 36px);margin:0 18px;
+  font:500 12px/1 var(--sans);padding:9px 10px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+}
+.tts-list{
+  margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
+  flex:1 1 auto;min-height:100px;
+  background:none;border:0;border-radius:0;
+}
+.tts-g{
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:12px 10px 7px;
+}
+.tts-i{
+  display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  padding:8px 10px;border:0;border-radius:7px;background:none;cursor:pointer;
+}
+.tts-i:hover{background:var(--panel2)}
+.tts-i .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right;min-width:22px}
+.tts-i .t{font:500 12.5px/1.4 var(--sans);color:var(--muted)}
+.tts-i.on{background:var(--panel2)}
+.tts-i.on .t{color:var(--ink)}
+.tts-i.on .n{color:var(--use)}
+.tts-f{
+  margin:0;padding:10px 18px 16px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+/* The list takes the slack; the controls never shrink. */
+.tts-h,.tts-now,.tts-ctl,.tts-vl,.tts-v,.tts-f{flex:0 0 auto}
+
+/* The word being read. A tint of the accent rather than a solid block, so
+   the text underneath keeps its contrast -- the highlight is a reading aid,
+   not a re-colouring of the sentence. */
+.spoken{background:color-mix(in srgb, var(--ref) 30%, transparent);border-radius:2px}
+
 /* ---------- back to top ----------
    A 74-column reading column is a long scroll and the Index only covers
    the sections that were in the rail. One utility, one 120ms opacity
@@ -615,6 +693,7 @@ blockquote p{margin:0 0 8px}
       <kbd>⌘K</kbd>
     </div>
     <button class="tbtn" id="thBtn" onclick="toggleTheme()">◐ Light</button>
+    <button class="tbtn" data-tts-open>Listen</button>
     <button class="tbtn" onclick="openIndex()">Index</button>
     <details class="pnav" id="pnav"><summary>The Hindu<span class="pnav-c" aria-hidden="true"></span></summary><div class="pnav-menu"><div class="pnav-h">Switch newspaper</div><div class="pnav-row"><span class="pnav-name">ET Delhi</span><a class="pnav-l" href="../et-desk.html">Laptop</a><a class="pnav-l" href="../et.html">Phone</a></div><div class="pnav-row pnav-cur"><span class="pnav-name">The Hindu<span class=pnav-now>you are here</span></span><a class="pnav-l" href="../hindu-desk.html">Laptop</a><a class="pnav-l" href="../hindu.html">Phone</a></div></div></details>
     <a class="tbtn tbtn-a" href="#" data-archive>Archive</a>
@@ -629,6 +708,32 @@ blockquote p{margin:0 0 8px}
     <div class="idx-b" id="idxBody"></div>
     <p class="idx-f">&uarr;&darr; to move &middot; Enter to jump &middot; Esc to close</p>
   </dialog>
+
+  <dialog class="tts" id="tts" aria-label="Read aloud">
+    <div class="tts-h">
+      <span class="tts-t">Listen</span>
+      <button class="idx-x" id="ttsClose" aria-label="Close">&times;</button>
+    </div>
+    <p class="tts-now" id="ttsNow">Press play to start reading.</p>
+    <div class="tts-ctl">
+      <button class="tts-b" id="ttsBack" aria-label="Previous section">&larr;</button>
+      <button class="tts-b tts-p" id="ttsPlay" aria-pressed="false">Play</button>
+      <button class="tts-b" id="ttsStop" aria-label="Stop">&#9632;</button>
+      <div class="tts-rate" id="ttsRate" role="group" aria-label="Speed">
+        <button data-rate="0.8">0.8&times;</button>
+        <button data-rate="1" class="on">1&times;</button>
+        <button data-rate="1.15">1.15&times;</button>
+      </div>
+    </div>
+    <label class="tts-vl" for="ttsVoice">Voice</label>
+    <select class="tts-v" id="ttsVoice"></select>
+    <div class="tts-list" id="ttsList"></div>
+    <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
+  </dialog>
+
+  <template id="ttsRow">
+    <button class="tts-i"><span class="n"></span><span class="t"></span></button>
+  </template>
 
   <div class="main"><div class="res" id="res"></div><section class="ts" id="thirty" data-band="Start"><h2>30 seconds</h2><dl class="ts-row"><dt>Today</dt><dd>Kolkata stampede toll rises to 19 with an SIT promised and Kolkata police kept out; Delhi pandal organisers say a 10 p.m. forced closure is squeezing the crowd window and worsening the very risk it is meant to fix.</dd><dt>Do this</dt><dd>Mark every point on one roster you own where slack was removed to hit a target, and name what absorbs the difference now. The two stories on today&#x27;s front page are one operational failure told twice.</dd><dt>By when</dt><dd>Oct 20 Amit Shah visits Punjab, and the third T20I is at 7 p.m. Oct 22 the New Zealand T20I tour and the Kuki shutdown of NH-202 both begin. Nov 1 the CISF reorganisation takes effect.</dd></dl></section>
 
@@ -1110,6 +1215,396 @@ document.addEventListener('keydown', e=>{
     if(first){ e.preventDefault(); first.click(); }
   }
 });
+</script>
+<script>
+/* ---- listen: the briefing read aloud ----
+
+   The browser's own speech engine, so a briefing still costs nothing to
+   build, needs no key, and works on a phone with no connection.
+
+   The text is read in blocks -- paragraphs, list items, tables -- rather
+   than as one long utterance. Two reasons. Chrome silently truncates an
+   utterance at about fifteen seconds, and a single utterance gives nowhere
+   to show how far the reading has got. Blocks also make the word
+   highlighting possible, because the offsets the engine reports line up
+   with the text nodes of one block.
+
+   A keep-alive timer pauses and resumes the utterance every nine seconds,
+   which is the long-standing workaround for that same Chrome bug on the
+   occasional block that still runs long. */
+
+(function(){
+  var synth = window.speechSynthesis;
+  var dlg = document.getElementById('tts');
+  if(!synth || !dlg) return;
+
+  var elNow   = document.getElementById('ttsNow');
+  var elList  = document.getElementById('ttsList');
+  var elPlay  = document.getElementById('ttsPlay');
+  var elStop  = document.getElementById('ttsStop');
+  var elBack  = document.getElementById('ttsBack');
+  var elRate  = document.getElementById('ttsRate');
+  var elVoice = document.getElementById('ttsVoice');
+  var elClose = document.getElementById('ttsClose');
+
+  var rate = 1, voice = null, units = [], queue = [], qi = -1;
+  var cur = null, keep = null, playing = false, stopped = true;
+  var markEl = null, lastUnit = null;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  /* ---- reading units ---------------------------------------------- */
+
+  function titleOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    if(!h) return '';
+    var n = h.querySelector('.n, .sec-n'), f = h.querySelector('.sec-flag');
+    var s = h.textContent || '';
+    if(n) s = s.replace(n.textContent, '');
+    if(f) s = s.replace(f.textContent, '');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  function numOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    var n = h && h.querySelector('.n, .sec-n');
+    return n ? n.textContent.trim() : '';
+  }
+
+  /* One band mechanism for both editions. The desk marks each section with
+     data-band; the phone marks each band wrapper, and the section inherits
+     it from there. */
+  function bandOf(el){
+    var host = (el.dataset && el.dataset.band) ? el : el.closest('[data-band]');
+    return (host && host.dataset) ? host.dataset.band : '';
+  }
+
+  function unitsOf(){
+    var out = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll('section[id], details[data-sec]'),
+      function(el){
+        if(el.closest('dialog') || el.closest('.rail')) return;
+        out.push({el:el, num:numOf(el), title:titleOf(el), band:bandOf(el)});
+      });
+    return out;
+  }
+
+  /* ---- text extraction --------------------------------------------- */
+
+  /* Leaf blocks only. A list item containing a paragraph is read once, as
+     the item, rather than twice. */
+  var BLOCKS = 'p,li,h4,h5,dt,dd,blockquote,table';
+
+  function blocksOf(el){
+    var out = [];
+    Array.prototype.forEach.call(el.querySelectorAll(BLOCKS), function(n){
+      if(n.querySelector(BLOCKS)) return;
+      out.push(n);
+    });
+    return out;
+  }
+
+  /* The text and the text nodes it came from. The engine reports word
+     offsets into the string it was given, so the string has to be built the
+     same way when speaking and when highlighting. */
+  function walk(block){
+    var walker = document.createTreeWalker(block, 4);
+    var parts = [], text = '', n;
+    while((n = walker.nextNode())){
+      var t = (n.nodeValue || '').replace(/\s+/g, ' ');
+      if(!t) continue;
+      parts.push({node:n, text:t, start:text.length});
+      text += t;
+    }
+    return {parts:parts, text:text};
+  }
+
+  function textOf(block){
+    if(block.tagName === 'TABLE'){
+      var rows = [];
+      var cap = block.querySelector('caption');
+      if(cap){
+        var c = (cap.textContent || '').replace(/\s+/g, ' ').trim();
+        if(c) rows.push(c);
+      }
+      Array.prototype.forEach.call(block.querySelectorAll('tr'), function(tr){
+        var cells = [];
+        Array.prototype.forEach.call(tr.children, function(td){
+          cells.push((td.textContent || '').replace(/\s+/g, ' ').trim());
+        });
+        if(cells.length) rows.push(cells.join(', '));
+      });
+      return rows.join('. ');
+    }
+    return walk(block).text;
+  }
+
+  function buildQueue(){
+    queue = [];
+    units.forEach(function(u){
+      blocksOf(u.el).forEach(function(bl){
+        var t = textOf(bl);
+        if(t && t.length) queue.push({unit:u, block:bl, text:t});
+      });
+    });
+  }
+
+  /* ---- highlighting ------------------------------------------------- */
+
+  function clearMark(){
+    if(!markEl) return;
+    var parent = markEl.parentNode, txt = markEl.textContent;
+    if(parent) parent.replaceChild(document.createTextNode(txt), markEl);
+    markEl = null;
+  }
+
+  function mark(block, start, len){
+    clearMark();
+    if(!len) return;
+    var w = walk(block);
+    if(start >= w.text.length) return;
+    var part = null, off = 0;
+    for(var i = 0; i < w.parts.length; i++){
+      var p = w.parts[i];
+      if(start < p.start + p.text.length){ part = p; off = start - p.start; break; }
+    }
+    if(!part) return;
+    var node = part.node, full = node.nodeValue;
+    var s = Math.max(0, off);
+    var e = Math.min(full.length, off + len);
+    if(e <= s) return;
+    var parent = node.parentNode;
+    if(!parent) return;
+    var sp = document.createElement('span');
+    sp.className = 'spoken';
+    sp.textContent = full.slice(s, e);
+    if(s > 0) parent.insertBefore(document.createTextNode(full.slice(0, s)), node);
+    var tail = null;
+    if(e < full.length) tail = document.createTextNode(full.slice(e));
+    parent.replaceChild(sp, node);
+    if(tail) parent.insertBefore(tail, sp.nextSibling);
+    markEl = sp;
+  }
+
+  /* ---- the section list --------------------------------------------- */
+
+  function buildList(){
+    var tpl = document.getElementById('ttsRow');
+    if(!tpl) return;
+    var frag = document.createDocumentFragment();
+    var band = null;
+    units.forEach(function(u, i){
+      var b = u.band || 'Start';
+      if(b !== band){
+        band = b;
+        var g = document.createElement('div');
+        g.className = 'tts-g';
+        g.textContent = b;
+        frag.appendChild(g);
+      }
+      var row = tpl.content.firstElementChild.cloneNode(true);
+      row.setAttribute('data-i', i);
+      row.querySelector('.n').textContent = u.num || '';
+      row.querySelector('.t').textContent = u.title || '30 seconds';
+      frag.appendChild(row);
+    });
+    elList.innerHTML = '';
+    elList.appendChild(frag);
+    Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b){
+      b.addEventListener('click', function(){ startAt(+b.getAttribute('data-i')); });
+    });
+  }
+
+  function showNow(item){
+    var u = item.unit;
+    elNow.textContent = (u.num ? u.num + ' · ' : '') + (u.title || '30 seconds');
+    if(u !== lastUnit){
+      lastUnit = u;
+      Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b, i){
+        b.classList.toggle('on', units[i] === u);
+      });
+      try{ u.el.scrollIntoView({block:'start', behavior:'smooth'}); }catch(e){}
+    }
+  }
+
+  /* ---- speaking ------------------------------------------------------ */
+
+  function keepAlive(){
+    clearTimeout(keep);
+    keep = setTimeout(function(){
+      if(!synth.speaking) return;
+      synth.pause();
+      synth.resume();
+      keepAlive();
+    }, 9000);
+  }
+
+  function speakNext(){
+    if(stopped) return;
+    if(qi + 1 >= queue.length){ finish(); return; }
+    qi++;
+    var item = queue[qi];
+    cur = item;
+    showNow(item);
+    var u = new SpeechSynthesisUtterance(item.text);
+    u.rate = rate;
+    if(voice) u.voice = voice;
+    u.onboundary = function(ev){
+      if(ev.name && ev.name !== 'word') return;
+      mark(item.block, ev.charIndex, ev.charLength || 0);
+    };
+    u.onend = function(){ if(!stopped) speakNext(); };
+    u.onerror = function(){ if(!stopped) speakNext(); };
+    synth.speak(u);
+    keepAlive();
+  }
+
+  function startAt(unitIndex){
+    var target = -1;
+    for(var i = 0; i < queue.length; i++){
+      if(queue[i].unit === units[unitIndex]){ target = i; break; }
+    }
+    if(target < 0) return;
+    synth.cancel();
+    clearTimeout(keep);
+    clearMark();
+    qi = target - 1;
+    stopped = false;
+    playing = true;
+    setPlay();
+    speakNext();
+  }
+
+  function finish(){
+    playing = false;
+    stopped = true;
+    clearTimeout(keep);
+    setPlay();
+  }
+
+  function stop(){
+    stopped = true;
+    playing = false;
+    clearTimeout(keep);
+    try{ synth.cancel(); }catch(e){}
+    clearMark();
+    lastUnit = null;
+    setPlay();
+  }
+
+  function setPlay(){
+    if(elPlay) elPlay.textContent = playing ? 'Pause' : 'Play';
+    if(elPlay) elPlay.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  }
+
+  /* ---- voices -------------------------------------------------------- */
+
+  /* Voices load asynchronously in most browsers, so the list is filled now
+     and again when it changes. A Canadian account wants en-GB; an Indian
+     accent is the next best fit, and en-US last. */
+  function fillVoices(){
+    if(!elVoice) return;
+    var all = synth.getVoices() || [];
+    var eng = all.filter(function(v){ return /^en/i.test(v.lang); });
+    if(!eng.length) return;
+    eng.sort(function(a, b){
+      var rank = function(v){
+        if(/en-GB/i.test(v.lang)) return 0;
+        if(/en-IN/i.test(v.lang)) return 1;
+        if(/^en/i.test(v.lang)) return 2;
+        return 3;
+      };
+      return rank(a) - rank(b);
+    });
+    if(elVoice.options.length === eng.length
+       && elVoice.options.length
+       && elVoice.options[0].value === eng[0].voiceURI) return;
+    elVoice.innerHTML = eng.map(function(v){
+      return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '</option>';
+    }).join('');
+    voice = eng[0];
+    elVoice.value = voice.voiceURI;
+    elVoice.addEventListener('change', function(){
+      var pick = eng.filter(function(v){ return v.voiceURI === elVoice.value; })[0];
+      if(pick) voice = pick;
+    });
+  }
+
+  if(synth.addEventListener) synth.addEventListener('voiceschanged', fillVoices);
+  fillVoices();
+
+  /* ---- controls ------------------------------------------------------ */
+
+  if(elPlay) elPlay.addEventListener('click', function(){
+    if(playing){
+      synth.pause();
+      playing = false;
+      setPlay();
+      return;
+    }
+    if(stopped){
+      if(!units.length) return;
+      units = unitsOf();
+      buildQueue();
+      buildList();
+      startAt(0);
+      return;
+    }
+    synth.resume();
+    playing = true;
+    setPlay();
+  });
+
+  if(elStop) elStop.addEventListener('click', stop);
+
+  if(elBack) elBack.addEventListener('click', function(){
+    if(!cur) return;
+    var idx = units.indexOf(cur.unit);
+    if(idx > 0) startAt(idx - 1);
+  });
+
+  if(elClose) elClose.addEventListener('click', function(){
+    stop();
+    dlg.close();
+  });
+
+  dlg.addEventListener('click', function(e){
+    if(e.target.closest('a')) return;
+    if(e.target === dlg) stop();
+  });
+
+  if(elRate){
+    Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(b){
+      b.addEventListener('click', function(){
+        rate = parseFloat(b.getAttribute('data-rate')) || 1;
+        Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(o){
+          o.classList.toggle('on', o === b);
+        });
+      });
+    });
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-tts-open]'),
+    function(b){
+      b.addEventListener('click', function(){
+        if(dlg.open) return;
+        units = unitsOf();
+        buildQueue();
+        buildList();
+        dlg.showModal();
+      });
+    });
+
+  /* Opening the panel must not leave the phone's sheet half-drawn. */
+  dlg.addEventListener('close', function(){ clearMark(); });
+})();
+
 </script>
 </body>
 </html>

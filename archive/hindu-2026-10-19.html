@@ -472,12 +472,98 @@ blockquote p{margin:0 0 8px}
   border-left:2px solid var(--line-2);
 }
 
+/* ---------- read aloud ----------
+   A bottom sheet, not a centred panel: this edition is read one-handed,
+   often at night, and the section list is the control that matters.
+   Native <dialog>, so the focus trap and Escape are the browser's job
+   and the backdrop comes for free. */
+.tts{
+  border:0;padding:0;margin:0;
+  position:fixed;inset:auto 0 0 0;
+  width:100%;max-width:100%;max-height:88vh;
+  background:var(--panel);color:var(--ink);
+  border-radius:16px 16px 0 0;box-shadow:var(--shadow);
+}
+.tts::backdrop{background:rgba(12,11,9,.5);backdrop-filter:blur(2px)}
+/* Flex only while open. Setting display on the dialog at all would defeat
+   the user-agent rule that keeps a closed dialog hidden. */
+.tts[open]{display:flex;flex-direction:column}
+.tts-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 0;
+}
+.tts-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.tts-x{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;
+}
+.tts-x:hover{color:var(--ink);background:var(--panel-2)}
+.tts-now{
+  margin:12px 18px 0;padding:11px 13px;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--line);
+  font:500 13px/1.4 var(--sans);color:var(--ink);
+}
+.tts-ctl{display:flex;align-items:center;gap:7px;padding:12px 18px 0;flex-wrap:wrap}
+.tts-b{
+  font:500 12.5px/1 var(--sans);padding:11px 13px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-b:hover{color:var(--ink);border-color:var(--line-2)}
+.tts-p{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:84px}
+.tts-p:hover{color:var(--panel);background:var(--ink);opacity:.88}
+.tts-rate{display:flex;gap:4px;margin-left:auto}
+.tts-rate button{
+  font:500 11px/1 var(--mono);padding:10px 9px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-rate button.on{color:var(--ink);border-color:var(--line-2);background:var(--panel-2)}
+.tts-vl{
+  display:block;margin:14px 18px 5px;
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+}
+.tts-v{
+  display:block;width:calc(100% - 36px);margin:0 18px;
+  font:500 12.5px/1 var(--sans);padding:11px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+}
+.tts-list{
+  margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
+  flex:1 1 auto;min-height:90px;
+  background:none;border:0;border-radius:0;
+}
+.tts-g{
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:13px 10px 7px;
+}
+.tts-i{
+  display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  padding:10px;border:0;border-radius:8px;background:none;cursor:pointer;
+}
+.tts-i:hover{background:var(--panel-2)}
+.tts-i .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right;min-width:24px}
+.tts-i .t{font:500 13px/1.4 var(--sans);color:var(--muted)}
+.tts-i.on{background:var(--panel-2)}
+.tts-i.on .t{color:var(--ink)}
+.tts-i.on .n{color:var(--use)}
+.tts-f{
+  margin:0;padding:11px 18px 20px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+/* The list takes the slack; the controls never shrink. */
+.tts-h,.tts-now,.tts-ctl,.tts-vl,.tts-v,.tts-f{flex:0 0 auto}
+
+/* The word being read. A tint of the accent rather than a solid block, so
+   the text underneath keeps its contrast -- the highlight is a reading aid,
+   not a re-colouring of the sentence. */
+.spoken{background:color-mix(in srgb, var(--ref) 30%, transparent);border-radius:2px}
+
 /* ---------- print ---------- */
 @media print{
   :root{--shadow:none}
   body{background:#fff;font-size:10.5pt}
   .mast{position:static}
   .toggle{display:none}
+  .tts{display:none}
   .sec{break-inside:avoid;border-color:#ccc;margin-bottom:8px}
   .sec:not([open])>.sec-body{display:block}
   .band{margin-top:20px}
@@ -501,10 +587,37 @@ blockquote p{margin:0 0 8px}
     </div>
     <div class="meta">The Hindu · 22pp</div>
     <details class="pnav" id="pnav"><summary>The Hindu<span class="pnav-c" aria-hidden="true"></span></summary><div class="pnav-menu"><div class="pnav-h">Switch newspaper</div><div class="pnav-row"><span class="pnav-name">ET Delhi</span><a class="pnav-l" href="../et-desk.html">Laptop</a><a class="pnav-l" href="../et.html">Phone</a></div><div class="pnav-row pnav-cur"><span class="pnav-name">The Hindu<span class=pnav-now>you are here</span></span><a class="pnav-l" href="../hindu-desk.html">Laptop</a><a class="pnav-l" href="../hindu.html">Phone</a></div></div></details>
+    <button class="toggle" data-tts-open>Listen</button>
     <a class="toggle toggle-a" href="#" data-archive>Archive</a>
     <button class="toggle" id="thBtn" onclick="toggleTheme()">◐ Light</button>
   </div>
 </header>
+
+<dialog class="tts" id="tts" aria-label="Read aloud">
+  <div class="tts-h">
+    <span class="tts-t">Listen</span>
+    <button class="tts-x" id="ttsClose" aria-label="Close">&times;</button>
+  </div>
+  <p class="tts-now" id="ttsNow">Press play to start reading.</p>
+  <div class="tts-ctl">
+    <button class="tts-b" id="ttsBack" aria-label="Previous section">&larr;</button>
+    <button class="tts-b tts-p" id="ttsPlay" aria-pressed="false">Play</button>
+    <button class="tts-b" id="ttsStop" aria-label="Stop">&#9632;</button>
+    <div class="tts-rate" id="ttsRate" role="group" aria-label="Speed">
+      <button data-rate="0.8">0.8&times;</button>
+      <button data-rate="1" class="on">1&times;</button>
+      <button data-rate="1.15">1.15&times;</button>
+    </div>
+  </div>
+  <label class="tts-vl" for="ttsVoice">Voice</label>
+  <select class="tts-v" id="ttsVoice"></select>
+  <div class="tts-b tts-list" id="ttsList"></div>
+  <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
+</dialog>
+
+<template id="ttsRow">
+  <button class="tts-i"><span class="n"></span><span class="t"></span></button>
+</template>
 
 <button class="totop" id="toTop" type="button" aria-label="Back to top">&#8593;</button>
 
@@ -575,26 +688,416 @@ document.addEventListener('click', function(e){
   z.classList.add('done');
 });
 </script>
+<script>
+/* ---- listen: the briefing read aloud ----
+
+   The browser's own speech engine, so a briefing still costs nothing to
+   build, needs no key, and works on a phone with no connection.
+
+   The text is read in blocks -- paragraphs, list items, tables -- rather
+   than as one long utterance. Two reasons. Chrome silently truncates an
+   utterance at about fifteen seconds, and a single utterance gives nowhere
+   to show how far the reading has got. Blocks also make the word
+   highlighting possible, because the offsets the engine reports line up
+   with the text nodes of one block.
+
+   A keep-alive timer pauses and resumes the utterance every nine seconds,
+   which is the long-standing workaround for that same Chrome bug on the
+   occasional block that still runs long. */
+
+(function(){
+  var synth = window.speechSynthesis;
+  var dlg = document.getElementById('tts');
+  if(!synth || !dlg) return;
+
+  var elNow   = document.getElementById('ttsNow');
+  var elList  = document.getElementById('ttsList');
+  var elPlay  = document.getElementById('ttsPlay');
+  var elStop  = document.getElementById('ttsStop');
+  var elBack  = document.getElementById('ttsBack');
+  var elRate  = document.getElementById('ttsRate');
+  var elVoice = document.getElementById('ttsVoice');
+  var elClose = document.getElementById('ttsClose');
+
+  var rate = 1, voice = null, units = [], queue = [], qi = -1;
+  var cur = null, keep = null, playing = false, stopped = true;
+  var markEl = null, lastUnit = null;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  /* ---- reading units ---------------------------------------------- */
+
+  function titleOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    if(!h) return '';
+    var n = h.querySelector('.n, .sec-n'), f = h.querySelector('.sec-flag');
+    var s = h.textContent || '';
+    if(n) s = s.replace(n.textContent, '');
+    if(f) s = s.replace(f.textContent, '');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  function numOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    var n = h && h.querySelector('.n, .sec-n');
+    return n ? n.textContent.trim() : '';
+  }
+
+  /* One band mechanism for both editions. The desk marks each section with
+     data-band; the phone marks each band wrapper, and the section inherits
+     it from there. */
+  function bandOf(el){
+    var host = (el.dataset && el.dataset.band) ? el : el.closest('[data-band]');
+    return (host && host.dataset) ? host.dataset.band : '';
+  }
+
+  function unitsOf(){
+    var out = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll('section[id], details[data-sec]'),
+      function(el){
+        if(el.closest('dialog') || el.closest('.rail')) return;
+        out.push({el:el, num:numOf(el), title:titleOf(el), band:bandOf(el)});
+      });
+    return out;
+  }
+
+  /* ---- text extraction --------------------------------------------- */
+
+  /* Leaf blocks only. A list item containing a paragraph is read once, as
+     the item, rather than twice. */
+  var BLOCKS = 'p,li,h4,h5,dt,dd,blockquote,table';
+
+  function blocksOf(el){
+    var out = [];
+    Array.prototype.forEach.call(el.querySelectorAll(BLOCKS), function(n){
+      if(n.querySelector(BLOCKS)) return;
+      out.push(n);
+    });
+    return out;
+  }
+
+  /* The text and the text nodes it came from. The engine reports word
+     offsets into the string it was given, so the string has to be built the
+     same way when speaking and when highlighting. */
+  function walk(block){
+    var walker = document.createTreeWalker(block, 4);
+    var parts = [], text = '', n;
+    while((n = walker.nextNode())){
+      var t = (n.nodeValue || '').replace(/\s+/g, ' ');
+      if(!t) continue;
+      parts.push({node:n, text:t, start:text.length});
+      text += t;
+    }
+    return {parts:parts, text:text};
+  }
+
+  function textOf(block){
+    if(block.tagName === 'TABLE'){
+      var rows = [];
+      var cap = block.querySelector('caption');
+      if(cap){
+        var c = (cap.textContent || '').replace(/\s+/g, ' ').trim();
+        if(c) rows.push(c);
+      }
+      Array.prototype.forEach.call(block.querySelectorAll('tr'), function(tr){
+        var cells = [];
+        Array.prototype.forEach.call(tr.children, function(td){
+          cells.push((td.textContent || '').replace(/\s+/g, ' ').trim());
+        });
+        if(cells.length) rows.push(cells.join(', '));
+      });
+      return rows.join('. ');
+    }
+    return walk(block).text;
+  }
+
+  function buildQueue(){
+    queue = [];
+    units.forEach(function(u){
+      blocksOf(u.el).forEach(function(bl){
+        var t = textOf(bl);
+        if(t && t.length) queue.push({unit:u, block:bl, text:t});
+      });
+    });
+  }
+
+  /* ---- highlighting ------------------------------------------------- */
+
+  function clearMark(){
+    if(!markEl) return;
+    var parent = markEl.parentNode, txt = markEl.textContent;
+    if(parent) parent.replaceChild(document.createTextNode(txt), markEl);
+    markEl = null;
+  }
+
+  function mark(block, start, len){
+    clearMark();
+    if(!len) return;
+    var w = walk(block);
+    if(start >= w.text.length) return;
+    var part = null, off = 0;
+    for(var i = 0; i < w.parts.length; i++){
+      var p = w.parts[i];
+      if(start < p.start + p.text.length){ part = p; off = start - p.start; break; }
+    }
+    if(!part) return;
+    var node = part.node, full = node.nodeValue;
+    var s = Math.max(0, off);
+    var e = Math.min(full.length, off + len);
+    if(e <= s) return;
+    var parent = node.parentNode;
+    if(!parent) return;
+    var sp = document.createElement('span');
+    sp.className = 'spoken';
+    sp.textContent = full.slice(s, e);
+    if(s > 0) parent.insertBefore(document.createTextNode(full.slice(0, s)), node);
+    var tail = null;
+    if(e < full.length) tail = document.createTextNode(full.slice(e));
+    parent.replaceChild(sp, node);
+    if(tail) parent.insertBefore(tail, sp.nextSibling);
+    markEl = sp;
+  }
+
+  /* ---- the section list --------------------------------------------- */
+
+  function buildList(){
+    var tpl = document.getElementById('ttsRow');
+    if(!tpl) return;
+    var frag = document.createDocumentFragment();
+    var band = null;
+    units.forEach(function(u, i){
+      var b = u.band || 'Start';
+      if(b !== band){
+        band = b;
+        var g = document.createElement('div');
+        g.className = 'tts-g';
+        g.textContent = b;
+        frag.appendChild(g);
+      }
+      var row = tpl.content.firstElementChild.cloneNode(true);
+      row.setAttribute('data-i', i);
+      row.querySelector('.n').textContent = u.num || '';
+      row.querySelector('.t').textContent = u.title || '30 seconds';
+      frag.appendChild(row);
+    });
+    elList.innerHTML = '';
+    elList.appendChild(frag);
+    Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b){
+      b.addEventListener('click', function(){ startAt(+b.getAttribute('data-i')); });
+    });
+  }
+
+  function showNow(item){
+    var u = item.unit;
+    elNow.textContent = (u.num ? u.num + ' · ' : '') + (u.title || '30 seconds');
+    if(u !== lastUnit){
+      lastUnit = u;
+      Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b, i){
+        b.classList.toggle('on', units[i] === u);
+      });
+      try{ u.el.scrollIntoView({block:'start', behavior:'smooth'}); }catch(e){}
+    }
+  }
+
+  /* ---- speaking ------------------------------------------------------ */
+
+  function keepAlive(){
+    clearTimeout(keep);
+    keep = setTimeout(function(){
+      if(!synth.speaking) return;
+      synth.pause();
+      synth.resume();
+      keepAlive();
+    }, 9000);
+  }
+
+  function speakNext(){
+    if(stopped) return;
+    if(qi + 1 >= queue.length){ finish(); return; }
+    qi++;
+    var item = queue[qi];
+    cur = item;
+    showNow(item);
+    var u = new SpeechSynthesisUtterance(item.text);
+    u.rate = rate;
+    if(voice) u.voice = voice;
+    u.onboundary = function(ev){
+      if(ev.name && ev.name !== 'word') return;
+      mark(item.block, ev.charIndex, ev.charLength || 0);
+    };
+    u.onend = function(){ if(!stopped) speakNext(); };
+    u.onerror = function(){ if(!stopped) speakNext(); };
+    synth.speak(u);
+    keepAlive();
+  }
+
+  function startAt(unitIndex){
+    var target = -1;
+    for(var i = 0; i < queue.length; i++){
+      if(queue[i].unit === units[unitIndex]){ target = i; break; }
+    }
+    if(target < 0) return;
+    synth.cancel();
+    clearTimeout(keep);
+    clearMark();
+    qi = target - 1;
+    stopped = false;
+    playing = true;
+    setPlay();
+    speakNext();
+  }
+
+  function finish(){
+    playing = false;
+    stopped = true;
+    clearTimeout(keep);
+    setPlay();
+  }
+
+  function stop(){
+    stopped = true;
+    playing = false;
+    clearTimeout(keep);
+    try{ synth.cancel(); }catch(e){}
+    clearMark();
+    lastUnit = null;
+    setPlay();
+  }
+
+  function setPlay(){
+    if(elPlay) elPlay.textContent = playing ? 'Pause' : 'Play';
+    if(elPlay) elPlay.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  }
+
+  /* ---- voices -------------------------------------------------------- */
+
+  /* Voices load asynchronously in most browsers, so the list is filled now
+     and again when it changes. A Canadian account wants en-GB; an Indian
+     accent is the next best fit, and en-US last. */
+  function fillVoices(){
+    if(!elVoice) return;
+    var all = synth.getVoices() || [];
+    var eng = all.filter(function(v){ return /^en/i.test(v.lang); });
+    if(!eng.length) return;
+    eng.sort(function(a, b){
+      var rank = function(v){
+        if(/en-GB/i.test(v.lang)) return 0;
+        if(/en-IN/i.test(v.lang)) return 1;
+        if(/^en/i.test(v.lang)) return 2;
+        return 3;
+      };
+      return rank(a) - rank(b);
+    });
+    if(elVoice.options.length === eng.length
+       && elVoice.options.length
+       && elVoice.options[0].value === eng[0].voiceURI) return;
+    elVoice.innerHTML = eng.map(function(v){
+      return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '</option>';
+    }).join('');
+    voice = eng[0];
+    elVoice.value = voice.voiceURI;
+    elVoice.addEventListener('change', function(){
+      var pick = eng.filter(function(v){ return v.voiceURI === elVoice.value; })[0];
+      if(pick) voice = pick;
+    });
+  }
+
+  if(synth.addEventListener) synth.addEventListener('voiceschanged', fillVoices);
+  fillVoices();
+
+  /* ---- controls ------------------------------------------------------ */
+
+  if(elPlay) elPlay.addEventListener('click', function(){
+    if(playing){
+      synth.pause();
+      playing = false;
+      setPlay();
+      return;
+    }
+    if(stopped){
+      if(!units.length) return;
+      units = unitsOf();
+      buildQueue();
+      buildList();
+      startAt(0);
+      return;
+    }
+    synth.resume();
+    playing = true;
+    setPlay();
+  });
+
+  if(elStop) elStop.addEventListener('click', stop);
+
+  if(elBack) elBack.addEventListener('click', function(){
+    if(!cur) return;
+    var idx = units.indexOf(cur.unit);
+    if(idx > 0) startAt(idx - 1);
+  });
+
+  if(elClose) elClose.addEventListener('click', function(){
+    stop();
+    dlg.close();
+  });
+
+  dlg.addEventListener('click', function(e){
+    if(e.target.closest('a')) return;
+    if(e.target === dlg) stop();
+  });
+
+  if(elRate){
+    Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(b){
+      b.addEventListener('click', function(){
+        rate = parseFloat(b.getAttribute('data-rate')) || 1;
+        Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(o){
+          o.classList.toggle('on', o === b);
+        });
+      });
+    });
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-tts-open]'),
+    function(b){
+      b.addEventListener('click', function(){
+        if(dlg.open) return;
+        units = unitsOf();
+        buildQueue();
+        buildList();
+        dlg.showModal();
+      });
+    });
+
+  /* Opening the panel must not leave the phone's sheet half-drawn. */
+  dlg.addEventListener('close', function(){ clearMark(); });
+})();
+
+</script>
 
 <div class="shell"><section class="ts" id="thirty"><h2>30 seconds</h2><dl class="ts-row"><dt>Today</dt><dd>Kolkata stampede toll rises to 19 with an SIT promised and Kolkata police kept out; Delhi pandal organisers say a 10 p.m. forced closure is squeezing the crowd window and worsening the very risk it is meant to fix.</dd><dt>Do this</dt><dd>Mark every point on one roster you own where slack was removed to hit a target, and name what absorbs the difference now. The two stories on today&#x27;s front page are one operational failure told twice.</dd><dt>By when</dt><dd>Oct 20 Amit Shah visits Punjab, and the third T20I is at 7 p.m. Oct 22 the New Zealand T20I tour and the Kuki shutdown of NH-202 both begin. Nov 1 the CISF reorganisation takes effect.</dd></dl></section>
 
-<div class="band band-use">
+<div class="band band-use" data-band="Use these">
 <div class="band-head"><span class="band-label">Use these</span><span class="band-rule"></span></div>
 <p class="band-note">Three quick sections, then the two deep reads. Everything below is reference.</p>
-<details class="sec" open><summary><span class="chev"></span><span class="sec-n">01</span><span class="sec-title">Top 5</span><span class="sec-flag">WATCH 4 · KNOW 1</span></summary><div class="sec-body"><div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Kolkata pandal stampede toll rises to 19; seven arrested and a special investigation team is to be headed by a sitting Calcutta High Court judge, with Kolkata police excluded from it (printed pp.1, 10).</div><div class="top-note"><b>Watch for</b> The SIT being constituted, and its first finding on how the surge began. The paper&#x27;s editorial makes one testable charge: that only temporary home guards were posted at the venue.</div></div>
+<details class="sec" data-sec="top" open><summary><span class="chev"></span><span class="sec-n">01</span><span class="sec-title">Top 5</span><span class="sec-flag">WATCH 4 · KNOW 1</span></summary><div class="sec-body"><div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Kolkata pandal stampede toll rises to 19; seven arrested and a special investigation team is to be headed by a sitting Calcutta High Court judge, with Kolkata police excluded from it (printed pp.1, 10).</div><div class="top-note"><b>Watch for</b> The SIT being constituted, and its first finding on how the surge began. The paper&#x27;s editorial makes one testable charge: that only temporary home guards were posted at the venue.</div></div>
 <div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Delhi pandal organisers say police are forcing closures by 10 p.m., two hours earlier than usual, and warn that squeezing the evening window will swell the crowd rather than thin it (printed p.2).</div><div class="top-note"><b>Watch for</b> Whether the 10 p.m. deadline holds through the rest of the festival, and whether any pandal is shut early on safety grounds rather than noise rules.</div></div>
 <div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Delhi proposes capping e-rickshaws at 2.5 lakh; registrations and compliance certificates stop once the cap is hit, and the draft is open for comment for 30 days (printed p.2).</div><div class="top-note"><b>Watch for</b> The final scheme once the 30-day window closes around 17 November.</div></div>
 <div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">US Vice-President J.D. Vance calls his own &#x27;indentured servants&#x27; description of H-1B workers &#x27;imperfect&#x27; after India called it deeply offensive; Indian professionals hold over 70% of approved H-1B petitions (printed p.14).</div><div class="top-note"><b>Watch for</b> Whether the remark hardens into a policy change, and whether the framing gets copied by other governments.</div></div>
-<div class="top-item"><span class="tag KNOW">KNOW</span><div class="top-text">Supreme Court bars mid-term fee hikes in professional courses, ruling students must know the full cost at the threshold; NSSO data put professional course fees 711% above general academic programmes (printed p.10).</div></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">06</span><span class="sec-title">My Lens</span></summary><div class="sec-body"><div class="lens"><dl><dt>What</dt><dd data-src="paper">Delhi pandal organisers say an earlier forced closing time is making crowd control worse, not better — compressing celebrations that normally run past 1 a.m. into a 10 p.m. deadline.</dd><dt>Why me</dt><dd>That is the exact mechanism behind a compressed window in any shift operation: remove slack from a peak and the peak gets denser, not shorter. It is also the mechanism the paper&#x27;s editorial blames on temporary home guards standing in for experienced police.</dd><dt>Do / Say</dt><dd>Take one roster you own this week and mark every point where you removed slack to hit a target. Then ask what absorbs the difference in the twenty minutes that used to.</dd></dl></div>
+<div class="top-item"><span class="tag KNOW">KNOW</span><div class="top-text">Supreme Court bars mid-term fee hikes in professional courses, ruling students must know the full cost at the threshold; NSSO data put professional course fees 711% above general academic programmes (printed p.10).</div></div></div></details><details class="sec" data-sec="lens" open><summary><span class="chev"></span><span class="sec-n">06</span><span class="sec-title">My Lens</span></summary><div class="sec-body"><div class="lens"><dl><dt>What</dt><dd data-src="paper">Delhi pandal organisers say an earlier forced closing time is making crowd control worse, not better — compressing celebrations that normally run past 1 a.m. into a 10 p.m. deadline.</dd><dt>Why me</dt><dd>That is the exact mechanism behind a compressed window in any shift operation: remove slack from a peak and the peak gets denser, not shorter. It is also the mechanism the paper&#x27;s editorial blames on temporary home guards standing in for experienced police.</dd><dt>Do / Say</dt><dd>Take one roster you own this week and mark every point where you removed slack to hit a target. Then ask what absorbs the difference in the twenty minutes that used to.</dd></dl></div>
 <div class="lens"><dl><dt>What</dt><dd data-src="paper">The paper&#x27;s Data Point column finds Delhi one of only two States or UTs where rural female labour force participation fell between 2019-20 and 2025, at −2.34 percentage points a year against an all-India rural average of +2.58.</dd><dt>Why me</dt><dd>A night-shift BPO workforce is disproportionately women. A falling participation rate in your own city shows up in your hiring pool long before it shows up in your attrition numbers.</dd><dt>Do / Say</dt><dd>Pull your own attrition split by gender before the next workforce review and put it beside the city trend. Then ask recruiting what has changed in the pool.</dd></dl></div>
-<div class="lens"><dl><dt>What</dt><dd data-src="paper">A Delhi University study of 2,000-plus children aged 9-14 found 97.6% access the internet from home and average 4.5 hours a day, with anxiety, sleep disturbance and mood change the most-reported effects.</dd><dt>Why me</dt><dd>The same issue carries an editorial arguing that generative AI replaces mental effort rather than assisting it, and that we should protect what it calls productive struggle. That is a live argument about what junior operations work is actually for, and it is on the front page rather than in an annex.</dd><dt>Do / Say</dt><dd>Pick one process your team automates this quarter and write down what a new joiner could no longer do without it. If the answer is nothing, the process may be doing the thinking for them.</dd></dl></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">08</span><span class="sec-title">Shift Huddle Line</span><span class="sec-flag">Copy</span></summary><div class="sec-body"><blockquote><p>The Hindu ran the same distress helpline number in four separate stories today, so let&#x27;s talk about what we say when a customer tells us they are in crisis — and what we must never say.</p></blockquote></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">DEEP</span><span class="sec-title">Deep Dive</span><span class="sec-flag">2 stories</span></summary><div class="sec-body"><div class="dd"><h4>Kolkata pandal stampede</h4><p class="dd-page">printed pp.1, 10</p><dl class="dd-row"><dt>Background</dt><dd>A Durga Puja pandal in north Kolkata filled with people sheltering from heavy rain on Saturday evening. Organisers then made an announcement asking people to leave, saying the structure might collapse at any moment; private security staff engaged by the pandal also blew whistles. The police have registered a suo motu case under Section 105 of the Bharatiya Nyaya Sanhita — culpable homicide not amounting to murder.</dd><dt>Affected</dt><dd>Nineteen dead, of whom 13 were female including two minors. The youngest were a seven-year-old boy from Bihar, a 13-year-old from Agarpara in North 24 Parganas and a 14-year-old from Purba Bardhaman. About 25 were injured, 14 of them shifted to Apollo Hospitals. Seven of the dead came from North 24 Parganas. The State has announced ₹25 lakh to the next of kin of each deceased.</dd><dt>Next</dt><dd>A magisterial inquiry by an additional collector is under way and is meant to establish at which level the lapses occurred. The Chief Minister has said the State will write to the Calcutta High Court seeking a special investigation team headed by a sitting judge, with Kolkata police kept out. Fire and police officials have since inspected pandals and urged organisers to increase lighting.</dd><dt>Watch</dt><dd>Whether the SIT is constituted, and what its first finding is on how the surge began. The editorial&#x27;s charge is specific and testable — that only temporary home guards were posted at the venue, and that effective deployment of experienced police may have avoided the tragedy.</dd><dt>Scale</dt><dd>Nineteen dead at a structure the paper notes has generally been accident-free despite very large crowds. The failure was in the crowd&#x27;s movement, not in the pandal.</dd></dl></div>
-<div class="dd"><h4>Delhi&#x27;s 10 p.m. pandal deadline</h4><p class="dd-page">printed p.2</p><dl class="dd-row"><dt>Background</dt><dd>Since 16 October, police and paramilitary personnel have been deployed at Delhi&#x27;s Durga Puja pandals with batons and whistles. Committee members in south Delhi&#x27;s C.R. Park say they have been forced to close by 10 p.m., two hours earlier than the usual 12.30 or 1 a.m. The DCP (South) denies forcing closures, saying intervention targeted organisers who continued playing loud music past the permitted time despite agreeing to comply at earlier meetings.</dd><dt>Affected</dt><dd>Organisers say squeezing the evening window by two hours will cause crowd swell and chaos. A C.R. Park committee secretary says police are frightening devotees away from the festival. An AAP leader has written that this could lead to a West Bengal-type situation and that the government will prosecute committees to hide its own shortcomings.</dd><dt>Next</dt><dd>The police say their regular crowd-control measures include barricading, deployment of additional forces with some personnel kept in reserve, and a request that committees add more gates to ease entry and exit. The paper reports no decision to change the deadline.</dd><dt>Watch</dt><dd>Whether any Delhi pandal shuts early on safety grounds rather than noise rules, and whether the police account of why organisers were late to comply survives contact with the organisers. That disagreement is the entire story; everything else follows from it.</dd><dt>Scale</dt><dd>Two hours removed from a window that normally runs to around 1 a.m. — roughly a third of the evening&#x27;s usable time — at the point of peak arrival, in a festival where the paper reports crowds surge at night.</dd></dl></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">10</span><span class="sec-title">One Long-Form Read</span><span class="sec-flag">Objection</span></summary><div class="sec-body"><div class="longform"><div class="op" style="border:0;padding:0 0 14px"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist</p></div><div class="beat"><div class="beat-k">The argument</div><p>Children and teenagers now move constantly between chats, video, social media, games and AI platforms, and with about 65 crore Indians under 25 the paper treats this as a population-level developmental question. The author&#x27;s claim is that technology is not the problem; constant exposure during maturation is. The prefrontal cortex, which supports attention, working memory, planning and impulse control, keeps maturing into early adulthood, and dense repetitive digital input may strengthen some circuits while leaving others underdeveloped. On attention specifically, the mechanism is not the brain but the reward loop: short videos, autoplay, infinite scroll and algorithmic recommendation produce variable reinforcement, which makes ordinary experience — a face-to-face conversation, practising a skill, sitting with one&#x27;s thoughts — feel comparatively unrewarding. On effort, the author draws a line between cognitive offloading, which is harmless and long-established, and substitution, which is not: photographing the car park saves you a memory, but an essay written by a model removes the effort through which the skill is built. His recommendations follow: device-free times and places, protected study periods, unstructured time, oral examinations and supervised writing, and greater scrutiny and disclosure duties on platforms serving young people.</p></div><div class="beat"><div class="beat-k">The claim I&#x27;m attacking</div><p>That protecting productive struggle — device-free periods, oral examinations, supervised writing — is the right response to artificial intelligence displacing mental effort in young people.</p></div><div class="beat"><div class="beat-k">The joint</div><p>The weakest joint is evidential, and the piece half-concedes it. Every link from screen time to brain structure in the article is correlational, and the author says so in terms. But he then moves straight to recommending classroom and parenting practice as though the causal claim held. The gap is between &#x27;screens correlate with altered brain connectivity&#x27; and &#x27;remove screens from study hours and children will reason better&#x27;. Nothing in the paper closes it, and the recommendations are written as though it did.</p></div><div class="beat"><div class="beat-k">The argument</div><p>Take the paper&#x27;s own evidence at face value and the case for its recommendation weakens rather than strengthens. The sharpest mechanism in the piece is not the prefrontal cortex at all — it is that the cortex matures into early adulthood while 65 crore Indians are under 25. If the vulnerable window is developmental and the exposures are developmental, then the interventions with the best claim to matter are those that change the environment for everyone at once. What the paper actually recommends is the small, voluntary, high-compliance-requiring kind: device-free times and places, protected study periods, unstructured time. A recommendation that works only if every parent and every teacher executes it consistently is not a policy. It is an appeal, and when it fails it will look like a moral failing on the part of families rather than a design failure on the part of platforms. The paper locates the incentive problem precisely — the corporations designing these tools have a strong financial interest in keeping young people engaged — and then declines to name a single mechanism by which a parent enforcing a bedtime changes that incentive. Note also what the recommendations omit: the paper does not propose a single obligation for the platforms themselves beyond asking policymakers to require better evidence of harm. Its regulatory paragraph is a list of things somebody else ought to do. The honest version of the argument is therefore narrower than the one made. What the evidence supports is a serious, well-motivated hypothesis about developmental exposure, and what that warrants is independent research and enforceable disclosure duties on the platforms that profit from the exposure. It does not yet warrant a rewritten pedagogy delivered through parental goodwill. A Director reading this should notice that the piece proves more about regulation than about parenting, and says so considerably less often than it should.</p></div><div class="beat"><div class="beat-k">What I would concede</div><p>The distinction between scaffolding and substitution survives the objection intact. If AI is doing the thinking, the harm is real whether or not it can yet be demonstrated in a cohort, and the argument from what is being replaced — the struggle of being wrong and revising — does not depend on the neuroscience at all. I would also concede the boredom point without reservation: a piece arguing that unfilled time has value, against an economy that fills it, is making a claim that has been true in every generation and is not thereby false.</p></div><div class="beat falsifier"><div class="beat-k">What would change my mind</div><p>If a cohort of children raised under enforced device-free periods and AI-restricted schoolwork showed no measurable difference from matched peers in sustained attention, working memory, or persistence on problems with no available answer, the argument collapses entirely — and with it the recommendation to protect productive struggle. The paper concedes it cannot run that study; the objection is that it should have said plainly that until someone does, the recommendation is a hypothesis wearing the clothes of a policy.</p></div><div class="beat"><div class="beat-k">How this differs</div><p>The source argues we should change how children are taught; the objection argues that the same evidence points at platform design and enforceable disclosure, and that a recommendation resting on adult compliance is not a policy at all. Where the piece is optimistic about voluntary family practice, the objection is sceptical — and says the piece has chosen the weaker of the two arguments actually available to it.</p></div></div></div></details>
+<div class="lens"><dl><dt>What</dt><dd data-src="paper">A Delhi University study of 2,000-plus children aged 9-14 found 97.6% access the internet from home and average 4.5 hours a day, with anxiety, sleep disturbance and mood change the most-reported effects.</dd><dt>Why me</dt><dd>The same issue carries an editorial arguing that generative AI replaces mental effort rather than assisting it, and that we should protect what it calls productive struggle. That is a live argument about what junior operations work is actually for, and it is on the front page rather than in an annex.</dd><dt>Do / Say</dt><dd>Pick one process your team automates this quarter and write down what a new joiner could no longer do without it. If the answer is nothing, the process may be doing the thinking for them.</dd></dl></div></div></details><details class="sec" data-sec="huddle" open><summary><span class="chev"></span><span class="sec-n">08</span><span class="sec-title">Shift Huddle Line</span><span class="sec-flag">Copy</span></summary><div class="sec-body"><blockquote><p>The Hindu ran the same distress helpline number in four separate stories today, so let&#x27;s talk about what we say when a customer tells us they are in crisis — and what we must never say.</p></blockquote></div></details><details class="sec" data-sec="deep" open><summary><span class="chev"></span><span class="sec-n">DEEP</span><span class="sec-title">Deep Dive</span><span class="sec-flag">2 stories</span></summary><div class="sec-body"><div class="dd"><h4>Kolkata pandal stampede</h4><p class="dd-page">printed pp.1, 10</p><dl class="dd-row"><dt>Background</dt><dd>A Durga Puja pandal in north Kolkata filled with people sheltering from heavy rain on Saturday evening. Organisers then made an announcement asking people to leave, saying the structure might collapse at any moment; private security staff engaged by the pandal also blew whistles. The police have registered a suo motu case under Section 105 of the Bharatiya Nyaya Sanhita — culpable homicide not amounting to murder.</dd><dt>Affected</dt><dd>Nineteen dead, of whom 13 were female including two minors. The youngest were a seven-year-old boy from Bihar, a 13-year-old from Agarpara in North 24 Parganas and a 14-year-old from Purba Bardhaman. About 25 were injured, 14 of them shifted to Apollo Hospitals. Seven of the dead came from North 24 Parganas. The State has announced ₹25 lakh to the next of kin of each deceased.</dd><dt>Next</dt><dd>A magisterial inquiry by an additional collector is under way and is meant to establish at which level the lapses occurred. The Chief Minister has said the State will write to the Calcutta High Court seeking a special investigation team headed by a sitting judge, with Kolkata police kept out. Fire and police officials have since inspected pandals and urged organisers to increase lighting.</dd><dt>Watch</dt><dd>Whether the SIT is constituted, and what its first finding is on how the surge began. The editorial&#x27;s charge is specific and testable — that only temporary home guards were posted at the venue, and that effective deployment of experienced police may have avoided the tragedy.</dd><dt>Scale</dt><dd>Nineteen dead at a structure the paper notes has generally been accident-free despite very large crowds. The failure was in the crowd&#x27;s movement, not in the pandal.</dd></dl></div>
+<div class="dd"><h4>Delhi&#x27;s 10 p.m. pandal deadline</h4><p class="dd-page">printed p.2</p><dl class="dd-row"><dt>Background</dt><dd>Since 16 October, police and paramilitary personnel have been deployed at Delhi&#x27;s Durga Puja pandals with batons and whistles. Committee members in south Delhi&#x27;s C.R. Park say they have been forced to close by 10 p.m., two hours earlier than the usual 12.30 or 1 a.m. The DCP (South) denies forcing closures, saying intervention targeted organisers who continued playing loud music past the permitted time despite agreeing to comply at earlier meetings.</dd><dt>Affected</dt><dd>Organisers say squeezing the evening window by two hours will cause crowd swell and chaos. A C.R. Park committee secretary says police are frightening devotees away from the festival. An AAP leader has written that this could lead to a West Bengal-type situation and that the government will prosecute committees to hide its own shortcomings.</dd><dt>Next</dt><dd>The police say their regular crowd-control measures include barricading, deployment of additional forces with some personnel kept in reserve, and a request that committees add more gates to ease entry and exit. The paper reports no decision to change the deadline.</dd><dt>Watch</dt><dd>Whether any Delhi pandal shuts early on safety grounds rather than noise rules, and whether the police account of why organisers were late to comply survives contact with the organisers. That disagreement is the entire story; everything else follows from it.</dd><dt>Scale</dt><dd>Two hours removed from a window that normally runs to around 1 a.m. — roughly a third of the evening&#x27;s usable time — at the point of peak arrival, in a festival where the paper reports crowds surge at night.</dd></dl></div></div></details><details class="sec" data-sec="longform" open><summary><span class="chev"></span><span class="sec-n">10</span><span class="sec-title">One Long-Form Read</span><span class="sec-flag">Objection</span></summary><div class="sec-body"><div class="longform"><div class="op" style="border:0;padding:0 0 14px"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist</p></div><div class="beat"><div class="beat-k">The argument</div><p>Children and teenagers now move constantly between chats, video, social media, games and AI platforms, and with about 65 crore Indians under 25 the paper treats this as a population-level developmental question. The author&#x27;s claim is that technology is not the problem; constant exposure during maturation is. The prefrontal cortex, which supports attention, working memory, planning and impulse control, keeps maturing into early adulthood, and dense repetitive digital input may strengthen some circuits while leaving others underdeveloped. On attention specifically, the mechanism is not the brain but the reward loop: short videos, autoplay, infinite scroll and algorithmic recommendation produce variable reinforcement, which makes ordinary experience — a face-to-face conversation, practising a skill, sitting with one&#x27;s thoughts — feel comparatively unrewarding. On effort, the author draws a line between cognitive offloading, which is harmless and long-established, and substitution, which is not: photographing the car park saves you a memory, but an essay written by a model removes the effort through which the skill is built. His recommendations follow: device-free times and places, protected study periods, unstructured time, oral examinations and supervised writing, and greater scrutiny and disclosure duties on platforms serving young people.</p></div><div class="beat"><div class="beat-k">The claim I&#x27;m attacking</div><p>That protecting productive struggle — device-free periods, oral examinations, supervised writing — is the right response to artificial intelligence displacing mental effort in young people.</p></div><div class="beat"><div class="beat-k">The joint</div><p>The weakest joint is evidential, and the piece half-concedes it. Every link from screen time to brain structure in the article is correlational, and the author says so in terms. But he then moves straight to recommending classroom and parenting practice as though the causal claim held. The gap is between &#x27;screens correlate with altered brain connectivity&#x27; and &#x27;remove screens from study hours and children will reason better&#x27;. Nothing in the paper closes it, and the recommendations are written as though it did.</p></div><div class="beat"><div class="beat-k">The argument</div><p>Take the paper&#x27;s own evidence at face value and the case for its recommendation weakens rather than strengthens. The sharpest mechanism in the piece is not the prefrontal cortex at all — it is that the cortex matures into early adulthood while 65 crore Indians are under 25. If the vulnerable window is developmental and the exposures are developmental, then the interventions with the best claim to matter are those that change the environment for everyone at once. What the paper actually recommends is the small, voluntary, high-compliance-requiring kind: device-free times and places, protected study periods, unstructured time. A recommendation that works only if every parent and every teacher executes it consistently is not a policy. It is an appeal, and when it fails it will look like a moral failing on the part of families rather than a design failure on the part of platforms. The paper locates the incentive problem precisely — the corporations designing these tools have a strong financial interest in keeping young people engaged — and then declines to name a single mechanism by which a parent enforcing a bedtime changes that incentive. Note also what the recommendations omit: the paper does not propose a single obligation for the platforms themselves beyond asking policymakers to require better evidence of harm. Its regulatory paragraph is a list of things somebody else ought to do. The honest version of the argument is therefore narrower than the one made. What the evidence supports is a serious, well-motivated hypothesis about developmental exposure, and what that warrants is independent research and enforceable disclosure duties on the platforms that profit from the exposure. It does not yet warrant a rewritten pedagogy delivered through parental goodwill. A Director reading this should notice that the piece proves more about regulation than about parenting, and says so considerably less often than it should.</p></div><div class="beat"><div class="beat-k">What I would concede</div><p>The distinction between scaffolding and substitution survives the objection intact. If AI is doing the thinking, the harm is real whether or not it can yet be demonstrated in a cohort, and the argument from what is being replaced — the struggle of being wrong and revising — does not depend on the neuroscience at all. I would also concede the boredom point without reservation: a piece arguing that unfilled time has value, against an economy that fills it, is making a claim that has been true in every generation and is not thereby false.</p></div><div class="beat falsifier"><div class="beat-k">What would change my mind</div><p>If a cohort of children raised under enforced device-free periods and AI-restricted schoolwork showed no measurable difference from matched peers in sustained attention, working memory, or persistence on problems with no available answer, the argument collapses entirely — and with it the recommendation to protect productive struggle. The paper concedes it cannot run that study; the objection is that it should have said plainly that until someone does, the recommendation is a hypothesis wearing the clothes of a policy.</p></div><div class="beat"><div class="beat-k">How this differs</div><p>The source argues we should change how children are taught; the objection argues that the same evidence points at platform design and enforceable disclosure, and that a recommendation resting on adult compliance is not a policy at all. Where the piece is optimistic about voluntary family practice, the objection is sceptical — and says the piece has chosen the weaker of the two arguments actually available to it.</p></div></div></div></details>
 </div>
 
-<div class="band band-ref">
+<div class="band band-ref" data-band="Reference">
 <div class="band-head"><span class="band-label">Reference</span><span class="band-rule"></span></div>
 <p class="band-note">Scan, don&#x27;t read. Each section is folded by default.</p>
-<details class="sec"><summary><span class="chev"></span><span class="sec-n">02</span><span class="sec-title">Categories</span></summary><div class="sec-body"><div class="h3">Politics &amp; Governance</div><ul>
+<details class="sec" data-sec="cats"><summary><span class="chev"></span><span class="sec-n">02</span><span class="sec-title">Categories</span></summary><div class="sec-body"><div class="h3">Politics &amp; Governance</div><ul>
 <li>Bar the Delhi pandals at 10 p.m. Police are forcing closures two hours earlier than usual over court-ordered noise rules, and organisers say the compressed window is worsening the crowd problem it is meant to solve (printed p.2).</li>
 <li>Constitute the Kolkata SIT. The Chief Minister has promised a special investigation team headed by a sitting Calcutta High Court judge, with Kolkata police excluded because their role is being questioned (printed p.1).</li>
 <li>Expand the Lok Sabha from 550 to 850 without expanding its working time. The paper&#x27;s policy column argues delimitation adds members to a House whose Question Hour ran 1% of schedule last session — nine minutes in total (printed p.7).</li>
@@ -635,15 +1138,15 @@ document.addEventListener('click', function(e){
 <li>Revive Pattanam. Excavations from 2006 to 2023 produced 1.3 lakh registered artefacts and nearly 45 lakh pottery fragments from under 1% of a mound extending over 100 acres; the research programme has been interrupted since 2016 and the paper&#x27;s author wants it resumed (printed p.9).</li>
 <li>Note the one line worth borrowing from the letters page: a festival should have a single designated &#x27;Voice of Calm&#x27; with a script of pre-approved messages, and no one else should touch the microphone (printed p.6).</li>
 </ul>
-<div class="tw"><table><caption>Ethanol procurement economics in the 2026-27 tender: BPCL is asking for around 11 billion litres to hold the 20% blend, and has cut the price it pays for grain-based ethanol by ₹3.00 a litre.</caption><thead><tr><th>Input</th><th class="n">Previous</th><th class="n">2026-27 tender</th><th class="n">Change</th></tr></thead><tbody><tr><td>Maize-based incentive</td><td class="n">₹5.79 / litre</td><td class="n">₹2.79 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Procurement price</td><td class="n">₹71.86 / litre</td><td class="n">₹68.86 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Cane juice, sugar, B-heavy molasses</td><td class="n">Eligible</td><td class="n">Bids not sought</td><td class="n">Excluded</td></tr><tr><td>Maize, broken rice, FCI surplus rice, C-heavy molasses</td><td class="n">Eligible</td><td class="n">Eligible</td><td class="n">Unchanged</td></tr></tbody></table></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">03</span><span class="sec-title">Numbers That Matter</span></summary><div class="sec-body"><div class="nums"><div class="num"><span class="num-v">19</span><span class="num-l">killed in the Kolkata pandal stampede; 13 were female, two of them minors, and the youngest victim was a seven-year-old boy</span></div><div class="num"><span class="num-v">2.5 lakh</span><span class="num-l">proposed ceiling on e-rickshaws in Delhi, with five per individual owner and anyone holding more than 25 classed as an aggregator</span></div><div class="num"><span class="num-v">137</span><span class="num-l">cancer drugs India will cut in price, by up to 70%, with trade margins capped at 30% of maximum retail price</span></div><div class="num"><span class="num-v">711%</span><span class="num-l">how much higher professional course fees are than general academic programmes, per NSSO data cited by the Supreme Court</span></div><div class="num"><span class="num-v">65 crore</span><span class="num-l">Indians under the age of 25, in what the editorial calls one of the world&#x27;s largest and fastest-growing young populations</span></div><div class="num"><span class="num-v">4.5 hours</span><span class="num-l">average daily internet use by children in a 2,000-child Delhi study; 97.6% of them access it from home</span></div><div class="num"><span class="num-v">1,800</span><span class="num-l">arrested in France after cost-of-living protests; authorities put the crowd at 5.5 lakh and organisers at 8 lakh</span></div><div class="num"><span class="num-v">9 minutes</span><span class="num-l">the entire Question Hour of the 2026 Monsoon Session — 1% of its scheduled time</span></div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">04</span><span class="sec-title">Dates to Watch</span></summary><div class="sec-body"><ul class="dates"><li><span class="d soon">20 Oct</span><span class="w">Amit Shah visits Punjab; third T20I, India Women v Zimbabwe, 7 p.m.</span></li><li><span class="d soon">22 Oct</span><span class="w">India&#x27;s T20I tour of New Zealand begins; Kuki &#x27;total shutdown&#x27; of NH-202 begins; Telangana&#x27;s khet bachao abhiyan runs 22-30 Oct</span></li><li><span class="d">27 Oct</span><span class="w">Israel&#x27;s parliamentary election</span></li><li><span class="d">1 Nov</span><span class="w">CISF reorganisation into sector-based units takes effect</span></li><li><span class="d">mid-Nov</span><span class="w">the 30-day comment window on the Delhi e-rickshaw draft closes</span></li><li><span class="d">Nov-Jan</span><span class="w">expected window for trading in the first CCTS carbon credits</span></li></ul></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">05</span><span class="sec-title">Client &amp; Industry Watch</span></summary><div class="sec-body"><p>Nothing on CRTC, Canadian telecom, Canada-India relations, BPO or outsourcing today, and no currency item. The one Canada story is military and unrelated: four service members killed and dozens seriously injured in a fire at CFB Wainworth, Alberta, which Prime Minister Carney said happened during military training. The closest adjacent item is the Vance H-1B remark — Indian professionals hold over 70% of approved US petitions — which is about work visas, not outsourcing. Neither is a signal about your account, and I am not going to stretch one into being one.</p></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">07</span><span class="sec-title">Verify</span></summary><div class="sec-body"><ul><li>Reported claim — the Karnataka electoral roll glitch. Officers attribute 37 self-declared-dead filings and 334 pairs who declared each other dead to a software glitch during enumeration. The paper&#x27;s own analysis of Election Commission data found both patterns across more than 25 districts, and one booth-level officer said she was unaware any Form 7 had been filed against her. The glitch explanation is asserted, not demonstrated.</li><li>Reported claim — the Delhi Okhla deletion count. Over 100 voters from two booths were found wrongly marked absent, shifted, dead or duplicate (ASDD) during the Special Intensive Revision (SIR), but that figure comes from a public audit by civil society groups rather than an official count. Around 20 people interviewed said they knew nothing of the weekend verification camps, and the Delhi Chief Electoral Officer&#x27;s office has since ordered door-to-door re-verification.</li></ul></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">09</span><span class="sec-title">Opinion: 2-Minute Read</span></summary><div class="sec-body"><div class="op"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist, Dean, Jindal School of Psychology and Counselling, O.P. Jindal Global University (printed p.6)</p><dl class="op-row"><dt>Claim</dt><dd>Constant exposure to powerful digital tools while the brain is still maturing — generative AI especially, which replaces mental effort rather than assisting it — may shape how young people think, feel and act across a lifetime, and the remedy is to protect productive struggle rather than remove screens.</dd><dt>Support</dt><dd>The strongest support is the distinction between scaffolding and substitution. AI can generate ideas, organise arguments and summarise material; what it cannot manufacture is the struggle of finding the words, being wrong and revising. The recommendations follow from that distinction: device-free times and places, protected study periods, unstructured time, oral examinations, supervised writing, applied problem-solving.</dd><dt>Leaves out</dt><dd>It concedes the evidence is correlational and then argues as though it were causal. It never prices its own recommendation — a school that reinstates supervised writing and oral exams produces fewer graduates per term, and neither cost nor capacity appears anywhere. The corporations it names as having a financial interest in keeping children engaged are never named or held to anything.</dd><dt>Sit with</dt><dd>If the exposure happens during a developmental window and the fix is protected offline time, why is the piece addressed to parents and schools rather than to the platforms whose design creates the exposure in the first place?</dd><dt>Steal</dt><dd>It opens with a scene every reader recognises — a teenager moving between chats, videos, social media and games — and earns the right to generalise from it. The turn comes when it separates assistance from substitution using a physical example: photographing the car park so you need not remember where you parked. That analogy does more argumentative work than a page of neuroscience, because the reader has already accepted cognitive offloading before being told it is a problem.</dd></dl></div>
+<div class="tw"><table><caption>Ethanol procurement economics in the 2026-27 tender: BPCL is asking for around 11 billion litres to hold the 20% blend, and has cut the price it pays for grain-based ethanol by ₹3.00 a litre.</caption><thead><tr><th>Input</th><th class="n">Previous</th><th class="n">2026-27 tender</th><th class="n">Change</th></tr></thead><tbody><tr><td>Maize-based incentive</td><td class="n">₹5.79 / litre</td><td class="n">₹2.79 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Procurement price</td><td class="n">₹71.86 / litre</td><td class="n">₹68.86 / litre</td><td class="n">−₹3.00</td></tr><tr><td>Cane juice, sugar, B-heavy molasses</td><td class="n">Eligible</td><td class="n">Bids not sought</td><td class="n">Excluded</td></tr><tr><td>Maize, broken rice, FCI surplus rice, C-heavy molasses</td><td class="n">Eligible</td><td class="n">Eligible</td><td class="n">Unchanged</td></tr></tbody></table></div></div></details><details class="sec" data-sec="nums"><summary><span class="chev"></span><span class="sec-n">03</span><span class="sec-title">Numbers That Matter</span></summary><div class="sec-body"><div class="nums"><div class="num"><span class="num-v">19</span><span class="num-l">killed in the Kolkata pandal stampede; 13 were female, two of them minors, and the youngest victim was a seven-year-old boy</span></div><div class="num"><span class="num-v">2.5 lakh</span><span class="num-l">proposed ceiling on e-rickshaws in Delhi, with five per individual owner and anyone holding more than 25 classed as an aggregator</span></div><div class="num"><span class="num-v">137</span><span class="num-l">cancer drugs India will cut in price, by up to 70%, with trade margins capped at 30% of maximum retail price</span></div><div class="num"><span class="num-v">711%</span><span class="num-l">how much higher professional course fees are than general academic programmes, per NSSO data cited by the Supreme Court</span></div><div class="num"><span class="num-v">65 crore</span><span class="num-l">Indians under the age of 25, in what the editorial calls one of the world&#x27;s largest and fastest-growing young populations</span></div><div class="num"><span class="num-v">4.5 hours</span><span class="num-l">average daily internet use by children in a 2,000-child Delhi study; 97.6% of them access it from home</span></div><div class="num"><span class="num-v">1,800</span><span class="num-l">arrested in France after cost-of-living protests; authorities put the crowd at 5.5 lakh and organisers at 8 lakh</span></div><div class="num"><span class="num-v">9 minutes</span><span class="num-l">the entire Question Hour of the 2026 Monsoon Session — 1% of its scheduled time</span></div></div></div></details><details class="sec" data-sec="dates"><summary><span class="chev"></span><span class="sec-n">04</span><span class="sec-title">Dates to Watch</span></summary><div class="sec-body"><ul class="dates"><li><span class="d soon">20 Oct</span><span class="w">Amit Shah visits Punjab; third T20I, India Women v Zimbabwe, 7 p.m.</span></li><li><span class="d soon">22 Oct</span><span class="w">India&#x27;s T20I tour of New Zealand begins; Kuki &#x27;total shutdown&#x27; of NH-202 begins; Telangana&#x27;s khet bachao abhiyan runs 22-30 Oct</span></li><li><span class="d">27 Oct</span><span class="w">Israel&#x27;s parliamentary election</span></li><li><span class="d">1 Nov</span><span class="w">CISF reorganisation into sector-based units takes effect</span></li><li><span class="d">mid-Nov</span><span class="w">the 30-day comment window on the Delhi e-rickshaw draft closes</span></li><li><span class="d">Nov-Jan</span><span class="w">expected window for trading in the first CCTS carbon credits</span></li></ul></div></details><details class="sec" data-sec="client"><summary><span class="chev"></span><span class="sec-n">05</span><span class="sec-title">Client &amp; Industry Watch</span></summary><div class="sec-body"><p>Nothing on CRTC, Canadian telecom, Canada-India relations, BPO or outsourcing today, and no currency item. The one Canada story is military and unrelated: four service members killed and dozens seriously injured in a fire at CFB Wainworth, Alberta, which Prime Minister Carney said happened during military training. The closest adjacent item is the Vance H-1B remark — Indian professionals hold over 70% of approved US petitions — which is about work visas, not outsourcing. Neither is a signal about your account, and I am not going to stretch one into being one.</p></div></details><details class="sec" data-sec="verify"><summary><span class="chev"></span><span class="sec-n">07</span><span class="sec-title">Verify</span></summary><div class="sec-body"><ul><li>Reported claim — the Karnataka electoral roll glitch. Officers attribute 37 self-declared-dead filings and 334 pairs who declared each other dead to a software glitch during enumeration. The paper&#x27;s own analysis of Election Commission data found both patterns across more than 25 districts, and one booth-level officer said she was unaware any Form 7 had been filed against her. The glitch explanation is asserted, not demonstrated.</li><li>Reported claim — the Delhi Okhla deletion count. Over 100 voters from two booths were found wrongly marked absent, shifted, dead or duplicate (ASDD) during the Special Intensive Revision (SIR), but that figure comes from a public audit by civil society groups rather than an official count. Around 20 people interviewed said they knew nothing of the weekend verification camps, and the Delhi Chief Electoral Officer&#x27;s office has since ordered door-to-door re-verification.</li></ul></div></details><details class="sec" data-sec="opinion"><summary><span class="chev"></span><span class="sec-n">09</span><span class="sec-title">Opinion: 2-Minute Read</span></summary><div class="sec-body"><div class="op"><h4>Developing minds in a digital world, a changing India</h4><p class="op-by">Derick H. Lindquist, Dean, Jindal School of Psychology and Counselling, O.P. Jindal Global University (printed p.6)</p><dl class="op-row"><dt>Claim</dt><dd>Constant exposure to powerful digital tools while the brain is still maturing — generative AI especially, which replaces mental effort rather than assisting it — may shape how young people think, feel and act across a lifetime, and the remedy is to protect productive struggle rather than remove screens.</dd><dt>Support</dt><dd>The strongest support is the distinction between scaffolding and substitution. AI can generate ideas, organise arguments and summarise material; what it cannot manufacture is the struggle of finding the words, being wrong and revising. The recommendations follow from that distinction: device-free times and places, protected study periods, unstructured time, oral examinations, supervised writing, applied problem-solving.</dd><dt>Leaves out</dt><dd>It concedes the evidence is correlational and then argues as though it were causal. It never prices its own recommendation — a school that reinstates supervised writing and oral exams produces fewer graduates per term, and neither cost nor capacity appears anywhere. The corporations it names as having a financial interest in keeping children engaged are never named or held to anything.</dd><dt>Sit with</dt><dd>If the exposure happens during a developmental window and the fix is protected offline time, why is the piece addressed to parents and schools rather than to the platforms whose design creates the exposure in the first place?</dd><dt>Steal</dt><dd>It opens with a scene every reader recognises — a teenager moving between chats, videos, social media and games — and earns the right to generalise from it. The turn comes when it separates assistance from substitution using a physical example: photographing the car park so you need not remember where you parked. That analogy does more argumentative work than a page of neuroscience, because the reader has already accepted cognitive offloading before being told it is a problem.</dd></dl></div>
 <div class="op"><h4>Revamp functioning of Parliament</h4><p class="op-by">Atharva Deshmukh and Mehul Chhabra, policy researchers and LAMP Fellows (printed p.7)</p><dl class="op-row"><dt>Claim</dt><dd>Delimitation will bring MPs closer to their constituents but no more powerful, because representation operates in two layers and the bill only addresses one of them.</dd><dt>Support</dt><dd>The numbers do the arguing. Lok Sabha strength is proposed to rise from 550 to 850 while Question Hour permits 20 starred and 230 unstarred questions a day, ran 60% of schedule in the 17th Lok Sabha, and ran 1% — nine minutes in total — in the 2026 Monsoon Session. Constituencies range from 57,953 voters in Lakshadweep to 37.8 lakh in Malkajgiri.</dd><dt>Leaves out</dt><dd>It treats a fixed timetable as a given when the timetable is itself a political choice made by the body it criticises. And it offers no mechanism for the reform it most needs: protecting Zero Hour and Question Hour requires either a rules change the Speaker may not have power to make or the constitutional amendment it has already shown is missing.</dd><dt>Sit with</dt><dd>If the same House that cannot make time for its own members would have to legislate a minimum sitting-days clause, what is the realistic path to it?</dd><dt>Steal</dt><dd>It opens by conceding the obvious case for the reform before attacking it — yes, more MPs is right; no, it is not enough — which buys the right to be severe afterwards. The phrase doing most of the work is &#x27;functional capacity&#x27;, an unglossed noun that quietly converts a headcount argument into a capacity argument.</dd></dl></div>
 <div class="op"><h4>Analysing female labour of the North East States and UTs</h4><p class="op-by">Chandrasekar K. (printed p.7)</p><dl class="op-row"><dt>Claim</dt><dd>The headline national rise in female labour force participation conceals a spread of more than ten percentage points between states, and pace of change alone cannot tell you which places are genuinely catching up.</dd><dt>Support</dt><dd>It separates the aggregate from the distribution, then does what most columns skip: it refuses to stop at pace. Arunachal Pradesh&#x27;s +8.28 points a year looks remarkable until you see it began below the national baseline; Nagaland and Meghalaya began above it and still gained. Speed and starting position are different variables, and the piece plots both.</dd><dt>Leaves out</dt><dd>It never says why. Every State is treated as a dot on a scatter rather than a place with a labour market, a childcare regime or a safety environment, so the reader gets a very good map and no theory of what produces the pattern. Delhi&#x27;s decline is reported without a word of explanation.</dd><dt>Sit with</dt><dd>What is Delhi doing that Arunachal Pradesh, starting lower, is not?</dd><dt>Steal</dt><dd>The method is the argument. It builds four charts in sequence — pace, spread, then pace plotted against starting level — so that by the fourth the reader is doing the author&#x27;s reasoning rather than receiving it. Naming the fourth chart&#x27;s purpose in advance tells you what to look for before you find it.</dd></dl></div></div></details>
 </div>
 
-<div class="band band-lang">
+<div class="band band-lang" data-band="Language">
 <div class="band-head"><span class="band-label">Language</span><span class="band-rule"></span></div>
 <p class="band-note">Words, corrections, and the practice set.</p>
-<details class="sec"><summary><span class="chev"></span><span class="sec-n">11</span><span class="sec-title">Words to Learn</span></summary><div class="sec-body"><div class="tw"><table class="vocab"><thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead><tbody><tr><td>mitigate<span class="pos">v</span></td><td>Workplace</td><td>reduce the harm or severity of something bad</td><td>We mitigated the backlog by moving two agents onto the night queue rather than adding headcount.</td></tr><tr><td>ascertain<span class="pos">v</span></td><td>Formal</td><td>find out for sure, by checking</td><td>We couldn&#x27;t ascertain whether the vendor had actually applied the fix, so we asked for the change log.</td></tr><tr><td>facilitate<span class="pos">v</span></td><td>Workplace</td><td>make something easier for someone to do</td><td>The script facilitates escalation instead of making the agent hunt for the right queue.</td></tr><tr><td>stringent<span class="pos">adj</span></td><td>Workplace</td><td>very strict, with real enforcement behind it</td><td>They promised stringent action on the outages; three weeks later there was no update.</td></tr><tr><td>contingent<span class="pos">adj</span></td><td>Formal</td><td>depending on something else happening first</td><td>The incentive is contingent on hitting the SLA, so nobody will move before week four.</td></tr><tr><td>salient<span class="pos">adj</span></td><td>Formal</td><td>the part that stands out most</td><td>The salient point in the review wasn&#x27;t the volume — it was the repeat-contact rate.</td></tr><tr><td>proliferation<span class="pos">n</span></td><td>Formal</td><td>a rapid increase in the number of something</td><td>The proliferation of channels has made the handover the main source of error.</td></tr></tbody></table></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">12</span><span class="sec-title">Hindi</span></summary><div class="sec-body"><table class="hindi"><tbody><tr><td>mitigate</td><td class="dev">निवारण करना</td><td class="pron">ni-vaa-ran kar-naa</td></tr><tr><td>ascertain</td><td class="dev">पता लगाना</td><td class="pron">pa-taa lu-gaa-naa</td></tr><tr><td>facilitate</td><td class="dev">सहज बनाना</td><td class="pron">sa-haj ba-naa-naa</td></tr><tr><td>stringent</td><td class="dev">सख्त</td><td class="pron">sa-khat</td></tr><tr><td>contingent</td><td class="dev">आश्रित</td><td class="pron">aa-shrit</td></tr><tr><td>salient</td><td class="dev">प्रमुख</td><td class="pron">pra-mukh</td></tr><tr><td>proliferation</td><td class="dev">प्रसार</td><td class="pron">pra-saar</td></tr></tbody></table></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">13</span><span class="sec-title">Phrases for Daily Life</span></summary><div class="sec-body"><div class="phrase"><div class="phrase-t"><span class="phrase-w">squeeze the window</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">cut the time available for something, usually to hit a target</p><p class="phrase-e">If you squeeze the window from 14:00 to 12:00 you&#x27;ll get the same volume and a worse backlog.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">hold the line</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">keep a standard in place under pressure</p><p class="phrase-e">We held the line on response time even when volume doubled overnight.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">left hanging</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">left waiting with no answer or no owner</p><p class="phrase-e">Two tickets have been left hanging since Friday because nobody owns the escalation.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">eat into</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">consume part of a margin, budget or time</p><p class="phrase-e">Every manual escalation eats into the shrinkage target we report to the client.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">the tail that wags the dog</span><span class="phrase-tone">casual</span></div><p class="phrase-m">a small routine detail that decides the whole outcome</p><p class="phrase-e">The five-minute handover is the tail that wags the dog — it decides whether the shift is clean.</p></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">14</span><span class="sec-title">Traps in My English</span></summary><div class="sec-body"><div class="trap"><div class="trap-row"><span class="trap-bad">We are having a discussion with the vendor regarding the escalation matrix.</span><span class="trap-good"><b>→</b> We are discussing the escalation matrix with the vendor.</span><div class="trap-why">A discussion is countable — you have one. &#x27;Having a discussion regarding&#x27; reaches for a noun where the verb already exists, which is the most common tic in Indian corporate English.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">Please revert back.</span><span class="trap-good"><b>→</b> Please revert.</span><div class="trap-why">The &#x27;back&#x27; adds nothing; revert already means reply. It reads as a tic rather than a meaning precisely because it has been normal for so long that nobody questions it.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">The attrition rate is decreased by 4%.</span><span class="trap-good"><b>→</b> Attrition fell by 4%.</span><div class="trap-why">Rates fall, they are not decreased. &#x27;Decreased by&#x27; also hides the direction, leaving a reader to work out whether minus four is good news.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">We are having a delay from the client side.</span><span class="trap-good"><b>→</b> There&#x27;s a delay on the client&#x27;s side.</span><div class="trap-why">A delay comes from the client rather than being handed to you by them. &#x27;From&#x27; reads as a small accusation you do not need to make on a client call.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">I will escalate this to the higher management.</span><span class="trap-good"><b>→</b> I&#x27;ll escalate this to my manager.</span><div class="trap-why">In a BPO the layer above you is a manager. A Director hearing &#x27;higher management&#x27; from their own team has to ask who, and the answer is never flattering.</div></div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">15</span><span class="sec-title">Speak</span></summary><div class="sec-body"><div class="speak"><h4>Prompt</h4><p class="q">Your vendor has missed the same SLA three weeks running, your operations manager is asking why you have not escalated, and the client is on the line tomorrow. What do you say to your manager?</p><h4>Model answer</h4><div class="model">I want to be straight about where this stands. We have had three consecutive misses on the same SLA, and the vendor&#x27;s own root-cause report still points at a process on their side, so escalating internally would just move the problem somewhere it can still fail. The salient issue is that my recovery plan is contingent on data I do not have yet. So here is what I need from you: authority to put the last thirty days of ticket-level data in front of the vendor&#x27;s account lead by Wednesday, and cover for me on the client call. Every day this stays left hanging eats into the goodwill we have with that account. If you would rather I hold the line and go in without the data, say so and I will — but I would rather facilitate this myself than escalate something that still has no remedy attached.</div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">16</span><span class="sec-title">Quiz</span><span class="sec-flag">5 questions</span></summary><div class="sec-body"><div class="quiz" data-answer="b"><p class="q"><b>1.</b> A supplier promises &#x27;prompt and stringent action&#x27; after a failure, and nothing happens for three weeks. What is &#x27;stringent&#x27; promising?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">That the response will be quick</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">That the response will be strict and carry real enforcement</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">That the response will be set out in writing</span></button><button class="opt" type="button" data-k="d"><span class="k">D</span><span class="ot">That the response will be repeated if it fails</span></button></div><p class="why">&#x27;Stringent&#x27; covers severity, not speed — &#x27;prompt&#x27; already carries that, and the supplier used both words in one sentence. Option a is &#x27;prompt&#x27; restated, which is the trap: two adjectives, two different jobs. Read the phrase as speed plus teeth, never speed alone.</p></div><div class="quiz" data-answer="a"><p class="q"><b>2.</b> A report says &#x27;the incentive is contingent on hitting the SLA&#x27;. In an operations review, what is that telling you?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The incentive depends on whether the SLA is met</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The incentive is small next to the cost of missing the SLA</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The incentive was designed before the SLA was agreed</span></button></div><p class="why">&#x27;Contingent on X&#x27; means &#x27;dependent on X&#x27; and nothing more. Option b smuggles in a comparison the sentence never makes, which is how this word gets over-read in a board pack. Option c is a claim about sequence, which is not what &#x27;contingent&#x27; means at all.</p></div><div class="quiz" data-answer="b"><p class="q"><b>3.</b> Which of these is safe to put in a client email?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">As per your last email, we are having a discussion regarding the escalation matrix internally.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">As per your last email, we are discussing the escalation matrix internally.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">As per your last email, we had a discussion regarding the escalation matrix internally.</span></button></div><p class="why">A discussion is countable, so &#x27;we are discussing&#x27; is correct; &#x27;having a discussion&#x27; and &#x27;a discussion regarding&#x27; reach for a noun where the verb already exists. Option c is the more expensive error — the past tense implies the meeting has happened, and if it has not, you have just misinformed the client.</p></div><div class="quiz" data-answer="a"><p class="q"><b>4.</b> You tell the team the five-minute handover &#x27;eats into&#x27; the shrinkage target. What does that mean?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The handover consumes part of the gap you are trying to close</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The handover damages the target so badly it cannot be met</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The handover reduces the number of shrinkage cases</span></button></div><p class="why">&#x27;Eat into&#x27; is gradual and partial — it consumes a share, it does not destroy. Option b overstates it to ruin, and option c inverts the meaning entirely, since shrinkage here is the loss you are trying to reduce, not a count that falls.</p></div><div class="quiz" data-answer="b"><p class="q"><b>5.</b> In a shift huddle, which sentence is wrong if you mean the backlog will grow because there is less time?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Squeezing the window will grow the backlog.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The compressed timeline means we will carry more over.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The squeezed schedule eats into our recovery time.</span></button></div><p class="why">&#x27;Timeline&#x27; names the plan rather than the time available, and &#x27;we will carry more over&#x27; states a consequence with no mechanism attached — which is exactly the sentence that gets challenged with &#x27;why?&#x27;. Options a and c both name the compression and the consequence, which is what makes a sentence actionable on a floor.</p></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">17</span><span class="sec-title">Skip List</span></summary><div class="sec-body"><div class="skip">The daily Sudoku, the bank fixed-deposit and home-loan rate tables on printed p.13, the Hyderabad race card, and the film-music blurbs — none of it is news. Watch for paid content dressed as features: the INBRIEF boxes are edited summaries rather than advertising, but the festival and shopping items sit close to that line, and the front-page subscription QR code is a promotion that reads as layout.</div></div></details>
+<details class="sec" data-sec="words"><summary><span class="chev"></span><span class="sec-n">11</span><span class="sec-title">Words to Learn</span></summary><div class="sec-body"><div class="tw"><table class="vocab"><thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead><tbody><tr><td>mitigate<span class="pos">v</span></td><td>Workplace</td><td>reduce the harm or severity of something bad</td><td>We mitigated the backlog by moving two agents onto the night queue rather than adding headcount.</td></tr><tr><td>ascertain<span class="pos">v</span></td><td>Formal</td><td>find out for sure, by checking</td><td>We couldn&#x27;t ascertain whether the vendor had actually applied the fix, so we asked for the change log.</td></tr><tr><td>facilitate<span class="pos">v</span></td><td>Workplace</td><td>make something easier for someone to do</td><td>The script facilitates escalation instead of making the agent hunt for the right queue.</td></tr><tr><td>stringent<span class="pos">adj</span></td><td>Workplace</td><td>very strict, with real enforcement behind it</td><td>They promised stringent action on the outages; three weeks later there was no update.</td></tr><tr><td>contingent<span class="pos">adj</span></td><td>Formal</td><td>depending on something else happening first</td><td>The incentive is contingent on hitting the SLA, so nobody will move before week four.</td></tr><tr><td>salient<span class="pos">adj</span></td><td>Formal</td><td>the part that stands out most</td><td>The salient point in the review wasn&#x27;t the volume — it was the repeat-contact rate.</td></tr><tr><td>proliferation<span class="pos">n</span></td><td>Formal</td><td>a rapid increase in the number of something</td><td>The proliferation of channels has made the handover the main source of error.</td></tr></tbody></table></div></div></details><details class="sec" data-sec="hindi"><summary><span class="chev"></span><span class="sec-n">12</span><span class="sec-title">Hindi</span></summary><div class="sec-body"><table class="hindi"><tbody><tr><td>mitigate</td><td class="dev">निवारण करना</td><td class="pron">ni-vaa-ran kar-naa</td></tr><tr><td>ascertain</td><td class="dev">पता लगाना</td><td class="pron">pa-taa lu-gaa-naa</td></tr><tr><td>facilitate</td><td class="dev">सहज बनाना</td><td class="pron">sa-haj ba-naa-naa</td></tr><tr><td>stringent</td><td class="dev">सख्त</td><td class="pron">sa-khat</td></tr><tr><td>contingent</td><td class="dev">आश्रित</td><td class="pron">aa-shrit</td></tr><tr><td>salient</td><td class="dev">प्रमुख</td><td class="pron">pra-mukh</td></tr><tr><td>proliferation</td><td class="dev">प्रसार</td><td class="pron">pra-saar</td></tr></tbody></table></div></details><details class="sec" data-sec="phrases"><summary><span class="chev"></span><span class="sec-n">13</span><span class="sec-title">Phrases for Daily Life</span></summary><div class="sec-body"><div class="phrase"><div class="phrase-t"><span class="phrase-w">squeeze the window</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">cut the time available for something, usually to hit a target</p><p class="phrase-e">If you squeeze the window from 14:00 to 12:00 you&#x27;ll get the same volume and a worse backlog.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">hold the line</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">keep a standard in place under pressure</p><p class="phrase-e">We held the line on response time even when volume doubled overnight.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">left hanging</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">left waiting with no answer or no owner</p><p class="phrase-e">Two tickets have been left hanging since Friday because nobody owns the escalation.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">eat into</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">consume part of a margin, budget or time</p><p class="phrase-e">Every manual escalation eats into the shrinkage target we report to the client.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">the tail that wags the dog</span><span class="phrase-tone">casual</span></div><p class="phrase-m">a small routine detail that decides the whole outcome</p><p class="phrase-e">The five-minute handover is the tail that wags the dog — it decides whether the shift is clean.</p></div></div></details><details class="sec" data-sec="traps"><summary><span class="chev"></span><span class="sec-n">14</span><span class="sec-title">Traps in My English</span></summary><div class="sec-body"><div class="trap"><div class="trap-row"><span class="trap-bad">We are having a discussion with the vendor regarding the escalation matrix.</span><span class="trap-good"><b>→</b> We are discussing the escalation matrix with the vendor.</span><div class="trap-why">A discussion is countable — you have one. &#x27;Having a discussion regarding&#x27; reaches for a noun where the verb already exists, which is the most common tic in Indian corporate English.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">Please revert back.</span><span class="trap-good"><b>→</b> Please revert.</span><div class="trap-why">The &#x27;back&#x27; adds nothing; revert already means reply. It reads as a tic rather than a meaning precisely because it has been normal for so long that nobody questions it.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">The attrition rate is decreased by 4%.</span><span class="trap-good"><b>→</b> Attrition fell by 4%.</span><div class="trap-why">Rates fall, they are not decreased. &#x27;Decreased by&#x27; also hides the direction, leaving a reader to work out whether minus four is good news.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">We are having a delay from the client side.</span><span class="trap-good"><b>→</b> There&#x27;s a delay on the client&#x27;s side.</span><div class="trap-why">A delay comes from the client rather than being handed to you by them. &#x27;From&#x27; reads as a small accusation you do not need to make on a client call.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">I will escalate this to the higher management.</span><span class="trap-good"><b>→</b> I&#x27;ll escalate this to my manager.</span><div class="trap-why">In a BPO the layer above you is a manager. A Director hearing &#x27;higher management&#x27; from their own team has to ask who, and the answer is never flattering.</div></div></div></div></details><details class="sec" data-sec="speak"><summary><span class="chev"></span><span class="sec-n">15</span><span class="sec-title">Speak</span></summary><div class="sec-body"><div class="speak"><h4>Prompt</h4><p class="q">Your vendor has missed the same SLA three weeks running, your operations manager is asking why you have not escalated, and the client is on the line tomorrow. What do you say to your manager?</p><h4>Model answer</h4><div class="model">I want to be straight about where this stands. We have had three consecutive misses on the same SLA, and the vendor&#x27;s own root-cause report still points at a process on their side, so escalating internally would just move the problem somewhere it can still fail. The salient issue is that my recovery plan is contingent on data I do not have yet. So here is what I need from you: authority to put the last thirty days of ticket-level data in front of the vendor&#x27;s account lead by Wednesday, and cover for me on the client call. Every day this stays left hanging eats into the goodwill we have with that account. If you would rather I hold the line and go in without the data, say so and I will — but I would rather facilitate this myself than escalate something that still has no remedy attached.</div></div></div></details><details class="sec" data-sec="quiz"><summary><span class="chev"></span><span class="sec-n">16</span><span class="sec-title">Quiz</span><span class="sec-flag">5 questions</span></summary><div class="sec-body"><div class="quiz" data-answer="b"><p class="q"><b>1.</b> A supplier promises &#x27;prompt and stringent action&#x27; after a failure, and nothing happens for three weeks. What is &#x27;stringent&#x27; promising?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">That the response will be quick</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">That the response will be strict and carry real enforcement</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">That the response will be set out in writing</span></button><button class="opt" type="button" data-k="d"><span class="k">D</span><span class="ot">That the response will be repeated if it fails</span></button></div><p class="why">&#x27;Stringent&#x27; covers severity, not speed — &#x27;prompt&#x27; already carries that, and the supplier used both words in one sentence. Option a is &#x27;prompt&#x27; restated, which is the trap: two adjectives, two different jobs. Read the phrase as speed plus teeth, never speed alone.</p></div><div class="quiz" data-answer="a"><p class="q"><b>2.</b> A report says &#x27;the incentive is contingent on hitting the SLA&#x27;. In an operations review, what is that telling you?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The incentive depends on whether the SLA is met</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The incentive is small next to the cost of missing the SLA</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The incentive was designed before the SLA was agreed</span></button></div><p class="why">&#x27;Contingent on X&#x27; means &#x27;dependent on X&#x27; and nothing more. Option b smuggles in a comparison the sentence never makes, which is how this word gets over-read in a board pack. Option c is a claim about sequence, which is not what &#x27;contingent&#x27; means at all.</p></div><div class="quiz" data-answer="b"><p class="q"><b>3.</b> Which of these is safe to put in a client email?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">As per your last email, we are having a discussion regarding the escalation matrix internally.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">As per your last email, we are discussing the escalation matrix internally.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">As per your last email, we had a discussion regarding the escalation matrix internally.</span></button></div><p class="why">A discussion is countable, so &#x27;we are discussing&#x27; is correct; &#x27;having a discussion&#x27; and &#x27;a discussion regarding&#x27; reach for a noun where the verb already exists. Option c is the more expensive error — the past tense implies the meeting has happened, and if it has not, you have just misinformed the client.</p></div><div class="quiz" data-answer="a"><p class="q"><b>4.</b> You tell the team the five-minute handover &#x27;eats into&#x27; the shrinkage target. What does that mean?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The handover consumes part of the gap you are trying to close</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The handover damages the target so badly it cannot be met</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The handover reduces the number of shrinkage cases</span></button></div><p class="why">&#x27;Eat into&#x27; is gradual and partial — it consumes a share, it does not destroy. Option b overstates it to ruin, and option c inverts the meaning entirely, since shrinkage here is the loss you are trying to reduce, not a count that falls.</p></div><div class="quiz" data-answer="b"><p class="q"><b>5.</b> In a shift huddle, which sentence is wrong if you mean the backlog will grow because there is less time?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Squeezing the window will grow the backlog.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The compressed timeline means we will carry more over.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The squeezed schedule eats into our recovery time.</span></button></div><p class="why">&#x27;Timeline&#x27; names the plan rather than the time available, and &#x27;we will carry more over&#x27; states a consequence with no mechanism attached — which is exactly the sentence that gets challenged with &#x27;why?&#x27;. Options a and c both name the compression and the consequence, which is what makes a sentence actionable on a floor.</p></div></div></details><details class="sec" data-sec="skip"><summary><span class="chev"></span><span class="sec-n">17</span><span class="sec-title">Skip List</span></summary><div class="sec-body"><div class="skip">The daily Sudoku, the bank fixed-deposit and home-loan rate tables on printed p.13, the Hyderabad race card, and the film-music blurbs — none of it is news. Watch for paid content dressed as features: the INBRIEF boxes are edited summaries rather than advertising, but the festival and shopping items sit close to that line, and the front-page subscription QR code is a promotion that reads as layout.</div></div></details>
 </div>
   </div>
 </div>

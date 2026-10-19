@@ -98,6 +98,39 @@ The external-sourced material is always labelled. Nothing web-sourced is
 allowed into a news section; it appears only in the glossary and the
 `Context` blocks, which carry their own source lists.
 
+## Read aloud
+
+A **Listen** button sits in the top bar of both editions. It opens a panel
+listing every section, grouped the way the document is grouped, and reads the
+briefing aloud in the browser's own speech engine — so it costs nothing to
+build, needs no key, and works on a phone with no connection.
+
+The word being read is highlighted in the page as it goes, which is the point
+for someone learning the language: you can follow the text and see the word
+you are hearing. Speed is adjustable (0.8×, 1×, 1.15×) and the voice is
+selectable, preferring en-GB for a Canadian account, then en-IN, then en-US.
+
+Two decisions worth recording:
+
+**The text is read in blocks, not as one utterance.** Chrome silently truncates
+an utterance at about fifteen seconds, and a single utterance gives nowhere to
+show how far the reading has got. Blocks — paragraphs, list items, tables —
+also make the highlighting possible, because the offsets the engine reports
+line up with the text nodes of one block. A keep-alive timer pauses and
+resumes every nine seconds, which is the long-standing workaround for the
+same Chrome bug on the occasional block that still runs long.
+
+**The list is built from a `<template>`, not from an HTML string.** The
+template row is in the markup, so the class the script reaches for is
+visible in the source and to the checker that verifies every class the
+inline JS touches actually exists. Building the list from a string would
+have made that check a permanent false alarm.
+
+The phone edition gets a bottom sheet rather than a centred panel, because
+that edition is read one-handed, often at night. `display:flex` is set only
+on `[open]` — setting it on the dialog at all would defeat the user-agent
+rule that keeps a closed dialog hidden.
+
 ## Files
 
 ```
@@ -108,8 +141,9 @@ test_classes.py    CSS parses, JS targets resolve, anchors resolve, classes styl
 test_position.py   every absolutely-positioned element is anchored
 test_css_parser.py proves the CSS check actually fires
 test_position_parser.py proves the positioning check actually fires
-_tpl/phone.html    phone template  (markers: <!--SECTIONS-->)
-_tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/)
+_tpl/phone.html    phone template  (markers: <!--SECTIONS-->, <!--TTS-->)
+_tpl/desk.html     laptop template (markers: <!--SECTIONS-->, /*GLOSSARY*/, <!--TTS-->)
+_tpl/tts.js        the read-aloud module, inlined into both templates
 index.html         launcher: picks a newspaper, then an edition by viewport
 ARCHIVE.html       past editions, grouped by newspaper then month, filterable
 <paper>.html       published phone edition, one per newspaper

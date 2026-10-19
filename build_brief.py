@@ -485,7 +485,8 @@ def build_phone(b, terms) -> str:
             num, title, flag, body = got
             flag_html = f'<span class="sec-flag">{e(flag)}</span>' if flag else ""
             folds.append(
-                f'<details class="sec"{" open" if is_open else ""}>'
+                f'<details class="sec" data-sec="{e(key)}"'
+                f'{" open" if is_open else ""}>'
                 f'<summary><span class="chev"></span><span class="sec-n">{e(num)}</span>'
                 f'<span class="sec-title">{title}</span>{flag_html}</summary>'
                 f'<div class="sec-body">{body}</div></details>'
@@ -493,7 +494,7 @@ def build_phone(b, terms) -> str:
         if not folds:
             continue
         out.append(
-            f'<div class="band {cls}">\n'
+            f'<div class="band {cls}" data-band="{e(label)}">\n'
             f'<div class="band-head"><span class="band-label">{label}</span>'
             f'<span class="band-rule"></span></div>\n'
             f'<p class="band-note">{e(note)}</p>\n'
@@ -738,6 +739,18 @@ def paper_switcher(papers: list, current_slug: str, prefix: str = "") -> str:
         + "".join(rows) + "</div></details>")
 
 
+def tts_js() -> str:
+    """The read-aloud module, inlined into both templates.
+
+    Kept in its own file rather than as a string here so it stays
+    readable and can be checked by `node --check` on its own terms. It is
+    the same code in both editions, so the two can never drift.
+    """
+    path = os.path.join(TPL, "tts.js")
+    with open(path, encoding="utf-8") as fh:
+        return fh.read()
+
+
 def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     with open(os.path.join(TPL, tpl_name), encoding="utf-8") as fh:
         tpl = fh.read()
@@ -749,6 +762,7 @@ def render(tpl_name: str, b: dict, out_path: str, mode: str) -> str:
     subs = {
         "<!--SECTIONS-->": body,
         "/*GLOSSARY*/": glossary_js(b.get("terms", [])),
+        "<!--TTS-->": "<script>\n" + tts_js() + "\n</script>",
         "{{PAPERS}}": paper_switcher(
             known_papers(meta), paper_slug(meta.get("newspaper", "")),
             "../" if os.path.dirname(os.path.abspath(out_path)) ==

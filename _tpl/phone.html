@@ -472,12 +472,98 @@ blockquote p{margin:0 0 8px}
   border-left:2px solid var(--line-2);
 }
 
+/* ---------- read aloud ----------
+   A bottom sheet, not a centred panel: this edition is read one-handed,
+   often at night, and the section list is the control that matters.
+   Native <dialog>, so the focus trap and Escape are the browser's job
+   and the backdrop comes for free. */
+.tts{
+  border:0;padding:0;margin:0;
+  position:fixed;inset:auto 0 0 0;
+  width:100%;max-width:100%;max-height:88vh;
+  background:var(--panel);color:var(--ink);
+  border-radius:16px 16px 0 0;box-shadow:var(--shadow);
+}
+.tts::backdrop{background:rgba(12,11,9,.5);backdrop-filter:blur(2px)}
+/* Flex only while open. Setting display on the dialog at all would defeat
+   the user-agent rule that keeps a closed dialog hidden. */
+.tts[open]{display:flex;flex-direction:column}
+.tts-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 0;
+}
+.tts-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.tts-x{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;
+}
+.tts-x:hover{color:var(--ink);background:var(--panel-2)}
+.tts-now{
+  margin:12px 18px 0;padding:11px 13px;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--line);
+  font:500 13px/1.4 var(--sans);color:var(--ink);
+}
+.tts-ctl{display:flex;align-items:center;gap:7px;padding:12px 18px 0;flex-wrap:wrap}
+.tts-b{
+  font:500 12.5px/1 var(--sans);padding:11px 13px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-b:hover{color:var(--ink);border-color:var(--line-2)}
+.tts-p{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:84px}
+.tts-p:hover{color:var(--panel);background:var(--ink);opacity:.88}
+.tts-rate{display:flex;gap:4px;margin-left:auto}
+.tts-rate button{
+  font:500 11px/1 var(--mono);padding:10px 9px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-rate button.on{color:var(--ink);border-color:var(--line-2);background:var(--panel-2)}
+.tts-vl{
+  display:block;margin:14px 18px 5px;
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+}
+.tts-v{
+  display:block;width:calc(100% - 36px);margin:0 18px;
+  font:500 12.5px/1 var(--sans);padding:11px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+}
+.tts-list{
+  margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
+  flex:1 1 auto;min-height:90px;
+  background:none;border:0;border-radius:0;
+}
+.tts-g{
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:13px 10px 7px;
+}
+.tts-i{
+  display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  padding:10px;border:0;border-radius:8px;background:none;cursor:pointer;
+}
+.tts-i:hover{background:var(--panel-2)}
+.tts-i .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right;min-width:24px}
+.tts-i .t{font:500 13px/1.4 var(--sans);color:var(--muted)}
+.tts-i.on{background:var(--panel-2)}
+.tts-i.on .t{color:var(--ink)}
+.tts-i.on .n{color:var(--use)}
+.tts-f{
+  margin:0;padding:11px 18px 20px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+/* The list takes the slack; the controls never shrink. */
+.tts-h,.tts-now,.tts-ctl,.tts-vl,.tts-v,.tts-f{flex:0 0 auto}
+
+/* The word being read. A tint of the accent rather than a solid block, so
+   the text underneath keeps its contrast -- the highlight is a reading aid,
+   not a re-colouring of the sentence. */
+.spoken{background:color-mix(in srgb, var(--ref) 30%, transparent);border-radius:2px}
+
 /* ---------- print ---------- */
 @media print{
   :root{--shadow:none}
   body{background:#fff;font-size:10.5pt}
   .mast{position:static}
   .toggle{display:none}
+  .tts{display:none}
   .sec{break-inside:avoid;border-color:#ccc;margin-bottom:8px}
   .sec:not([open])>.sec-body{display:block}
   .band{margin-top:20px}
@@ -501,10 +587,37 @@ blockquote p{margin:0 0 8px}
     </div>
     <div class="meta">{{NEWSPAPER}} · {{PAGES}}pp</div>
     {{PAPERS}}
+    <button class="toggle" data-tts-open>Listen</button>
     <a class="toggle toggle-a" href="#" data-archive>Archive</a>
     <button class="toggle" id="thBtn" onclick="toggleTheme()">◐ Light</button>
   </div>
 </header>
+
+<dialog class="tts" id="tts" aria-label="Read aloud">
+  <div class="tts-h">
+    <span class="tts-t">Listen</span>
+    <button class="tts-x" id="ttsClose" aria-label="Close">&times;</button>
+  </div>
+  <p class="tts-now" id="ttsNow">Press play to start reading.</p>
+  <div class="tts-ctl">
+    <button class="tts-b" id="ttsBack" aria-label="Previous section">&larr;</button>
+    <button class="tts-b tts-p" id="ttsPlay" aria-pressed="false">Play</button>
+    <button class="tts-b" id="ttsStop" aria-label="Stop">&#9632;</button>
+    <div class="tts-rate" id="ttsRate" role="group" aria-label="Speed">
+      <button data-rate="0.8">0.8&times;</button>
+      <button data-rate="1" class="on">1&times;</button>
+      <button data-rate="1.15">1.15&times;</button>
+    </div>
+  </div>
+  <label class="tts-vl" for="ttsVoice">Voice</label>
+  <select class="tts-v" id="ttsVoice"></select>
+  <div class="tts-b tts-list" id="ttsList"></div>
+  <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
+</dialog>
+
+<template id="ttsRow">
+  <button class="tts-i"><span class="n"></span><span class="t"></span></button>
+</template>
 
 <button class="totop" id="toTop" type="button" aria-label="Back to top">&#8593;</button>
 
@@ -575,6 +688,7 @@ document.addEventListener('click', function(e){
   z.classList.add('done');
 });
 </script>
+<!--TTS-->
 
 <div class="shell"><!--SECTIONS-->
   </div>

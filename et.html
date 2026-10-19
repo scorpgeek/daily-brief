@@ -472,12 +472,98 @@ blockquote p{margin:0 0 8px}
   border-left:2px solid var(--line-2);
 }
 
+/* ---------- read aloud ----------
+   A bottom sheet, not a centred panel: this edition is read one-handed,
+   often at night, and the section list is the control that matters.
+   Native <dialog>, so the focus trap and Escape are the browser's job
+   and the backdrop comes for free. */
+.tts{
+  border:0;padding:0;margin:0;
+  position:fixed;inset:auto 0 0 0;
+  width:100%;max-width:100%;max-height:88vh;
+  background:var(--panel);color:var(--ink);
+  border-radius:16px 16px 0 0;box-shadow:var(--shadow);
+}
+.tts::backdrop{background:rgba(12,11,9,.5);backdrop-filter:blur(2px)}
+/* Flex only while open. Setting display on the dialog at all would defeat
+   the user-agent rule that keeps a closed dialog hidden. */
+.tts[open]{display:flex;flex-direction:column}
+.tts-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 0;
+}
+.tts-t{font:600 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.tts-x{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--muted);font-size:17px;line-height:1;cursor:pointer;
+}
+.tts-x:hover{color:var(--ink);background:var(--panel-2)}
+.tts-now{
+  margin:12px 18px 0;padding:11px 13px;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--line);
+  font:500 13px/1.4 var(--sans);color:var(--ink);
+}
+.tts-ctl{display:flex;align-items:center;gap:7px;padding:12px 18px 0;flex-wrap:wrap}
+.tts-b{
+  font:500 12.5px/1 var(--sans);padding:11px 13px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-b:hover{color:var(--ink);border-color:var(--line-2)}
+.tts-p{background:var(--ink);color:var(--panel);border-color:var(--ink);min-width:84px}
+.tts-p:hover{color:var(--panel);background:var(--ink);opacity:.88}
+.tts-rate{display:flex;gap:4px;margin-left:auto}
+.tts-rate button{
+  font:500 11px/1 var(--mono);padding:10px 9px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;
+}
+.tts-rate button.on{color:var(--ink);border-color:var(--line-2);background:var(--panel-2)}
+.tts-vl{
+  display:block;margin:14px 18px 5px;
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+}
+.tts-v{
+  display:block;width:calc(100% - 36px);margin:0 18px;
+  font:500 12.5px/1 var(--sans);padding:11px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+}
+.tts-list{
+  margin:12px 0 0;padding:0 8px 8px;overflow-y:auto;
+  flex:1 1 auto;min-height:90px;
+  background:none;border:0;border-radius:0;
+}
+.tts-g{
+  font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);padding:13px 10px 7px;
+}
+.tts-i{
+  display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  padding:10px;border:0;border-radius:8px;background:none;cursor:pointer;
+}
+.tts-i:hover{background:var(--panel-2)}
+.tts-i .n{font:600 10px/1.5 var(--mono);color:var(--faint);text-align:right;min-width:24px}
+.tts-i .t{font:500 13px/1.4 var(--sans);color:var(--muted)}
+.tts-i.on{background:var(--panel-2)}
+.tts-i.on .t{color:var(--ink)}
+.tts-i.on .n{color:var(--use)}
+.tts-f{
+  margin:0;padding:11px 18px 20px;border-top:1px solid var(--line);
+  font:400 10.5px/1.4 var(--mono);color:var(--faint);
+}
+/* The list takes the slack; the controls never shrink. */
+.tts-h,.tts-now,.tts-ctl,.tts-vl,.tts-v,.tts-f{flex:0 0 auto}
+
+/* The word being read. A tint of the accent rather than a solid block, so
+   the text underneath keeps its contrast -- the highlight is a reading aid,
+   not a re-colouring of the sentence. */
+.spoken{background:color-mix(in srgb, var(--ref) 30%, transparent);border-radius:2px}
+
 /* ---------- print ---------- */
 @media print{
   :root{--shadow:none}
   body{background:#fff;font-size:10.5pt}
   .mast{position:static}
   .toggle{display:none}
+  .tts{display:none}
   .sec{break-inside:avoid;border-color:#ccc;margin-bottom:8px}
   .sec:not([open])>.sec-body{display:block}
   .band{margin-top:20px}
@@ -501,10 +587,37 @@ blockquote p{margin:0 0 8px}
     </div>
     <div class="meta">ET Delhi · 18pp</div>
     <details class="pnav" id="pnav"><summary>ET Delhi<span class="pnav-c" aria-hidden="true"></span></summary><div class="pnav-menu"><div class="pnav-h">Switch newspaper</div><div class="pnav-row pnav-cur"><span class="pnav-name">ET Delhi<span class=pnav-now>you are here</span></span><a class="pnav-l" href="et-desk.html">Laptop</a><a class="pnav-l" href="et.html">Phone</a></div><div class="pnav-row"><span class="pnav-name">The Hindu</span><a class="pnav-l" href="hindu-desk.html">Laptop</a><a class="pnav-l" href="hindu.html">Phone</a></div></div></details>
+    <button class="toggle" data-tts-open>Listen</button>
     <a class="toggle toggle-a" href="#" data-archive>Archive</a>
     <button class="toggle" id="thBtn" onclick="toggleTheme()">◐ Light</button>
   </div>
 </header>
+
+<dialog class="tts" id="tts" aria-label="Read aloud">
+  <div class="tts-h">
+    <span class="tts-t">Listen</span>
+    <button class="tts-x" id="ttsClose" aria-label="Close">&times;</button>
+  </div>
+  <p class="tts-now" id="ttsNow">Press play to start reading.</p>
+  <div class="tts-ctl">
+    <button class="tts-b" id="ttsBack" aria-label="Previous section">&larr;</button>
+    <button class="tts-b tts-p" id="ttsPlay" aria-pressed="false">Play</button>
+    <button class="tts-b" id="ttsStop" aria-label="Stop">&#9632;</button>
+    <div class="tts-rate" id="ttsRate" role="group" aria-label="Speed">
+      <button data-rate="0.8">0.8&times;</button>
+      <button data-rate="1" class="on">1&times;</button>
+      <button data-rate="1.15">1.15&times;</button>
+    </div>
+  </div>
+  <label class="tts-vl" for="ttsVoice">Voice</label>
+  <select class="tts-v" id="ttsVoice"></select>
+  <div class="tts-b tts-list" id="ttsList"></div>
+  <p class="tts-f">Words highlight as they are read &middot; Esc to close</p>
+</dialog>
+
+<template id="ttsRow">
+  <button class="tts-i"><span class="n"></span><span class="t"></span></button>
+</template>
 
 <button class="totop" id="toTop" type="button" aria-label="Back to top">&#8593;</button>
 
@@ -575,26 +688,416 @@ document.addEventListener('click', function(e){
   z.classList.add('done');
 });
 </script>
+<script>
+/* ---- listen: the briefing read aloud ----
+
+   The browser's own speech engine, so a briefing still costs nothing to
+   build, needs no key, and works on a phone with no connection.
+
+   The text is read in blocks -- paragraphs, list items, tables -- rather
+   than as one long utterance. Two reasons. Chrome silently truncates an
+   utterance at about fifteen seconds, and a single utterance gives nowhere
+   to show how far the reading has got. Blocks also make the word
+   highlighting possible, because the offsets the engine reports line up
+   with the text nodes of one block.
+
+   A keep-alive timer pauses and resumes the utterance every nine seconds,
+   which is the long-standing workaround for that same Chrome bug on the
+   occasional block that still runs long. */
+
+(function(){
+  var synth = window.speechSynthesis;
+  var dlg = document.getElementById('tts');
+  if(!synth || !dlg) return;
+
+  var elNow   = document.getElementById('ttsNow');
+  var elList  = document.getElementById('ttsList');
+  var elPlay  = document.getElementById('ttsPlay');
+  var elStop  = document.getElementById('ttsStop');
+  var elBack  = document.getElementById('ttsBack');
+  var elRate  = document.getElementById('ttsRate');
+  var elVoice = document.getElementById('ttsVoice');
+  var elClose = document.getElementById('ttsClose');
+
+  var rate = 1, voice = null, units = [], queue = [], qi = -1;
+  var cur = null, keep = null, playing = false, stopped = true;
+  var markEl = null, lastUnit = null;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  /* ---- reading units ---------------------------------------------- */
+
+  function titleOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    if(!h) return '';
+    var n = h.querySelector('.n, .sec-n'), f = h.querySelector('.sec-flag');
+    var s = h.textContent || '';
+    if(n) s = s.replace(n.textContent, '');
+    if(f) s = s.replace(f.textContent, '');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  function numOf(el){
+    var h = el.querySelector('h2.sec, summary');
+    var n = h && h.querySelector('.n, .sec-n');
+    return n ? n.textContent.trim() : '';
+  }
+
+  /* One band mechanism for both editions. The desk marks each section with
+     data-band; the phone marks each band wrapper, and the section inherits
+     it from there. */
+  function bandOf(el){
+    var host = (el.dataset && el.dataset.band) ? el : el.closest('[data-band]');
+    return (host && host.dataset) ? host.dataset.band : '';
+  }
+
+  function unitsOf(){
+    var out = [];
+    Array.prototype.forEach.call(
+      document.querySelectorAll('section[id], details[data-sec]'),
+      function(el){
+        if(el.closest('dialog') || el.closest('.rail')) return;
+        out.push({el:el, num:numOf(el), title:titleOf(el), band:bandOf(el)});
+      });
+    return out;
+  }
+
+  /* ---- text extraction --------------------------------------------- */
+
+  /* Leaf blocks only. A list item containing a paragraph is read once, as
+     the item, rather than twice. */
+  var BLOCKS = 'p,li,h4,h5,dt,dd,blockquote,table';
+
+  function blocksOf(el){
+    var out = [];
+    Array.prototype.forEach.call(el.querySelectorAll(BLOCKS), function(n){
+      if(n.querySelector(BLOCKS)) return;
+      out.push(n);
+    });
+    return out;
+  }
+
+  /* The text and the text nodes it came from. The engine reports word
+     offsets into the string it was given, so the string has to be built the
+     same way when speaking and when highlighting. */
+  function walk(block){
+    var walker = document.createTreeWalker(block, 4);
+    var parts = [], text = '', n;
+    while((n = walker.nextNode())){
+      var t = (n.nodeValue || '').replace(/\s+/g, ' ');
+      if(!t) continue;
+      parts.push({node:n, text:t, start:text.length});
+      text += t;
+    }
+    return {parts:parts, text:text};
+  }
+
+  function textOf(block){
+    if(block.tagName === 'TABLE'){
+      var rows = [];
+      var cap = block.querySelector('caption');
+      if(cap){
+        var c = (cap.textContent || '').replace(/\s+/g, ' ').trim();
+        if(c) rows.push(c);
+      }
+      Array.prototype.forEach.call(block.querySelectorAll('tr'), function(tr){
+        var cells = [];
+        Array.prototype.forEach.call(tr.children, function(td){
+          cells.push((td.textContent || '').replace(/\s+/g, ' ').trim());
+        });
+        if(cells.length) rows.push(cells.join(', '));
+      });
+      return rows.join('. ');
+    }
+    return walk(block).text;
+  }
+
+  function buildQueue(){
+    queue = [];
+    units.forEach(function(u){
+      blocksOf(u.el).forEach(function(bl){
+        var t = textOf(bl);
+        if(t && t.length) queue.push({unit:u, block:bl, text:t});
+      });
+    });
+  }
+
+  /* ---- highlighting ------------------------------------------------- */
+
+  function clearMark(){
+    if(!markEl) return;
+    var parent = markEl.parentNode, txt = markEl.textContent;
+    if(parent) parent.replaceChild(document.createTextNode(txt), markEl);
+    markEl = null;
+  }
+
+  function mark(block, start, len){
+    clearMark();
+    if(!len) return;
+    var w = walk(block);
+    if(start >= w.text.length) return;
+    var part = null, off = 0;
+    for(var i = 0; i < w.parts.length; i++){
+      var p = w.parts[i];
+      if(start < p.start + p.text.length){ part = p; off = start - p.start; break; }
+    }
+    if(!part) return;
+    var node = part.node, full = node.nodeValue;
+    var s = Math.max(0, off);
+    var e = Math.min(full.length, off + len);
+    if(e <= s) return;
+    var parent = node.parentNode;
+    if(!parent) return;
+    var sp = document.createElement('span');
+    sp.className = 'spoken';
+    sp.textContent = full.slice(s, e);
+    if(s > 0) parent.insertBefore(document.createTextNode(full.slice(0, s)), node);
+    var tail = null;
+    if(e < full.length) tail = document.createTextNode(full.slice(e));
+    parent.replaceChild(sp, node);
+    if(tail) parent.insertBefore(tail, sp.nextSibling);
+    markEl = sp;
+  }
+
+  /* ---- the section list --------------------------------------------- */
+
+  function buildList(){
+    var tpl = document.getElementById('ttsRow');
+    if(!tpl) return;
+    var frag = document.createDocumentFragment();
+    var band = null;
+    units.forEach(function(u, i){
+      var b = u.band || 'Start';
+      if(b !== band){
+        band = b;
+        var g = document.createElement('div');
+        g.className = 'tts-g';
+        g.textContent = b;
+        frag.appendChild(g);
+      }
+      var row = tpl.content.firstElementChild.cloneNode(true);
+      row.setAttribute('data-i', i);
+      row.querySelector('.n').textContent = u.num || '';
+      row.querySelector('.t').textContent = u.title || '30 seconds';
+      frag.appendChild(row);
+    });
+    elList.innerHTML = '';
+    elList.appendChild(frag);
+    Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b){
+      b.addEventListener('click', function(){ startAt(+b.getAttribute('data-i')); });
+    });
+  }
+
+  function showNow(item){
+    var u = item.unit;
+    elNow.textContent = (u.num ? u.num + ' · ' : '') + (u.title || '30 seconds');
+    if(u !== lastUnit){
+      lastUnit = u;
+      Array.prototype.forEach.call(elList.querySelectorAll('.tts-i'), function(b, i){
+        b.classList.toggle('on', units[i] === u);
+      });
+      try{ u.el.scrollIntoView({block:'start', behavior:'smooth'}); }catch(e){}
+    }
+  }
+
+  /* ---- speaking ------------------------------------------------------ */
+
+  function keepAlive(){
+    clearTimeout(keep);
+    keep = setTimeout(function(){
+      if(!synth.speaking) return;
+      synth.pause();
+      synth.resume();
+      keepAlive();
+    }, 9000);
+  }
+
+  function speakNext(){
+    if(stopped) return;
+    if(qi + 1 >= queue.length){ finish(); return; }
+    qi++;
+    var item = queue[qi];
+    cur = item;
+    showNow(item);
+    var u = new SpeechSynthesisUtterance(item.text);
+    u.rate = rate;
+    if(voice) u.voice = voice;
+    u.onboundary = function(ev){
+      if(ev.name && ev.name !== 'word') return;
+      mark(item.block, ev.charIndex, ev.charLength || 0);
+    };
+    u.onend = function(){ if(!stopped) speakNext(); };
+    u.onerror = function(){ if(!stopped) speakNext(); };
+    synth.speak(u);
+    keepAlive();
+  }
+
+  function startAt(unitIndex){
+    var target = -1;
+    for(var i = 0; i < queue.length; i++){
+      if(queue[i].unit === units[unitIndex]){ target = i; break; }
+    }
+    if(target < 0) return;
+    synth.cancel();
+    clearTimeout(keep);
+    clearMark();
+    qi = target - 1;
+    stopped = false;
+    playing = true;
+    setPlay();
+    speakNext();
+  }
+
+  function finish(){
+    playing = false;
+    stopped = true;
+    clearTimeout(keep);
+    setPlay();
+  }
+
+  function stop(){
+    stopped = true;
+    playing = false;
+    clearTimeout(keep);
+    try{ synth.cancel(); }catch(e){}
+    clearMark();
+    lastUnit = null;
+    setPlay();
+  }
+
+  function setPlay(){
+    if(elPlay) elPlay.textContent = playing ? 'Pause' : 'Play';
+    if(elPlay) elPlay.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  }
+
+  /* ---- voices -------------------------------------------------------- */
+
+  /* Voices load asynchronously in most browsers, so the list is filled now
+     and again when it changes. A Canadian account wants en-GB; an Indian
+     accent is the next best fit, and en-US last. */
+  function fillVoices(){
+    if(!elVoice) return;
+    var all = synth.getVoices() || [];
+    var eng = all.filter(function(v){ return /^en/i.test(v.lang); });
+    if(!eng.length) return;
+    eng.sort(function(a, b){
+      var rank = function(v){
+        if(/en-GB/i.test(v.lang)) return 0;
+        if(/en-IN/i.test(v.lang)) return 1;
+        if(/^en/i.test(v.lang)) return 2;
+        return 3;
+      };
+      return rank(a) - rank(b);
+    });
+    if(elVoice.options.length === eng.length
+       && elVoice.options.length
+       && elVoice.options[0].value === eng[0].voiceURI) return;
+    elVoice.innerHTML = eng.map(function(v){
+      return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '</option>';
+    }).join('');
+    voice = eng[0];
+    elVoice.value = voice.voiceURI;
+    elVoice.addEventListener('change', function(){
+      var pick = eng.filter(function(v){ return v.voiceURI === elVoice.value; })[0];
+      if(pick) voice = pick;
+    });
+  }
+
+  if(synth.addEventListener) synth.addEventListener('voiceschanged', fillVoices);
+  fillVoices();
+
+  /* ---- controls ------------------------------------------------------ */
+
+  if(elPlay) elPlay.addEventListener('click', function(){
+    if(playing){
+      synth.pause();
+      playing = false;
+      setPlay();
+      return;
+    }
+    if(stopped){
+      if(!units.length) return;
+      units = unitsOf();
+      buildQueue();
+      buildList();
+      startAt(0);
+      return;
+    }
+    synth.resume();
+    playing = true;
+    setPlay();
+  });
+
+  if(elStop) elStop.addEventListener('click', stop);
+
+  if(elBack) elBack.addEventListener('click', function(){
+    if(!cur) return;
+    var idx = units.indexOf(cur.unit);
+    if(idx > 0) startAt(idx - 1);
+  });
+
+  if(elClose) elClose.addEventListener('click', function(){
+    stop();
+    dlg.close();
+  });
+
+  dlg.addEventListener('click', function(e){
+    if(e.target.closest('a')) return;
+    if(e.target === dlg) stop();
+  });
+
+  if(elRate){
+    Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(b){
+      b.addEventListener('click', function(){
+        rate = parseFloat(b.getAttribute('data-rate')) || 1;
+        Array.prototype.forEach.call(elRate.querySelectorAll('button'), function(o){
+          o.classList.toggle('on', o === b);
+        });
+      });
+    });
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-tts-open]'),
+    function(b){
+      b.addEventListener('click', function(){
+        if(dlg.open) return;
+        units = unitsOf();
+        buildQueue();
+        buildList();
+        dlg.showModal();
+      });
+    });
+
+  /* Opening the panel must not leave the phone's sheet half-drawn. */
+  dlg.addEventListener('close', function(){ clearMark(); });
+})();
+
+</script>
 
 <div class="shell"><section class="ts" id="thirty"><h2>30 seconds</h2><dl class="ts-row"><dt>Today</dt><dd>Big Four fight for GCC work; Chorbagan stampede toll rises to 19; IT stocks at a record low in fund portfolios.</dd><dt>Do this</dt><dd>Name which of your account&#x27;s processes are commoditised support and which a client would build in-house.</dd><dt>By when</dt><dd>Oct 20–21 compensation cheques handed over. Oct 21 Jio Platforms&#x27; ₹30,213 cr IPO opens.</dd></dl></section>
 
-<div class="band band-use">
+<div class="band band-use" data-band="Use these">
 <div class="band-head"><span class="band-label">Use these</span><span class="band-rule"></span></div>
 <p class="band-note">Three quick sections, then the two deep reads. Everything below is reference.</p>
-<details class="sec" open><summary><span class="chev"></span><span class="sec-n">01</span><span class="sec-title">Top 5</span><span class="sec-flag">WATCH 4 · KNOW 1</span></summary><div class="sec-body"><div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">The Big Four are fighting each other for global capability centre work — GCCs generated $98.4 bn in India last year across 2,100-plus centres, employing 2.36 million people.</div><div class="top-note"><b>Watch for</b> the bigger shift underneath: external sources say nine in ten new GCCs are now built by external partners, not in-house.</div></div>
+<details class="sec" data-sec="top" open><summary><span class="chev"></span><span class="sec-n">01</span><span class="sec-title">Top 5</span><span class="sec-flag">WATCH 4 · KNOW 1</span></summary><div class="sec-body"><div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">The Big Four are fighting each other for global capability centre work — GCCs generated $98.4 bn in India last year across 2,100-plus centres, employing 2.36 million people.</div><div class="top-note"><b>Watch for</b> the bigger shift underneath: external sources say nine in ten new GCCs are now built by external partners, not in-house.</div></div>
 <div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Indian mutual funds&#x27; IT holdings fell to a record low — the sector is now 5.3% of equity assets, down from a 13.4% peak.</div><div class="top-note"><b>Watch for</b> whether the 11.7% rebound last week holds, the index&#x27;s biggest weekly gain in 18 years.</div></div>
 <div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Festive ecommerce sales are faltering — online dispatches ran 10–12% below last year with average discounts 35–40% lower.</div><div class="top-note"><b>Watch for</b> whether the rest of the festive season recovers, or the slowdown is structural.</div></div>
 <div class="top-item"><span class="tag KNOW">KNOW</span><div class="top-text">The Chorbagan pandal stampede toll rose to 19 — up from 17 reported yesterday; seven of fourteen detained have been arrested.</div></div>
-<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Jio Platforms opens India&#x27;s largest-ever IPO on Oct 21 — ₹30,213 crore, the largest issue in Indian history.</div><div class="top-note"><b>Watch for</b> the pricing, as a live signal for the Indian telecom sector.</div></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">06</span><span class="sec-title">My Lens</span></summary><div class="sec-body"><div class="lens"><dl><dt>What</dt><dd data-src="paper">2,100-plus GCCs now generate $98.4 bn in India employing 2.36 million people, and the work has shifted from cost-focused managed services to owning transformation and product development. PwC&#x27;s Ojha calls it a &quot;strategic twin.&quot; The Big Four&#x27;s own line: <em>&quot;An engine manufacturer doesn&#x27;t want to sell engines; it wants to sell power by the hour.&quot;</em></dd><dt>Why me</dt><dd>That is your industry&#x27;s structural shift, stated plainly. If GCCs become the client&#x27;s internal capability rather than a buyer of outsourced work, the volume your account commands is exposed.</dd><dt>Do / Say</dt><dd>Ask which of your account&#x27;s processes are commoditised support and which are the kind a client would build in-house. Talking point: <em>&quot;they&#x27;re not buying seats anymore, they&#x27;re buying capability — so let&#x27;s price the capability, not the headcount.&quot;</em></dd></dl></div>
+<div class="top-item"><span class="tag WATCH">WATCH</span><div class="top-text">Jio Platforms opens India&#x27;s largest-ever IPO on Oct 21 — ₹30,213 crore, the largest issue in Indian history.</div><div class="top-note"><b>Watch for</b> the pricing, as a live signal for the Indian telecom sector.</div></div></div></details><details class="sec" data-sec="lens" open><summary><span class="chev"></span><span class="sec-n">06</span><span class="sec-title">My Lens</span></summary><div class="sec-body"><div class="lens"><dl><dt>What</dt><dd data-src="paper">2,100-plus GCCs now generate $98.4 bn in India employing 2.36 million people, and the work has shifted from cost-focused managed services to owning transformation and product development. PwC&#x27;s Ojha calls it a &quot;strategic twin.&quot; The Big Four&#x27;s own line: <em>&quot;An engine manufacturer doesn&#x27;t want to sell engines; it wants to sell power by the hour.&quot;</em></dd><dt>Why me</dt><dd>That is your industry&#x27;s structural shift, stated plainly. If GCCs become the client&#x27;s internal capability rather than a buyer of outsourced work, the volume your account commands is exposed.</dd><dt>Do / Say</dt><dd>Ask which of your account&#x27;s processes are commoditised support and which are the kind a client would build in-house. Talking point: <em>&quot;they&#x27;re not buying seats anymore, they&#x27;re buying capability — so let&#x27;s price the capability, not the headcount.&quot;</em></dd></dl></div>
 <div class="lens"><dl><dt>What</dt><dd data-src="paper">LTM&#x27;s chief executive says the linkage between revenue and headcount is already broken, with 60% of the portfolio through AI deflation — the same deflation TCS has already sustained at 50%.</dd><dt>Why me</dt><dd>Two of India&#x27;s largest IT services firms have publicly stated that delivering the same work now takes materially fewer people. Your productivity argument stops being an efficiency gain and becomes a commercial one.</dd><dt>Do / Say</dt><dd>Quantify your own deflation honestly: what did you deliver last quarter with how many people, versus a year ago? If the answer is &quot;the same work, fewer people,&quot; that is the argument — and it should be yours before it is anyone else&#x27;s.</dd></dl></div>
-<div class="lens"><dl><dt>What</dt><dd data-src="paper">The Big Four are fighting over GCC work with specialist operators, talent providers and real-estate players also entering — 150 to 160 active participants.</dd><dt>Why me</dt><dd>Your client has more options than it had two years ago. That is leverage you should know about and use, not be surprised by.</dd><dt>Do / Say</dt><dd>Stop describing your value as effort or headcount. Name the outcome you own, the failure you&#x27;d prevent, and what your account would cost to rebuild.</dd></dl></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">08</span><span class="sec-title">Shift Huddle Line</span><span class="sec-flag">Copy</span></summary><div class="sec-body"><blockquote><p>Our clients are rebuilding how they buy service work — so let&#x27;s ask what we&#x27;d change if they looked at us the way they now look at a vendor.</p></blockquote></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">DEEP</span><span class="sec-title">Deep Dive</span><span class="sec-flag">2 stories</span></summary><div class="sec-body"><div class="dd"><h4>The Big Four battle for India&#x27;s GCC business</h4><p class="dd-page">Business &amp; Markets · PDF p.13</p><dl class="dd-row"><dt>Background</dt><dd>GCCs moved from a niche offshore cost line to the strongest growth driver in professional services. Deloitte India and EY India each crossed ₹5,000 crore in GCC revenue in FY26. Deloitte&#x27;s GCC business is growing 25% annually and is 28% of total revenue; PwC&#x27;s is 35% of technology consulting, its largest service line in India.</dd><dt>Affected</dt><dd>Every technology services firm competing for this work, plus the specialist GCC operators, talent providers and real-estate players now entering — around 150 to 160 active participants. KPMG generated 30–35% of advisory revenue from GCCs.</dd><dt>Next</dt><dd>GCC mandates increasingly originate at a multinational&#x27;s headquarters even where the work is done in India. AI has opened a second front: GCCs now need help preparing data, redesigning processes and establishing governance.</dd><dt>Watch</dt><dd>Whether the Big Four&#x27;s differentiation holds once AI deployment capability converges with technology services firms — PwC&#x27;s own Ojha admits knowledge is not sufficient anymore. India could host up to 5,000 GCCs by 2030; 2,100 exist today.</dd><dt>Scale</dt><dd><strong>$98.4 billion</strong> — FY26 revenue from 2,100-plus GCCs in India, employing 2.36 million professionals.</dd></dl></div>
-<div class="dd"><h4>Mutual funds&#x27; IT holdings fall to a record low</h4><p class="dd-page">Business &amp; Markets · PDF p.15</p><dl class="dd-row"><dt>Background</dt><dd>Indian mutual funds&#x27; exposure to IT stocks fell to an all-time low in September on AI disruption fears, weak global client spending and subdued growth prospects. The value of holdings dropped 25% to ₹2.97 lakh crore from ₹3.98 lakh crore in December 2025.</dd><dt>Affected</dt><dd>Infosys and TCS, once among fund managers&#x27; largest holdings. Infosys slipped to 10th from 5th; TCS to 19th from 14th; HCL Tech to 25th from 20th. Wipro collapsed to 316th from 80th.</dd><dt>Next</dt><dd>The Nifty IT index shed about 28% in 2026 against 14% for the Nifty, then rebounded 11.7% last week — its biggest weekly gain in 18 years. Funds themselves added to Infosys, TCS and HCL Tech in September while cutting Tech Mahindra and Wipro.</dd><dt>Watch</dt><dd>Whether the rebound holds. The framing is that this has been a de-rating rather than an earnings story — revenue growth is muted but has not collapsed. If earnings turn, the sector re-rates quickly.</dd><dt>Scale</dt><dd><strong>5.3%</strong> — IT&#x27;s share of mutual fund equity assets, from 7.6% at end-2025 and a record 13.4% at end-2021.</dd></dl></div></div></details><details class="sec" open><summary><span class="chev"></span><span class="sec-n">10</span><span class="sec-title">One Long-Form Read</span><span class="sec-flag">Objection</span></summary><div class="sec-body"><div class="longform"><div class="op" style="border:0;padding:0 0 14px"><h4>Get a Tech List to Tick</h4><p class="op-by">Abhay Karandikar (Member, S&amp;T, NITI Aayog) and Aditya Sinha (Associate Director, FAST India)</p></div><div class="beat"><div class="beat-k">The argument</div><p>India&#x27;s outward push rests on Aatmanirbhar, read as independence rather than self-centredness. Three semiconductor plants and the National Quantum Mission are operational, PLIs cover more than a dozen sectors, an indigenous 4G/5G stack has been deployed, and RDIF carries ₹1 lakh crore. The authors argue the instruments are sufficient and the missing piece is judgement: which technologies India cannot afford to depend on others for. Every other major economy publishes such a list.</p></div><div class="beat"><div class="beat-k">The claim I&#x27;m attacking</div><p>That India needs an evidence-based list of critical technologies, and that publishing one would improve the targeting of public money and private capital.</p></div><div class="beat"><div class="beat-k">The joint</div><p>The piece conflates two different questions and then admits it in a subordinate clause. Criticality is a claim about consequence — how badly the country is hurt if supply stops. Winnability is a claim about probability — whether domestic capability is achievable at all. The authors write &quot;Being critical is not the same as being winnable&quot; and treat that as sufficient, then produce a list asked to serve both purposes at once. Nothing in between says who makes the second judgement, on what evidence, or what happens when something critical is not winnable.</p></div><div class="beat"><div class="beat-k">The argument</div><p>A list is a prioritisation mechanism, and prioritisation is achieved by exclusion. The alists work precisely because they are short and contestable. The list described here does the opposite: assembled by adding every technology where dependence is uncomfortable, then annotated. On that construction it cannot prioritise, because nothing is excluded. And the annotation step has no owner. Winnability is a five-year, multi-billion-dollar, cross-ministerial judgement about industrial capability — it cannot sit unassigned at the bottom of an op-ed. The deeper problem is that a list works only where an enforcing institution exists. The US export-control lists bite because Commerce has statutory authority and the industry litigates against them. India currently has neither.</p></div><div class="beat"><div class="beat-k">What I would concede</div><p>The authors are right on three counts that matter. Capability compounds and lead times run to years, so reactive policy is structurally too late. Supply denial is genuinely now statecraft, and the 2022 chip cut, the 2023 gallium and germanium response and the April 2025 rare-earth controls show a denial cascade moving in weeks. And private returns to deep research do fall short of social returns, which is a real reason public money has to lead. The Kautilya frame at the close is apt: a store is defined as much by what it leaves out.</p></div><div class="beat falsifier"><div class="beat-k">What would change my mind</div><p>A published list with measurable redirection — if RDIF issuance patterns visibly shift toward named technologies, or ANRF reserves a portfolio slice against the list and reports against it annually, then the mechanism is working and my objection fails. A second thing would change my mind: evidence that an existing institution has been assigned enforcing authority over the list.</p></div><div class="beat"><div class="beat-k">How this differs</div><p>The authors argue from inside the framing — they accept that a list is the right instrument and show what it would look like. My objection accepts that and shows the instrument cannot do the job as specified without an enforcer and an exclusion rule, both unassigned. They ask what the list should say; I ask who decides what it omits.</p></div></div></div></details>
+<div class="lens"><dl><dt>What</dt><dd data-src="paper">The Big Four are fighting over GCC work with specialist operators, talent providers and real-estate players also entering — 150 to 160 active participants.</dd><dt>Why me</dt><dd>Your client has more options than it had two years ago. That is leverage you should know about and use, not be surprised by.</dd><dt>Do / Say</dt><dd>Stop describing your value as effort or headcount. Name the outcome you own, the failure you&#x27;d prevent, and what your account would cost to rebuild.</dd></dl></div></div></details><details class="sec" data-sec="huddle" open><summary><span class="chev"></span><span class="sec-n">08</span><span class="sec-title">Shift Huddle Line</span><span class="sec-flag">Copy</span></summary><div class="sec-body"><blockquote><p>Our clients are rebuilding how they buy service work — so let&#x27;s ask what we&#x27;d change if they looked at us the way they now look at a vendor.</p></blockquote></div></details><details class="sec" data-sec="deep" open><summary><span class="chev"></span><span class="sec-n">DEEP</span><span class="sec-title">Deep Dive</span><span class="sec-flag">2 stories</span></summary><div class="sec-body"><div class="dd"><h4>The Big Four battle for India&#x27;s GCC business</h4><p class="dd-page">Business &amp; Markets · PDF p.13</p><dl class="dd-row"><dt>Background</dt><dd>GCCs moved from a niche offshore cost line to the strongest growth driver in professional services. Deloitte India and EY India each crossed ₹5,000 crore in GCC revenue in FY26. Deloitte&#x27;s GCC business is growing 25% annually and is 28% of total revenue; PwC&#x27;s is 35% of technology consulting, its largest service line in India.</dd><dt>Affected</dt><dd>Every technology services firm competing for this work, plus the specialist GCC operators, talent providers and real-estate players now entering — around 150 to 160 active participants. KPMG generated 30–35% of advisory revenue from GCCs.</dd><dt>Next</dt><dd>GCC mandates increasingly originate at a multinational&#x27;s headquarters even where the work is done in India. AI has opened a second front: GCCs now need help preparing data, redesigning processes and establishing governance.</dd><dt>Watch</dt><dd>Whether the Big Four&#x27;s differentiation holds once AI deployment capability converges with technology services firms — PwC&#x27;s own Ojha admits knowledge is not sufficient anymore. India could host up to 5,000 GCCs by 2030; 2,100 exist today.</dd><dt>Scale</dt><dd><strong>$98.4 billion</strong> — FY26 revenue from 2,100-plus GCCs in India, employing 2.36 million professionals.</dd></dl></div>
+<div class="dd"><h4>Mutual funds&#x27; IT holdings fall to a record low</h4><p class="dd-page">Business &amp; Markets · PDF p.15</p><dl class="dd-row"><dt>Background</dt><dd>Indian mutual funds&#x27; exposure to IT stocks fell to an all-time low in September on AI disruption fears, weak global client spending and subdued growth prospects. The value of holdings dropped 25% to ₹2.97 lakh crore from ₹3.98 lakh crore in December 2025.</dd><dt>Affected</dt><dd>Infosys and TCS, once among fund managers&#x27; largest holdings. Infosys slipped to 10th from 5th; TCS to 19th from 14th; HCL Tech to 25th from 20th. Wipro collapsed to 316th from 80th.</dd><dt>Next</dt><dd>The Nifty IT index shed about 28% in 2026 against 14% for the Nifty, then rebounded 11.7% last week — its biggest weekly gain in 18 years. Funds themselves added to Infosys, TCS and HCL Tech in September while cutting Tech Mahindra and Wipro.</dd><dt>Watch</dt><dd>Whether the rebound holds. The framing is that this has been a de-rating rather than an earnings story — revenue growth is muted but has not collapsed. If earnings turn, the sector re-rates quickly.</dd><dt>Scale</dt><dd><strong>5.3%</strong> — IT&#x27;s share of mutual fund equity assets, from 7.6% at end-2025 and a record 13.4% at end-2021.</dd></dl></div></div></details><details class="sec" data-sec="longform" open><summary><span class="chev"></span><span class="sec-n">10</span><span class="sec-title">One Long-Form Read</span><span class="sec-flag">Objection</span></summary><div class="sec-body"><div class="longform"><div class="op" style="border:0;padding:0 0 14px"><h4>Get a Tech List to Tick</h4><p class="op-by">Abhay Karandikar (Member, S&amp;T, NITI Aayog) and Aditya Sinha (Associate Director, FAST India)</p></div><div class="beat"><div class="beat-k">The argument</div><p>India&#x27;s outward push rests on Aatmanirbhar, read as independence rather than self-centredness. Three semiconductor plants and the National Quantum Mission are operational, PLIs cover more than a dozen sectors, an indigenous 4G/5G stack has been deployed, and RDIF carries ₹1 lakh crore. The authors argue the instruments are sufficient and the missing piece is judgement: which technologies India cannot afford to depend on others for. Every other major economy publishes such a list.</p></div><div class="beat"><div class="beat-k">The claim I&#x27;m attacking</div><p>That India needs an evidence-based list of critical technologies, and that publishing one would improve the targeting of public money and private capital.</p></div><div class="beat"><div class="beat-k">The joint</div><p>The piece conflates two different questions and then admits it in a subordinate clause. Criticality is a claim about consequence — how badly the country is hurt if supply stops. Winnability is a claim about probability — whether domestic capability is achievable at all. The authors write &quot;Being critical is not the same as being winnable&quot; and treat that as sufficient, then produce a list asked to serve both purposes at once. Nothing in between says who makes the second judgement, on what evidence, or what happens when something critical is not winnable.</p></div><div class="beat"><div class="beat-k">The argument</div><p>A list is a prioritisation mechanism, and prioritisation is achieved by exclusion. The alists work precisely because they are short and contestable. The list described here does the opposite: assembled by adding every technology where dependence is uncomfortable, then annotated. On that construction it cannot prioritise, because nothing is excluded. And the annotation step has no owner. Winnability is a five-year, multi-billion-dollar, cross-ministerial judgement about industrial capability — it cannot sit unassigned at the bottom of an op-ed. The deeper problem is that a list works only where an enforcing institution exists. The US export-control lists bite because Commerce has statutory authority and the industry litigates against them. India currently has neither.</p></div><div class="beat"><div class="beat-k">What I would concede</div><p>The authors are right on three counts that matter. Capability compounds and lead times run to years, so reactive policy is structurally too late. Supply denial is genuinely now statecraft, and the 2022 chip cut, the 2023 gallium and germanium response and the April 2025 rare-earth controls show a denial cascade moving in weeks. And private returns to deep research do fall short of social returns, which is a real reason public money has to lead. The Kautilya frame at the close is apt: a store is defined as much by what it leaves out.</p></div><div class="beat falsifier"><div class="beat-k">What would change my mind</div><p>A published list with measurable redirection — if RDIF issuance patterns visibly shift toward named technologies, or ANRF reserves a portfolio slice against the list and reports against it annually, then the mechanism is working and my objection fails. A second thing would change my mind: evidence that an existing institution has been assigned enforcing authority over the list.</p></div><div class="beat"><div class="beat-k">How this differs</div><p>The authors argue from inside the framing — they accept that a list is the right instrument and show what it would look like. My objection accepts that and shows the instrument cannot do the job as specified without an enforcer and an exclusion rule, both unassigned. They ask what the list should say; I ask who decides what it omits.</p></div></div></div></details>
 </div>
 
-<div class="band band-ref">
+<div class="band band-ref" data-band="Reference">
 <div class="band-head"><span class="band-label">Reference</span><span class="band-rule"></span></div>
 <p class="band-note">Scan, don&#x27;t read. Each section is folded by default.</p>
-<details class="sec"><summary><span class="chev"></span><span class="sec-n">02</span><span class="sec-title">Categories</span></summary><div class="sec-body"><div class="h3">Politics &amp; Governance</div><ul>
+<details class="sec" data-sec="cats"><summary><span class="chev"></span><span class="sec-n">02</span><span class="sec-title">Categories</span></summary><div class="sec-body"><div class="h3">Politics &amp; Governance</div><ul>
 <li>A Calcutta High Court judge will head the Chorbagan stampede probe; Kolkata Police is excluded from the committee. Seven of fourteen detained have been arrested. (PDF p.8)</li>
 <li>CM Adhikari will personally hand over ₹25 lakh compensation cheques on Oct 20 and 21, with ₹2 lakh from the Prime Minister per bereaved family. (PDF p.8)</li>
 <li>Defence minister Rajnath Singh travels to Dushanbe on Oct 19 for the SCO heads-of-government meeting, where a 2026-30 multilateral trade action plan is up for approval. (PDF p.8)</li>
@@ -623,15 +1126,15 @@ document.addEventListener('click', function(e){
 <div class="h3">Culture &amp; Lifestyle</div><ul>
 <li>Southern film producers are trading theatrical certainty for streaming deals — Jailer 2 skipped PVR Inox and Cinepolis after the producer refused to extend its window from four weeks to eight. (PDF p.11)</li>
 </ul>
-<div class="tw"><table><caption>Year-on-year fall in net interest margin across the large private banks, with FCNR(B) deposits raised under the RBI&#x27;s 2026 swap facility.</caption><thead><tr><th>Bank</th><th class="n">NIM Sep 2026</th><th class="n">NIM Sep 2025</th><th class="n">Fall</th><th class="n">FCNR(B) raised</th></tr></thead><tbody><tr><td>Axis Bank</td><td class="n">3.46%</td><td class="n">3.80%</td><td class="n">−34bps</td><td class="n">$10.62 bn</td></tr><tr><td>ICICI Bank</td><td class="n">4.18%</td><td class="n">4.30%</td><td class="n">−12bps</td><td class="n">~$18 bn</td></tr><tr><td>HDFC Bank</td><td class="n">3.16%</td><td class="n">3.27%</td><td class="n">−11bps</td><td class="n">$11.5 bn</td></tr></tbody></table></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">03</span><span class="sec-title">Numbers That Matter</span></summary><div class="sec-body"><div class="nums"><div class="num"><span class="num-v">19</span><span class="num-l">dead in the Chorbagan stampede, up from 17 yesterday</span></div><div class="num"><span class="num-v">$98.4 bn</span><span class="num-l">revenue from 2,100-plus GCCs in India in FY26</span></div><div class="num"><span class="num-v">2.36 million</span><span class="num-l">people employed by those GCCs</span></div><div class="num"><span class="num-v">5.3%</span><span class="num-l">IT&#x27;s share of mutual fund equity assets, from a 13.4% peak</span></div><div class="num"><span class="num-v">35–40%</span><span class="num-l">drop in average festive discounts year on year</span></div><div class="num"><span class="num-v">₹7.8 lakh crore</span><span class="num-l">PSU bank corporate loan pipeline</span></div><div class="num"><span class="num-v">7.74%</span><span class="num-l">September food inflation</span></div><div class="num"><span class="num-v">₹30,213 cr</span><span class="num-l">Jio Platforms IPO, opening Oct 21</span></div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">04</span><span class="sec-title">Dates to Watch</span></summary><div class="sec-body"><ul class="dates"><li><span class="d soon">Oct 20–21</span><span class="w">Chorbagan compensation cheques handed over in person</span></li><li><span class="d soon">Oct 21</span><span class="w">Jio Platforms IPO opens, India&#x27;s largest ever</span></li><li><span class="d soon">Oct 21</span><span class="w">Paras Healthcare IPO opens, ₹1,450 cr</span></li><li><span class="d soon">Oct 23</span><span class="w">ED summons Pinarayi Vijayan at its Kochi zonal office</span></li><li><span class="d">Oct 27</span><span class="w">Anup Bagchi takes charge as HDFC Bank MD and CEO</span></li><li><span class="d">Nov 15</span><span class="w">Maharashtra UCC public consultation closes</span></li><li><span class="d">Year-end</span><span class="w">Maharashtra UCC bill tabled in the Nagpur winter session</span></li></ul></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">05</span><span class="sec-title">Client &amp; Industry Watch</span></summary><div class="sec-body"><p>No Canadian telecom or CRTC content today. Two telecom-adjacent items: Jio Platforms&#x27; ₹30,213 crore IPO opens Oct 21 — the largest issue in Indian history and a live pricing signal for the sector. And India&#x27;s Panagariya column notes transport and telecommunications sits among four sectors the government will not privatise. The ED&#x27;s UAE outreach touches Indian operations in logistics and hospitality, where labour-intensive firms face narrowed input-tax recovery.</p></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">07</span><span class="sec-title">Verify</span></summary><div class="sec-body"><ul><li><strong>Conflicting.</strong> In the same story, Amazon reports its highest-ever 440 million visits with units ordered doubling in the first 24 hours — while platform GMV fell 7–10% year on year and a home-care brand saw sales taper from 4.5x to 1.7x business-as-usual. Traffic is up; units across the market are down.</li><li><strong>Reported claim.</strong> The ED&#x27;s hawala allegations in the CMRL-Exalogic case are stated without charge. The paper itself notes the allegations &quot;have not been established in court.&quot;</li></ul></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">09</span><span class="sec-title">Opinion: 2-Minute Read</span></summary><div class="sec-body"><div class="op"><h4>Make Employees Your Customers</h4><p class="op-by">ET, Just In Jest</p><dl class="op-row"><dt>Claim</dt><dd>An on-demand services platform made its own gig workforce its most reliable revenue stream, selling ₹1.4 cr of mandatory workwear out of ₹12.2 cr operational revenue.</dd><dt>Support</dt><dd>The company reported a net loss of about ₹168 cr, and the fastest route to more revenue was onboarding 10,000 more workers and selling them branded T-shirts.</dd><dt>Leaves out</dt><dd>It treats the piece as satire when the mechanics — mandatory purchases deducted from worker earnings — describe a real and litigated category. It stops at ridicule rather than asking what regulation would look like.</dd><dt>Sit with</dt><dd>What does your organisation sell to people who cannot realistically decline?</dd><dt>Steal</dt><dd>The bartender-pours-his-own-drinks analogy. It makes an abstract structure instantly visual without a single statistic.</dd></dl></div>
+<div class="tw"><table><caption>Year-on-year fall in net interest margin across the large private banks, with FCNR(B) deposits raised under the RBI&#x27;s 2026 swap facility.</caption><thead><tr><th>Bank</th><th class="n">NIM Sep 2026</th><th class="n">NIM Sep 2025</th><th class="n">Fall</th><th class="n">FCNR(B) raised</th></tr></thead><tbody><tr><td>Axis Bank</td><td class="n">3.46%</td><td class="n">3.80%</td><td class="n">−34bps</td><td class="n">$10.62 bn</td></tr><tr><td>ICICI Bank</td><td class="n">4.18%</td><td class="n">4.30%</td><td class="n">−12bps</td><td class="n">~$18 bn</td></tr><tr><td>HDFC Bank</td><td class="n">3.16%</td><td class="n">3.27%</td><td class="n">−11bps</td><td class="n">$11.5 bn</td></tr></tbody></table></div></div></details><details class="sec" data-sec="nums"><summary><span class="chev"></span><span class="sec-n">03</span><span class="sec-title">Numbers That Matter</span></summary><div class="sec-body"><div class="nums"><div class="num"><span class="num-v">19</span><span class="num-l">dead in the Chorbagan stampede, up from 17 yesterday</span></div><div class="num"><span class="num-v">$98.4 bn</span><span class="num-l">revenue from 2,100-plus GCCs in India in FY26</span></div><div class="num"><span class="num-v">2.36 million</span><span class="num-l">people employed by those GCCs</span></div><div class="num"><span class="num-v">5.3%</span><span class="num-l">IT&#x27;s share of mutual fund equity assets, from a 13.4% peak</span></div><div class="num"><span class="num-v">35–40%</span><span class="num-l">drop in average festive discounts year on year</span></div><div class="num"><span class="num-v">₹7.8 lakh crore</span><span class="num-l">PSU bank corporate loan pipeline</span></div><div class="num"><span class="num-v">7.74%</span><span class="num-l">September food inflation</span></div><div class="num"><span class="num-v">₹30,213 cr</span><span class="num-l">Jio Platforms IPO, opening Oct 21</span></div></div></div></details><details class="sec" data-sec="dates"><summary><span class="chev"></span><span class="sec-n">04</span><span class="sec-title">Dates to Watch</span></summary><div class="sec-body"><ul class="dates"><li><span class="d soon">Oct 20–21</span><span class="w">Chorbagan compensation cheques handed over in person</span></li><li><span class="d soon">Oct 21</span><span class="w">Jio Platforms IPO opens, India&#x27;s largest ever</span></li><li><span class="d soon">Oct 21</span><span class="w">Paras Healthcare IPO opens, ₹1,450 cr</span></li><li><span class="d soon">Oct 23</span><span class="w">ED summons Pinarayi Vijayan at its Kochi zonal office</span></li><li><span class="d">Oct 27</span><span class="w">Anup Bagchi takes charge as HDFC Bank MD and CEO</span></li><li><span class="d">Nov 15</span><span class="w">Maharashtra UCC public consultation closes</span></li><li><span class="d">Year-end</span><span class="w">Maharashtra UCC bill tabled in the Nagpur winter session</span></li></ul></div></details><details class="sec" data-sec="client"><summary><span class="chev"></span><span class="sec-n">05</span><span class="sec-title">Client &amp; Industry Watch</span></summary><div class="sec-body"><p>No Canadian telecom or CRTC content today. Two telecom-adjacent items: Jio Platforms&#x27; ₹30,213 crore IPO opens Oct 21 — the largest issue in Indian history and a live pricing signal for the sector. And India&#x27;s Panagariya column notes transport and telecommunications sits among four sectors the government will not privatise. The ED&#x27;s UAE outreach touches Indian operations in logistics and hospitality, where labour-intensive firms face narrowed input-tax recovery.</p></div></details><details class="sec" data-sec="verify"><summary><span class="chev"></span><span class="sec-n">07</span><span class="sec-title">Verify</span></summary><div class="sec-body"><ul><li><strong>Conflicting.</strong> In the same story, Amazon reports its highest-ever 440 million visits with units ordered doubling in the first 24 hours — while platform GMV fell 7–10% year on year and a home-care brand saw sales taper from 4.5x to 1.7x business-as-usual. Traffic is up; units across the market are down.</li><li><strong>Reported claim.</strong> The ED&#x27;s hawala allegations in the CMRL-Exalogic case are stated without charge. The paper itself notes the allegations &quot;have not been established in court.&quot;</li></ul></div></details><details class="sec" data-sec="opinion"><summary><span class="chev"></span><span class="sec-n">09</span><span class="sec-title">Opinion: 2-Minute Read</span></summary><div class="sec-body"><div class="op"><h4>Make Employees Your Customers</h4><p class="op-by">ET, Just In Jest</p><dl class="op-row"><dt>Claim</dt><dd>An on-demand services platform made its own gig workforce its most reliable revenue stream, selling ₹1.4 cr of mandatory workwear out of ₹12.2 cr operational revenue.</dd><dt>Support</dt><dd>The company reported a net loss of about ₹168 cr, and the fastest route to more revenue was onboarding 10,000 more workers and selling them branded T-shirts.</dd><dt>Leaves out</dt><dd>It treats the piece as satire when the mechanics — mandatory purchases deducted from worker earnings — describe a real and litigated category. It stops at ridicule rather than asking what regulation would look like.</dd><dt>Sit with</dt><dd>What does your organisation sell to people who cannot realistically decline?</dd><dt>Steal</dt><dd>The bartender-pours-his-own-drinks analogy. It makes an abstract structure instantly visual without a single statistic.</dd></dl></div>
 <div class="op"><h4>Get a Tech List to Tick</h4><p class="op-by">Karandikar &amp; Sinha, NITI Aayog</p><dl class="op-row"><dt>Claim</dt><dd>India has every instrument it needs — ANRF by statute, ₹1 lakh crore in RDIF, PLIs across a dozen sectors — but no evidence-based list of which technologies it cannot afford to depend on others for.</dd><dt>Support</dt><dd>Capability compounds and lead times run to years, so the list says where the clock has already started. The US, China, EU, Britain, Australia and Canada all publish one.</dd><dt>Leaves out</dt><dd>It names the right problem and stops one sentence before the hard one. &quot;Being critical is not the same as being winnable&quot; is asserted, then abandoned — no criteria, no decider, no treatment of the case where something critical is simply not winnable.</dd><dt>Sit with</dt><dd>How does your team decide what to say no to?</dd><dt>Steal</dt><dd>Three numbered sub-arguments in bold pull-quote form, each a single line. Structure doing the work, not rhetoric.</dd></dl></div>
 <div class="op"><h4>Jantar Mantar Chhoo-Mantar, Not Protests</h4><p class="op-by">R Prasad, Polimmick</p><dl class="op-row"><dt>Claim</dt><dd>Designated protest sites do not remove protest. They relocate it, and give authorities a place to enforce rather than a grievance to answer.</dd><dt>Support</dt><dd>The piece notes roaches exploit pre-existing cracks rather than creating holes, and that agitation continued at Boat Club lawns after Jantar Mantar was closed — it went invisible, not away.</dd><dt>Leaves out</dt><dd>It treats the move as pure stagecraft with no account of why a government might believe designated zones reduce traffic. It also extends a metaphor about insects to political argument.</dd><dt>Sit with</dt><dd>When something is made invisible, has it stopped, or moved?</dd><dt>Steal</dt><dd>One sustained analogy carried across four paragraphs, then dropped the moment it stops working.</dd></dl></div></div></details>
 </div>
 
-<div class="band band-lang">
+<div class="band band-lang" data-band="Language">
 <div class="band-head"><span class="band-label">Language</span><span class="band-rule"></span></div>
 <p class="band-note">Words, corrections, and the practice set.</p>
-<details class="sec"><summary><span class="chev"></span><span class="sec-n">11</span><span class="sec-title">Words to Learn</span></summary><div class="sec-body"><div class="tw"><table class="vocab"><thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead><tbody><tr><td>deflation<span class="pos">n</span></td><td>Workplace</td><td>falling prices, or falling effort per unit</td><td>We&#x27;ve achieved real deflation on that process — same output, fewer hours.</td></tr><tr><td>mitigate<span class="pos">v</span></td><td>Formal</td><td>to make something less severe</td><td>We mitigated the backlog by moving two people across.</td></tr><tr><td>trajectory<span class="pos">n</span></td><td>Workplace</td><td>the path something takes over time</td><td>Our attrition trajectory is the wrong direction to show a client.</td></tr><tr><td>curb<span class="pos">v</span></td><td>Common</td><td>to limit or restrain</td><td>We need to curb escalations before they reach the vendor.</td></tr><tr><td>provisional<span class="pos">adj</span></td><td>Common</td><td>not final, may still change</td><td>Treat those figures as provisional until the audit closes.</td></tr><tr><td>erode<span class="pos">v</span></td><td>Common</td><td>to wear away gradually</td><td>Every unexplained deduction erodes the customer&#x27;s trust in us.</td></tr><tr><td>spearhead<span class="pos">v</span></td><td>Common</td><td>to lead an effort</td><td>She spearheaded the shift to first-contact resolution.</td></tr><tr><td>reverence<span class="pos">n</span></td><td>Formal</td><td>deep respect</td><td>Nobody should treat a policy memo with reverence.</td></tr></tbody></table></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">12</span><span class="sec-title">Hindi</span></summary><div class="sec-body"><table class="hindi"><tbody><tr><td>deflation</td><td class="dev">मुद्रास्फीति में कमी</td><td class="pron">mu-draas-fee-ti mein ka-mee</td></tr><tr><td>mitigate</td><td class="dev">कम करना</td><td class="pron">kam kar-naa</td></tr><tr><td>trajectory</td><td class="dev">रास्ता / दिशा</td><td class="pron">raas-taa / dishaa</td></tr><tr><td>curb</td><td class="dev">रोकना</td><td class="pron">rok-naa</td></tr><tr><td>provisional</td><td class="dev">अस्थायी रूप से</td><td class="pron">as-thaa-yaa roop se</td></tr><tr><td>erode</td><td class="dev">कमजोर करना</td><td class="pron">kam-joor kar-naa</td></tr><tr><td>spearhead</td><td class="dev">अगुआवाई करना</td><td class="pron">agu-aa-vaai kar-naa</td></tr><tr><td>reverence</td><td class="dev">आदर</td><td class="pron">aa-dar</td></tr></tbody></table></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">13</span><span class="sec-title">Phrases for Daily Life</span></summary><div class="sec-body"><div class="phrase"><div class="phrase-t"><span class="phrase-w">at the receiving end</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">experiencing something, usually unpleasant</p><p class="phrase-e">Our team was at the receiving end of that escalation.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">cost of doing business</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">the everyday running expenses</p><p class="phrase-e">Attrition is our largest cost of doing business.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">a double-edged sword</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">something with both good and bad effects</p><p class="phrase-e">Automation is a double-edged sword on the floor.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">eat your words</span><span class="phrase-tone">casual</span></div><p class="phrase-m">admit you were wrong</p><p class="phrase-e">I was wrong about the timeline — I&#x27;ll eat my words.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">ring-fence</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">protect from risk</p><p class="phrase-e">Ring-fence the vendor&#x27;s access before the audit.</p></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">14</span><span class="sec-title">Traps in My English</span></summary><div class="sec-body"><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;Please note that the SLA has been breached&quot;</span><span class="trap-good"><b>→</b> &quot;We&#x27;ve breached the SLA by six hours&quot;</span><div class="trap-why">Please note that plus a passive buries the news and hides the magnitude. The most damaging one in customer service because it forces the reader to extract the fact.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;As per the discussion held on yesterday&quot;</span><span class="trap-good"><b>→</b> &quot;As we discussed yesterday&quot;</span><div class="trap-why">As per and discussion held are both redundant. Say it in four words.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;The work will be completed by tomorrow&quot;</span><span class="trap-good"><b>→</b> &quot;The work will be complete tomorrow&quot;</span><div class="trap-why">It will be complete, not be being completed. Wrong tense reads as a plan, not a commitment.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;There are many challenges which we are facing in the current scenario&quot;</span><span class="trap-good"><b>→</b> &quot;We&#x27;re facing three problems: X, Y and Z&quot;</span><div class="trap-why">Naming them is the entire point. Vague quantity makes the listener do your work.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;We are writing to inform you that your ticket has been resolved&quot;</span><span class="trap-good"><b>→</b> &quot;Your ticket is resolved&quot;</span><div class="trap-why">Seven words doing the work of one.</div></div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">15</span><span class="sec-title">Speak</span></summary><div class="sec-body"><div class="speak"><h4>Prompt</h4><p class="q">Your team&#x27;s last three monthly client reports contained the same error, and the client has flagged it. You&#x27;ve been asked to explain it to your team. Speak.</p><h4>Model answer</h4><div class="model">Right, let me take this straight. Three reports, same error, and the client caught it before we did. That&#x27;s on me for not checking.<br><br>Here&#x27;s what happened. We built a template in March and nobody reviewed it after the second month. It wasn&#x27;t a one-off — it was a trajectory, and it went unnoticed because each report looked plausible. That&#x27;s the part I want to be honest about: we had a check that passed on bad data.<br><br>What I&#x27;ve done. The figures in those three reports are <em>provisional</em> until we re-run them against the source. I&#x27;ve told the client that in writing rather than waiting for them to ask. And we&#x27;re adding a second reviewer on anything that goes out monthly.<br><br>To mitigate it happening again, I&#x27;m taking the template off the shared drive so it can&#x27;t be copied forward. That sounds small. It&#x27;s the actual fix.<br><br>Anyone see a gap in that, I&#x27;d rather hear now.</div></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">16</span><span class="sec-title">Quiz</span><span class="sec-flag">5 questions</span></summary><div class="sec-body"><div class="quiz" data-answer="b"><p class="q"><b>1.</b> LTM says 60% of its portfolio has completed AI deflation. Deflation here means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Falling prices across the economy</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The same output delivered with fewer people</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">A slowdown in client spending</span></button><button class="opt" type="button" data-k="d"><span class="k">D</span><span class="ot">A cut in staff salaries</span></button></div><p class="why">The same output delivered with fewer people. The term is borrowed from economics; here effort falls while output holds.</p></div><div class="quiz" data-answer="a"><p class="q"><b>2.</b> Which sentence uses provisional correctly?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Treat those figures as provisional until the audit closes.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The tone of that email was too provisional for a client.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">We will provisional the vendor on Friday.</span></button></div><p class="why">Provisional means not yet final and subject to change. The others stretch it to mean casual or temporary.</p></div><div class="quiz" data-answer="c"><p class="q"><b>3.</b> Register. You must tell a client their SLA was breached. Which is right?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Please note that the SLA has been breached.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">We regret to inform you that the SLA has been breached.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">We&#x27;ve breached the SLA by six hours.</span></button></div><p class="why">States the fact, the size and the remedy. A hides the magnitude in a passive; B adds ceremony without information.</p></div><div class="quiz" data-answer="b"><p class="q"><b>4.</b> Ring-fence the vendor&#x27;s access means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">To ask the vendor to pay more for access</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">To isolate and protect it from risk</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">To remove it permanently</span></button></div><p class="why">To isolate and protect. Common in risk and compliance contexts.</p></div><div class="quiz" data-answer="b"><p class="q"><b>5.</b> An official says the government should manage the rupee&#x27;s trajectory. Trajectory means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The level the rupee sits at today</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The direction and shape of movement over time</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The exchange rate the government fixed last year</span></button></div><p class="why">The direction and shape of movement over time, as distinct from a single level. That distinction is what the official is making.</p></div></div></details><details class="sec"><summary><span class="chev"></span><span class="sec-n">17</span><span class="sec-title">Skip List</span></summary><div class="sec-body"><div class="skip">PDF p.14 in full — every line is a name-change, lost-document or lost-ID notice · PDF p.2, p.3, p.6 and p.9, which extracted blank · the stock-picking tables on PDF p.16 · the sponsored yatra and coaching adverts. No sponsored content was embedded in the news sections.</div></div></details>
+<details class="sec" data-sec="words"><summary><span class="chev"></span><span class="sec-n">11</span><span class="sec-title">Words to Learn</span></summary><div class="sec-body"><div class="tw"><table class="vocab"><thead><tr><th>Word</th><th>Lvl</th><th>Meaning</th><th>My example</th></tr></thead><tbody><tr><td>deflation<span class="pos">n</span></td><td>Workplace</td><td>falling prices, or falling effort per unit</td><td>We&#x27;ve achieved real deflation on that process — same output, fewer hours.</td></tr><tr><td>mitigate<span class="pos">v</span></td><td>Formal</td><td>to make something less severe</td><td>We mitigated the backlog by moving two people across.</td></tr><tr><td>trajectory<span class="pos">n</span></td><td>Workplace</td><td>the path something takes over time</td><td>Our attrition trajectory is the wrong direction to show a client.</td></tr><tr><td>curb<span class="pos">v</span></td><td>Common</td><td>to limit or restrain</td><td>We need to curb escalations before they reach the vendor.</td></tr><tr><td>provisional<span class="pos">adj</span></td><td>Common</td><td>not final, may still change</td><td>Treat those figures as provisional until the audit closes.</td></tr><tr><td>erode<span class="pos">v</span></td><td>Common</td><td>to wear away gradually</td><td>Every unexplained deduction erodes the customer&#x27;s trust in us.</td></tr><tr><td>spearhead<span class="pos">v</span></td><td>Common</td><td>to lead an effort</td><td>She spearheaded the shift to first-contact resolution.</td></tr><tr><td>reverence<span class="pos">n</span></td><td>Formal</td><td>deep respect</td><td>Nobody should treat a policy memo with reverence.</td></tr></tbody></table></div></div></details><details class="sec" data-sec="hindi"><summary><span class="chev"></span><span class="sec-n">12</span><span class="sec-title">Hindi</span></summary><div class="sec-body"><table class="hindi"><tbody><tr><td>deflation</td><td class="dev">मुद्रास्फीति में कमी</td><td class="pron">mu-draas-fee-ti mein ka-mee</td></tr><tr><td>mitigate</td><td class="dev">कम करना</td><td class="pron">kam kar-naa</td></tr><tr><td>trajectory</td><td class="dev">रास्ता / दिशा</td><td class="pron">raas-taa / dishaa</td></tr><tr><td>curb</td><td class="dev">रोकना</td><td class="pron">rok-naa</td></tr><tr><td>provisional</td><td class="dev">अस्थायी रूप से</td><td class="pron">as-thaa-yaa roop se</td></tr><tr><td>erode</td><td class="dev">कमजोर करना</td><td class="pron">kam-joor kar-naa</td></tr><tr><td>spearhead</td><td class="dev">अगुआवाई करना</td><td class="pron">agu-aa-vaai kar-naa</td></tr><tr><td>reverence</td><td class="dev">आदर</td><td class="pron">aa-dar</td></tr></tbody></table></div></details><details class="sec" data-sec="phrases"><summary><span class="chev"></span><span class="sec-n">13</span><span class="sec-title">Phrases for Daily Life</span></summary><div class="sec-body"><div class="phrase"><div class="phrase-t"><span class="phrase-w">at the receiving end</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">experiencing something, usually unpleasant</p><p class="phrase-e">Our team was at the receiving end of that escalation.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">cost of doing business</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">the everyday running expenses</p><p class="phrase-e">Attrition is our largest cost of doing business.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">a double-edged sword</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">something with both good and bad effects</p><p class="phrase-e">Automation is a double-edged sword on the floor.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">eat your words</span><span class="phrase-tone">casual</span></div><p class="phrase-m">admit you were wrong</p><p class="phrase-e">I was wrong about the timeline — I&#x27;ll eat my words.</p></div><div class="phrase"><div class="phrase-t"><span class="phrase-w">ring-fence</span><span class="phrase-tone">neutral</span></div><p class="phrase-m">protect from risk</p><p class="phrase-e">Ring-fence the vendor&#x27;s access before the audit.</p></div></div></details><details class="sec" data-sec="traps"><summary><span class="chev"></span><span class="sec-n">14</span><span class="sec-title">Traps in My English</span></summary><div class="sec-body"><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;Please note that the SLA has been breached&quot;</span><span class="trap-good"><b>→</b> &quot;We&#x27;ve breached the SLA by six hours&quot;</span><div class="trap-why">Please note that plus a passive buries the news and hides the magnitude. The most damaging one in customer service because it forces the reader to extract the fact.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;As per the discussion held on yesterday&quot;</span><span class="trap-good"><b>→</b> &quot;As we discussed yesterday&quot;</span><div class="trap-why">As per and discussion held are both redundant. Say it in four words.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;The work will be completed by tomorrow&quot;</span><span class="trap-good"><b>→</b> &quot;The work will be complete tomorrow&quot;</span><div class="trap-why">It will be complete, not be being completed. Wrong tense reads as a plan, not a commitment.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;There are many challenges which we are facing in the current scenario&quot;</span><span class="trap-good"><b>→</b> &quot;We&#x27;re facing three problems: X, Y and Z&quot;</span><div class="trap-why">Naming them is the entire point. Vague quantity makes the listener do your work.</div></div></div><div class="trap"><div class="trap-row"><span class="trap-bad">&quot;We are writing to inform you that your ticket has been resolved&quot;</span><span class="trap-good"><b>→</b> &quot;Your ticket is resolved&quot;</span><div class="trap-why">Seven words doing the work of one.</div></div></div></div></details><details class="sec" data-sec="speak"><summary><span class="chev"></span><span class="sec-n">15</span><span class="sec-title">Speak</span></summary><div class="sec-body"><div class="speak"><h4>Prompt</h4><p class="q">Your team&#x27;s last three monthly client reports contained the same error, and the client has flagged it. You&#x27;ve been asked to explain it to your team. Speak.</p><h4>Model answer</h4><div class="model">Right, let me take this straight. Three reports, same error, and the client caught it before we did. That&#x27;s on me for not checking.<br><br>Here&#x27;s what happened. We built a template in March and nobody reviewed it after the second month. It wasn&#x27;t a one-off — it was a trajectory, and it went unnoticed because each report looked plausible. That&#x27;s the part I want to be honest about: we had a check that passed on bad data.<br><br>What I&#x27;ve done. The figures in those three reports are <em>provisional</em> until we re-run them against the source. I&#x27;ve told the client that in writing rather than waiting for them to ask. And we&#x27;re adding a second reviewer on anything that goes out monthly.<br><br>To mitigate it happening again, I&#x27;m taking the template off the shared drive so it can&#x27;t be copied forward. That sounds small. It&#x27;s the actual fix.<br><br>Anyone see a gap in that, I&#x27;d rather hear now.</div></div></div></details><details class="sec" data-sec="quiz"><summary><span class="chev"></span><span class="sec-n">16</span><span class="sec-title">Quiz</span><span class="sec-flag">5 questions</span></summary><div class="sec-body"><div class="quiz" data-answer="b"><p class="q"><b>1.</b> LTM says 60% of its portfolio has completed AI deflation. Deflation here means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Falling prices across the economy</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The same output delivered with fewer people</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">A slowdown in client spending</span></button><button class="opt" type="button" data-k="d"><span class="k">D</span><span class="ot">A cut in staff salaries</span></button></div><p class="why">The same output delivered with fewer people. The term is borrowed from economics; here effort falls while output holds.</p></div><div class="quiz" data-answer="a"><p class="q"><b>2.</b> Which sentence uses provisional correctly?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Treat those figures as provisional until the audit closes.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The tone of that email was too provisional for a client.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">We will provisional the vendor on Friday.</span></button></div><p class="why">Provisional means not yet final and subject to change. The others stretch it to mean casual or temporary.</p></div><div class="quiz" data-answer="c"><p class="q"><b>3.</b> Register. You must tell a client their SLA was breached. Which is right?</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">Please note that the SLA has been breached.</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">We regret to inform you that the SLA has been breached.</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">We&#x27;ve breached the SLA by six hours.</span></button></div><p class="why">States the fact, the size and the remedy. A hides the magnitude in a passive; B adds ceremony without information.</p></div><div class="quiz" data-answer="b"><p class="q"><b>4.</b> Ring-fence the vendor&#x27;s access means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">To ask the vendor to pay more for access</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">To isolate and protect it from risk</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">To remove it permanently</span></button></div><p class="why">To isolate and protect. Common in risk and compliance contexts.</p></div><div class="quiz" data-answer="b"><p class="q"><b>5.</b> An official says the government should manage the rupee&#x27;s trajectory. Trajectory means:</p><div class="opts"><button class="opt" type="button" data-k="a"><span class="k">A</span><span class="ot">The level the rupee sits at today</span></button><button class="opt" type="button" data-k="b"><span class="k">B</span><span class="ot">The direction and shape of movement over time</span></button><button class="opt" type="button" data-k="c"><span class="k">C</span><span class="ot">The exchange rate the government fixed last year</span></button></div><p class="why">The direction and shape of movement over time, as distinct from a single level. That distinction is what the official is making.</p></div></div></details><details class="sec" data-sec="skip"><summary><span class="chev"></span><span class="sec-n">17</span><span class="sec-title">Skip List</span></summary><div class="sec-body"><div class="skip">PDF p.14 in full — every line is a name-change, lost-document or lost-ID notice · PDF p.2, p.3, p.6 and p.9, which extracted blank · the stock-picking tables on PDF p.16 · the sponsored yatra and coaching adverts. No sponsored content was embedded in the news sections.</div></div></details>
 </div>
   </div>
 </div>
